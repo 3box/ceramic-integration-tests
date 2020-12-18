@@ -4,7 +4,7 @@
   "description": "Integration tests for the Ceramic Network",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "./node_modules/.bin/jest --runInBand"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
   "dependencies": {
     "@ceramicnetwork/core": "^0.17.0",
     "@ceramicnetwork/http-client": "^0.8.8",
+    "@types/jest": "^26.0.19",
     "jest": "^26.6.3"
   }
 }
