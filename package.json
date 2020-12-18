@@ -1,0 +1,29 @@
+{
+  "name": "ceramic-integration-tests",
+  "version": "1.0.0",
+  "description": "Integration tests for the Ceramic Network",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/3box/ceramic-integration-tests.git"
+  },
+  "keywords": [
+    "ceramic",
+    "3box",
+    "testing"
+  ],
+  "author": "Spencer T Brody <spencer@3box.io>",
+  "license": "(APACHE-2.0 OR MIT)",
+  "bugs": {
+    "url": "https://github.com/3box/ceramic-integration-tests/issues"
+  },
+  "homepage": "https://github.com/3box/ceramic-integration-tests#readme",
+  "dependencies": {
+    "@ceramicnetwork/core": "^0.17.0",
+    "@ceramicnetwork/http-client": "^0.8.8",
+    "jest": "^26.6.3"
+  }
+}
