@@ -2,9 +2,10 @@
   "name": "ceramic-integration-tests",
   "version": "1.0.0",
   "description": "Integration tests for the Ceramic Network",
-  "main": "index.js",
-  "scripts": {
-    "test": "./node_modules/.bin/jest --runInBand"
+  "author": "Spencer T Brody <spencer@3box.io>",
+  "license": "(APACHE-2.0 OR MIT)",
+  "bugs": {
+    "url": "https://github.com/3box/ceramic-integration-tests/issues"
   },
   "repository": {
     "type": "git",
@@ -15,14 +16,17 @@
     "3box",
     "testing"
   ],
-  "author": "Spencer T Brody <spencer@3box.io>",
-  "license": "(APACHE-2.0 OR MIT)",
-  "bugs": {
-    "url": "https://github.com/3box/ceramic-integration-tests/issues"
-  },
   "homepage": "https://github.com/3box/ceramic-integration-tests#readme",
+  "scripts": {
+    "test": "./node_modules/.bin/jest --runInBand",
+    "build": "node_modules/.bin/tsc -p tsconfig.json"
+  },
+  "bin": {
+    "test_runner": "./build/bin/test_runner.js"
+  },
   "dependencies": {
     "@ceramicnetwork/core": "^0.17.0",
-    "@ceramicnetwork/http-client": "^0.8.8"
+    "@ceramicnetwork/http-client": "^0.8.8",
+    "dotenv": "^8.2.0"
   }
 }
