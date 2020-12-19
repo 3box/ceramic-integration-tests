@@ -1,3 +1,5 @@
 node_modules/
 lib/
 .idea
+build/
+config/Config.d.ts

@@ -19,7 +19,8 @@
   "homepage": "https://github.com/3box/ceramic-integration-tests#readme",
   "scripts": {
     "test": "./node_modules/.bin/jest --runInBand",
-    "build": "node_modules/.bin/tsc -p tsconfig.json"
+    "build": "node_modules/.bin/tsc -p tsconfig.json",
+    "postinstall": "node-config-ts"
   },
   "bin": {
     "test_runner": "./build/bin/test_runner.js"
@@ -27,6 +28,6 @@
   "dependencies": {
     "@ceramicnetwork/core": "^0.17.0",
     "@ceramicnetwork/http-client": "^0.8.8",
-    "dotenv": "^8.2.0"
+    "node-config-ts": "^3.1.0"
   }
 }
