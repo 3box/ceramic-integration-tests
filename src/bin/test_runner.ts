@@ -46,6 +46,7 @@ class TestRunner {
 
         const didProvider = new Ed25519Provider(seed)
         ceramic.setDIDProvider(didProvider)
+        await ceramic.context.did.authenticate() // TODO: Why is this necessary? setDIDProvider does this internally already!
 
         return {ceramic}
     }
@@ -60,5 +61,6 @@ class TestRunner {
     console.log(e)
     process.exit(1)
 }).then(() => {
+    console.log("Tests run successfully!")
     process.exit(0)
 })
