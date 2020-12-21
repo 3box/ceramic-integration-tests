@@ -43,6 +43,8 @@ export class CeramicCasTest extends Test {
         assert.eq(doc.state.anchorStatus, AnchorStatus.PENDING)
         await onUpdateAnchor
         assert.eq(doc.state.anchorStatus, AnchorStatus.ANCHORED)
+
+        assert.eq(doc.state.log.length, 4)
     }
 
     _getTestTimeout(): number {
