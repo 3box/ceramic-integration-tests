@@ -62,6 +62,6 @@ class TestRunner {
     console.log(e)
     process.exit(1)
 }).then(() => {
-    console.log("Tests run successfully!")
+    console.log("Tests ran successfully!")
     process.exit(0)
 })
