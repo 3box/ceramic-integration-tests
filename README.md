@@ -1,8 +1,7 @@
 # ceramic-integration-tests
 
-To run tests:
+To run tests, first update `config/default.json` to the config that you want to run against, then:
 ```
-# update config/default.json to the config you want
 npm install
 npm run build
 node build/bin/test_runner.js
