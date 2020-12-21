@@ -10,14 +10,14 @@ export interface Test {
 
 export const assert = function() {
     return {
-        eq: (a: any, b: any, msg?: string) => {
-            if (a !== b) {
-                throw new Error(msg ?? `${a} !== ${b}`)
+        eq: (given: any, expected: any, msg?: string) => {
+            if (given !== expected) {
+                throw new Error(msg ?? `${given} !== ${expected}`)
             }
         },
-        neq: (a: any, b: any, msg?: string) => {
-            if (a === b) {
-                throw new Error(msg ?? `${a} === ${b}`)
+        neq: (given: any, expected: any, msg?: string) => {
+            if (given === expected) {
+                throw new Error(msg ?? `${given} === ${expected}`)
             }
         }
     }

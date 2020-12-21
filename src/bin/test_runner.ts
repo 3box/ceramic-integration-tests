@@ -9,10 +9,23 @@ import {CeramicCasTest} from "../tests/ceramic_cas";
 const seed = u8a.fromString('6e34b2e1a9624113d81ece8a8a22e6e97f0e145c25c1d4d2d0e62753b4060c83', 'base16')
 
 class TestRunner {
+    services: Services
+    tests: Test[]
+
+    public async init(): Promise<void> {
+        this.services = await this._buildServices()
+        this.tests = await this._registerTests()
+    }
+
     public async run(): Promise<void> {
-        const services = await this._buildServices()
-        const tests = await this._registerTests()
-        await this._runTests(tests, services)
+        for (const test of this.tests) {
+            await test.runTest(this.services)
+        }
+    }
+
+    public async stop(): Promise<void> {
+        const { ceramic } = this.services
+        await ceramic.close()
     }
 
     private async _registerTests(): Promise<Test[]> {
@@ -23,7 +36,7 @@ class TestRunner {
     private async _buildServices(): Promise<Services> {
         let ceramic
         if (config.ceramic.mode == "http") {
-            ceramic = new CeramicClient(config.ceramic.apiURL)
+            ceramic = new CeramicClient(config.ceramic.apiURL, { docSyncEnabled: true, docSyncInterval: 500 })
         } else if (config.ceramic.mode == "core") {
             // TODO
             throw new Error ("not supported yet")
@@ -36,16 +49,14 @@ class TestRunner {
 
         return {ceramic}
     }
-
-    private async _runTests(tests: Test[], services: Services) {
-        for (const test of tests) {
-            await test.runTest(services)
-        }
-    }
 }
 
-const testRunner = new TestRunner()
-testRunner.run().catch((e) => {
+(async () => {
+    const testRunner = new TestRunner()
+    await testRunner.init()
+    await testRunner.run()
+    await testRunner.stop()
+})().catch((e) => {
     console.log(e)
     process.exit(1)
 }).then(() => {
