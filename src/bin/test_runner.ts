@@ -7,6 +7,7 @@ import {CeramicCasTest} from "../tests/ceramic_cas";
 
 
 const seed = u8a.fromString('6e34b2e1a9624113d81ece8a8a22e6e97f0e145c25c1d4d2d0e62753b4060c83', 'base16')
+const TEST_TIMEOUT_MS = 1000 * 5
 
 class TestRunner {
     services: Services
@@ -18,8 +19,9 @@ class TestRunner {
     }
 
     public async run(): Promise<void> {
+        // TODO add a way to specify which specific test(s) you want run
         for (const test of this.tests) {
-            await test.runTest(this.services)
+            await this.runWithTimeout(test.runTest(this.services), TEST_TIMEOUT_MS)
         }
     }
 
@@ -49,6 +51,17 @@ class TestRunner {
         await ceramic.context.did.authenticate() // TODO: Why is this necessary? setDIDProvider does this internally already!
 
         return {ceramic}
+    }
+
+    private async runWithTimeout(p: Promise<void>, timeout: number): Promise<void> {
+        const timeoutPromise = new Promise<void>(() => {
+            const id = setTimeout(()=> {
+                clearTimeout(id)
+                throw new Error("Timeout exceeded: " + timeout)
+            }, timeout)
+        })
+
+        return Promise.race([timeoutPromise, p])
     }
 }
 
