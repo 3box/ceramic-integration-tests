@@ -18,7 +18,6 @@
   ],
   "homepage": "https://github.com/3box/ceramic-integration-tests#readme",
   "scripts": {
-    "test": "./node_modules/.bin/jest --runInBand",
     "build": "node_modules/.bin/tsc -p tsconfig.json",
     "postinstall": "node-config-ts"
   },
