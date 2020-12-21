@@ -7,14 +7,44 @@ export interface Services {
 export const assert = function() {
     return {
         eq: (given: any, expected: any, msg?: string) => {
-            if (given !== expected) {
-                throw new Error(msg ?? `${given} !== ${expected}`)
+            if (given === expected) {
+                return
             }
+            throw new Error(msg ?? `${given} is not equal to ${expected}`)
         },
         neq: (given: any, expected: any, msg?: string) => {
-            if (given === expected) {
-                throw new Error(msg ?? `${given} === ${expected}`)
+            if (given !== expected) {
+                return
             }
+            throw new Error(msg ?? `${given} is equal to ${expected}`)
+        },
+        lt: (left: any, right: any, msg?: string) => {
+            if (left < right) {
+                return
+            }
+            throw new Error(msg ?? `${left} is not less than ${right}`)
+
+        },
+        lte: (left: any, right: any, msg?: string) => {
+            if (left <= right) {
+                return
+            }
+            throw new Error(msg ?? `${left} is not less than ${right}`)
+
+        },
+        gt: (left: any, right: any, msg?: string) => {
+            if (left > right) {
+                return
+            }
+            throw new Error(msg ?? `${left} is not greater than ${right}`)
+
+        },
+        gte: (left: any, right: any, msg?: string) => {
+            if (left >= right) {
+                return
+            }
+            throw new Error(msg ?? `${left} is not greater than ${right}`)
+
         }
     }
 }()
