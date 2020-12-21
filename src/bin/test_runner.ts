@@ -18,6 +18,7 @@ class TestRunner {
     }
 
     public async run(): Promise<void> {
+        console.log("Running tests!")
         // TODO add a way to specify which specific test(s) you want run
         for (const test of this.tests) {
             await test.runTest(this.services)
