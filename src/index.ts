@@ -1,9 +1,15 @@
 import {CeramicApi} from '@ceramicnetwork/common';
 
+/**
+ * The group of handles to services that tests might interact with
+ */
 export interface Services {
     ceramic: CeramicApi,
 }
 
+/**
+ * Helper methods for throwing assertions when conditions aren't met
+ */
 export const assert = function() {
     return {
         eq: (given: any, expected: any, msg?: string) => {
@@ -49,6 +55,9 @@ export const assert = function() {
     }
 }()
 
+/**
+ * Abstract class that individual tests must extend and implement
+ */
 export abstract class Test {
     /**
      * Must be implemented by each Test, this is where the main test logic goes
