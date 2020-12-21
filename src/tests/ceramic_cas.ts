@@ -2,10 +2,6 @@ import {assert, Services, Test} from "../index";
 import { TileDoctype } from "@ceramicnetwork/doctype-tile"
 import { AnchorStatus } from "@ceramicnetwork/common"
 
-async function delay(mills: number): Promise<void> {
-    await new Promise(resolve => setTimeout(() => resolve(), mills))
-}
-
 const TEST_TIMEOUT_MS = 1000 * 60 * 5 // 5 minutes
 
 const registerChangeListener = function (doc: any): Promise<void> {
@@ -16,6 +12,9 @@ const registerChangeListener = function (doc: any): Promise<void> {
     })
 }
 
+/**
+ * Tests basic integration between a single ceramic node and the anchor service.
+ */
 export class CeramicCasTest extends Test {
     async _runTest(services: Services): Promise<void> {
         const {ceramic} = services
