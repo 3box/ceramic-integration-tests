@@ -46,8 +46,7 @@ class TestRunner {
         }
 
         const didProvider = new Ed25519Provider(seed)
-        ceramic.setDIDProvider(didProvider)
-        await ceramic.context.did.authenticate() // TODO: Why is this necessary? setDIDProvider does this internally already!
+        await ceramic.setDIDProvider(didProvider)
 
         return {ceramic}
     }
