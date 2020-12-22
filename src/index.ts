@@ -1,4 +1,10 @@
 import {CeramicApi} from '@ceramicnetwork/common';
+import CeramicClient from '@ceramicnetwork/http-client';
+import { config } from 'node-config-ts';
+import { Ed25519Provider } from 'key-did-provider-ed25519'
+import * as u8a from 'uint8arrays'
+
+const seed = u8a.fromString('6e34b2e1a9624113d81ece8a8a22e6e97f0e145c25c1d4d2d0e62753b4060c83', 'base16')
 
 /**
  * The group of handles to services that tests might interact with
@@ -7,97 +13,19 @@ export interface Services {
     ceramic: CeramicApi,
 }
 
-/**
- * Helper methods for throwing assertions when conditions aren't met
- */
-export const assert = function() {
-    return {
-        eq: (given: any, expected: any, msg?: string) => {
-            if (given === expected) {
-                return
-            }
-            throw new Error(msg ?? `${given} is not equal to ${expected}`)
-        },
-        neq: (given: any, expected: any, msg?: string) => {
-            if (given !== expected) {
-                return
-            }
-            throw new Error(msg ?? `${given} is equal to ${expected}`)
-        },
-        lt: (left: any, right: any, msg?: string) => {
-            if (left < right) {
-                return
-            }
-            throw new Error(msg ?? `${left} is not less than ${right}`)
-
-        },
-        lte: (left: any, right: any, msg?: string) => {
-            if (left <= right) {
-                return
-            }
-            throw new Error(msg ?? `${left} is not less than ${right}`)
-
-        },
-        gt: (left: any, right: any, msg?: string) => {
-            if (left > right) {
-                return
-            }
-            throw new Error(msg ?? `${left} is not greater than ${right}`)
-
-        },
-        gte: (left: any, right: any, msg?: string) => {
-            if (left >= right) {
-                return
-            }
-            throw new Error(msg ?? `${left} is not greater than ${right}`)
-
-        }
-    }
-}()
-
-/**
- * Abstract class that individual tests must extend and implement
- */
-export abstract class Test {
-    /**
-     * Must be implemented by each Test, this is where the main test logic goes
-     * @param services
-     * @protected
-     */
-    protected abstract _runTest(services: Services): Promise<void>;
-
-    /**
-     * Must be implemented by each Test, controls how long the test can run before it is
-     * declared failed due to timeout.
-     * @param services
-     * @protected
-     */
-    protected abstract _getTestTimeout(): number;
-
-    /**
-     * Public API for running tests that wraps the test-specific implementation
-     * @param services
-     */
-    public async runTest(services: Services): Promise<void> {
-        const timeout = this._getTestTimeout()
-        await this._runWithTimeout(this._runTest(services), timeout)
+export const buildServicesFromConfig = async (): Promise<Services> => {
+    let ceramic
+    if (config.ceramic.mode == "http") {
+        ceramic = new CeramicClient(config.ceramic.apiURL, { docSyncEnabled: true, docSyncInterval: 500 })
+    } else if (config.ceramic.mode == "core") {
+        // TODO
+        throw new Error ("not supported yet")
+    } else {
+        throw new Error(`Ceramic mode "${config.ceramic.mode}" not supported`)
     }
 
-    /**
-     * Applies a timeout to the given promise. Throws an exception if the timeout passes before
-     * the given promise resolves.
-     * @param p - promise to wait on with a timeout
-     * @param timeout
-     * @protected
-     */
-    protected async _runWithTimeout(p: Promise<void>, timeout: number): Promise<void> {
-        const timeoutPromise = new Promise<void>(() => {
-            const id = setTimeout(()=> {
-                clearTimeout(id)
-                throw new Error("Timeout exceeded: " + timeout)
-            }, timeout)
-        })
+    const didProvider = new Ed25519Provider(seed)
+    await ceramic.setDIDProvider(didProvider)
 
-        return Promise.race([timeoutPromise, p])
-    }
+    return {ceramic}
 }

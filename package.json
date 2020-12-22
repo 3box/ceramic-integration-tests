@@ -19,14 +19,22 @@
   "homepage": "https://github.com/3box/ceramic-integration-tests#readme",
   "scripts": {
     "build": "node_modules/.bin/tsc -p tsconfig.json",
-    "postinstall": "node-config-ts"
-  },
-  "bin": {
-    "test_runner": "./build/bin/test_runner.js"
+    "prebuild": "npm run clean",
+    "postinstall": "node-config-ts",
+    "test": "./node_modules/.bin/jest --runInBand",
+    "clean": "rm -rf ./build"
   },
   "dependencies": {
+    "@babel/core": "^7.12.10",
+    "@babel/plugin-proposal-decorators": "^7.12.1",
+    "@babel/plugin-transform-modules-commonjs": "^7.12.1",
+    "@babel/preset-env": "^7.12.11",
+    "@babel/preset-typescript": "^7.12.7",
     "@ceramicnetwork/core": "^0.17.0",
     "@ceramicnetwork/http-client": "^0.8.8",
+    "@types/jest": "^26.0.19",
+    "babel-jest": "^26.6.3",
+    "jest": "^26.6.3",
     "key-did-provider-ed25519": "^1.0.0",
     "node-config-ts": "^3.1.0",
     "ts-jest": "^26.4.4"
