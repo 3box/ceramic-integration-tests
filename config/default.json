@@ -1,12 +1,6 @@
 {
   "ceramic": {
-    "mode": "core",
-    "apiURL": "http://localhost:7007",
-    "anchorServiceURL": "http://localhost:8081",
-    "network": "local"
-  },
-  "ipfs": {
     "mode": "http",
-    "apiURL": "http://localhost:5011"
+    "apiURL": "http://localhost:7007"
   }
 }
