@@ -43,7 +43,7 @@ describe('Ceramic<->CAS integration', () => {
         const onUpdateAnchor = registerChangeListener(doc)
 
         await doc.change(newContent)
-        expect(doc.content).toEqual(newContent.toString())
+        expect(doc.content).toEqual(newContent)
 
         // Test document update is anchored correctly
         expect(doc.state.anchorStatus).toEqual(AnchorStatus.PENDING)
