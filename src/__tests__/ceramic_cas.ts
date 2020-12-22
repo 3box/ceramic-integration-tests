@@ -28,35 +28,35 @@ describe('Ceramic<->CAS integration', () => {
         const doc = await ceramic.createDocument('tile', {content: initialContent})
 
         expect(doc.content).toEqual(initialContent)
-        console.log(JSON.stringify(doc.content))
 
         // Test document creation is anchored correctly
         const onCreateAnchor = registerChangeListener(doc)
         expect(doc.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        //assert.eq(doc.state.log.length, 1)
+        expect(doc.state.log.length).toEqual(1)
         await onCreateAnchor
+
+        console.log("AAAAAA")
+        console.log(JSON.stringify(doc.state, null, 2))
         expect(doc.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
-        //assert.eq(doc.state.log.length, 2)
+        expect(doc.state.log.length).toEqual(2)
 
         // Test document update
         const newContent = { bar: 'baz'}
         const onUpdateAnchor = registerChangeListener(doc)
 
         await doc.change(newContent)
-        expect(doc.content).toEqual(newContent)
+        //expect(doc.content).toEqual(newContent)
 
         // Test document update is anchored correctly
         expect(doc.state.anchorStatus).toEqual(AnchorStatus.PENDING)
         //assert.eq(doc.state.log.length, 3)
 
-        console.log("AAAAAA")
-        console.log(JSON.stringify(doc.state))
-
         await onUpdateAnchor
-        expect(doc.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
-
         console.log("BBBBB")
-        console.log(JSON.stringify(doc.state))
+        console.log(JSON.stringify(doc.state, null, 2))
+
+        expect(doc.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
+        expect(doc.content).toEqual(newContent)
         //assert.eq(doc.state.log.length, 4)
     })
 })
