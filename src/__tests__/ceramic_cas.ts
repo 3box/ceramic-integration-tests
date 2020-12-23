@@ -30,15 +30,13 @@ describe('Ceramic<->CAS integration', () => {
         expect(doc.content).toEqual(initialContent)
 
         // Test document creation is anchored correctly
-        console.log("Waiting for initial anchor")
+        console.log("Waiting for anchor of genesis record")
         const onCreateAnchor = registerChangeListener(doc)
         expect(doc.state.anchorStatus).toEqual(AnchorStatus.PENDING)
         expect(doc.state.log.length).toEqual(1)
         await onCreateAnchor
 
         expect(doc.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
-
-        console.log("state after performing initial anchor", doc.state)
         expect(doc.state.log.length).toEqual(2)
 
         // Test document update
