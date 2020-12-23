@@ -37,7 +37,9 @@ describe('Ceramic<->CAS integration', () => {
         await onCreateAnchor
 
         expect(doc.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
-        //expect(doc.state.log.length).toEqual(2)
+
+        console.log("state after performing initial anchor", doc.state)
+        expect(doc.state.log.length).toEqual(2)
 
         // Test document update
         console.log("Updating document")
@@ -48,13 +50,13 @@ describe('Ceramic<->CAS integration', () => {
 
         // Test document update is anchored correctly
         expect(doc.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        //assert.eq(doc.state.log.length, 3)
+        expect(doc.state.log.length).toEqual(3)
 
         console.log("Waiting for anchor of update")
         await onUpdateAnchor
 
         expect(doc.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
         expect(doc.content).toEqual(newContent)
-        //assert.eq(doc.state.log.length, 4)
+        expect(doc.state.log.length).toEqual(4)
     })
 })
