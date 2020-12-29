@@ -15,9 +15,9 @@ export interface Services {
 
 export const buildServicesFromConfig = async (): Promise<Services> => {
     let ceramic
-    if (config.ceramic.mode == "http") {
+    if (config.ceramic.mode == "client") {
         ceramic = new CeramicClient(config.ceramic.apiURL, { docSyncEnabled: true, docSyncInterval: 500 })
-    } else if (config.ceramic.mode == "core") {
+    } else if (config.ceramic.mode == "node") {
         // TODO
         throw new Error ("not supported yet")
     } else {

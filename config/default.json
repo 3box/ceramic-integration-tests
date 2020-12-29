@@ -1,6 +1,6 @@
 {
   "ceramic": {
-    "mode": "http",
+    "mode": "client",
     "apiURL": "http://localhost:7007"
   }
 }
