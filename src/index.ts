@@ -22,8 +22,10 @@ export interface Services {
 export const buildServicesFromConfig = async (): Promise<Services> => {
     let ceramic
     if (config.ceramic.mode == "http") {
+        console.log("Creating ceramic via http client")
         ceramic = new CeramicClient(config.ceramic.apiURL, { docSyncEnabled: true, docSyncInterval: 500 })
     } else if (config.ceramic.mode == "core") {
+        console.log("Creating ceramic via local node")
         basicsImport.multicodec.add(dagJose)
         const format = legacy(basicsImport, dagJose.name)
 
