@@ -4,10 +4,8 @@ import { config } from 'node-config-ts';
 import { Ed25519Provider } from 'key-did-provider-ed25519'
 import * as u8a from 'uint8arrays'
 import ipfsClient from "ipfs-http-client"
-// @ts-ignore
-import multiformats from 'multiformats/basics'
-// @ts-ignore
-import legacy from 'multiformats/legacy'
+import basicsImport from 'multiformats/cjs/src/basics-import.js'
+import legacy from 'multiformats/cjs/src/legacy.js'
 import dagJose from 'dag-jose'
 import Ceramic, { CeramicConfig } from "@ceramicnetwork/core";
 
@@ -26,8 +24,8 @@ export const buildServicesFromConfig = async (): Promise<Services> => {
     if (config.ceramic.mode == "http") {
         ceramic = new CeramicClient(config.ceramic.apiURL, { docSyncEnabled: true, docSyncInterval: 500 })
     } else if (config.ceramic.mode == "core") {
-        multiformats.multicodec.add(dagJose)
-        const format = legacy(multiformats, dagJose.name)
+        basicsImport.multicodec.add(dagJose)
+        const format = legacy(basicsImport, dagJose.name)
 
         const ipfs: IpfsApi = ipfsClient({url: config.ceramic.ipfsApi, ipld: { formats: [format] } })
 
