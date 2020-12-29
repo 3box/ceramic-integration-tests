@@ -1,6 +1,10 @@
 {
   "ceramic": {
-    "mode": "http",
-    "apiURL": "http://localhost:7007"
+    "mode": "core",
+    "apiURL": "http://localhost:7007",
+    "ipfsApi": "http://localhost:5011",
+    "anchorServiceAPI": "http://localhost:8081",
+    "ethereumRpc": "http://localhost:7545",
+    "network": "local"
   }
 }

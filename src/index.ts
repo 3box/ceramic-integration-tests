@@ -1,8 +1,16 @@
-import {CeramicApi} from '@ceramicnetwork/common';
+import { CeramicApi, IpfsApi } from '@ceramicnetwork/common';
 import CeramicClient from '@ceramicnetwork/http-client';
 import { config } from 'node-config-ts';
 import { Ed25519Provider } from 'key-did-provider-ed25519'
 import * as u8a from 'uint8arrays'
+import ipfsClient from "ipfs-http-client"
+// @ts-ignore
+import multiformats from 'multiformats/basics'
+// @ts-ignore
+import legacy from 'multiformats/legacy'
+import dagJose from 'dag-jose'
+import Ceramic, { CeramicConfig } from "@ceramicnetwork/core";
+
 
 const seed = u8a.fromString('6e34b2e1a9624113d81ece8a8a22e6e97f0e145c25c1d4d2d0e62753b4060c83', 'base16')
 
@@ -18,8 +26,17 @@ export const buildServicesFromConfig = async (): Promise<Services> => {
     if (config.ceramic.mode == "http") {
         ceramic = new CeramicClient(config.ceramic.apiURL, { docSyncEnabled: true, docSyncInterval: 500 })
     } else if (config.ceramic.mode == "core") {
-        // TODO
-        throw new Error ("not supported yet")
+        multiformats.multicodec.add(dagJose)
+        const format = legacy(multiformats, dagJose.name)
+
+        const ipfs: IpfsApi = ipfsClient({url: config.ceramic.ipfsApi, ipld: { formats: [format] } })
+
+        const ceramicConfig: CeramicConfig = {
+            networkName: config.ceramic.network,
+            ethereumRpcUrl: config.ceramic.ethereumRpc,
+            anchorServiceUrl: config.ceramic.anchorServiceAPI,
+        }
+        ceramic = await Ceramic.create(ipfs, ceramicConfig)
     } else {
         throw new Error(`Ceramic mode "${config.ceramic.mode}" not supported`)
     }
