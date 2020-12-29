@@ -1,6 +1,6 @@
 {
   "ceramic": {
-    "mode": "core",
+    "mode": "node",
     "apiURL": "http://localhost:7007",
     "ipfsApi": "http://localhost:5011",
     "anchorServiceAPI": "http://localhost:8081",
