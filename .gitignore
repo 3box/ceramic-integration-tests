@@ -3,3 +3,4 @@ lib/
 .idea
 build/
 config/Config.d.ts
+.pinning.store
