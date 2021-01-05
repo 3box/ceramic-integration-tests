@@ -2,9 +2,9 @@ import {CeramicApi} from '@ceramicnetwork/common';
 import CeramicClient from '@ceramicnetwork/http-client';
 import { config } from 'node-config-ts';
 import { Ed25519Provider } from 'key-did-provider-ed25519'
-import * as u8a from 'uint8arrays'
+import { randomBytes } from '@stablelib/random'
 
-const seed = u8a.fromString('6e34b2e1a9624113d81ece8a8a22e6e97f0e145c25c1d4d2d0e62753b4060c83', 'base16')
+const seed = randomBytes(32)
 
 /**
  * The group of handles to services that tests might interact with
