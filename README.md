@@ -5,5 +5,5 @@ Then to actually run the tests:
 ```
 npm install
 npm run build
-node build/bin/test_runner.js
+npm run test
 ```

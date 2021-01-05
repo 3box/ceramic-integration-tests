@@ -35,7 +35,7 @@ describe('Ceramic<->CAS integration', () => {
         await ceramic.close()
     });
 
-    test("basic crud, single update per anchor batch", async () => {
+    test("basic crud is anchored proerly, single update per anchor batch", async () => {
         // Test document creation
         console.log("Creating document")
         const initialContent = { foo: 'bar' }
@@ -68,14 +68,14 @@ describe('Ceramic<->CAS integration', () => {
         expect(doc.state.log.length).toEqual(4)
     })
 
-    test("multiple documents, multiple updates per anchor batch", async () => {
+    test("multiple documents are anchored properly, multiple updates per anchor batch", async () => {
         const content0 = { state: 0 }
         const content1 = { state: 1 }
         const content2 = { state: 2 }
         const content3 = { state: 3 }
         const content4 = { state: 4 }
 
-        // Test document creation
+        // Create some documents
         console.log("Creating documents")
         const doc1 = await ceramic.createDocument('tile', {content: content0})
         const doc2 = await ceramic.createDocument('tile', {content: content0})
