@@ -1,4 +1,8 @@
-import {buildServicesFromConfig, Services} from "../index";
+/**
+ * @jest-environment ./build/index.js
+ */
+
+import {Services} from "../index";
 import {AnchorStatus, CeramicApi} from "@ceramicnetwork/common"
 
 const registerChangeListener = function (doc: any): Promise<void> {
@@ -27,12 +31,8 @@ describe('Ceramic<->CAS integration', () => {
     let ceramic: CeramicApi
 
     beforeAll(async () => {
-        const services: Services = await buildServicesFromConfig();
+        const services: Services = global.services;
         ({ceramic} = services);
-    });
-
-    afterAll(async () => {
-        await ceramic.close()
     });
 
     test("basic crud is anchored properly, single update per anchor batch", async () => {
