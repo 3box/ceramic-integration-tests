@@ -35,7 +35,7 @@ describe('Ceramic<->CAS integration', () => {
         await ceramic.close()
     });
 
-    test("basic crud", async () => {
+    test("basic crud is anchored properly", async () => {
         // Test document creation
         console.log("Creating document")
         const initialContent = { foo: 'bar' }

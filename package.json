@@ -34,6 +34,7 @@
     "@ceramicnetwork/http-client": "^0.8.8",
     "@types/jest": "^26.0.19",
     "babel-jest": "^26.6.3",
+    "dag-jose": "^0.3.0",
     "ipfs-core": "0.3.0",
     "ipfs-http-client": "48.1.1",
     "jest": "^26.6.3",
