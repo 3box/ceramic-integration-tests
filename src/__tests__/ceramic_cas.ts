@@ -35,7 +35,7 @@ describe('Ceramic<->CAS integration', () => {
         await ceramic.close()
     });
 
-    test("basic crud is anchored proerly, single update per anchor batch", async () => {
+    test("basic crud is anchored properly, single update per anchor batch", async () => {
         // Test document creation
         console.log("Creating document")
         const initialContent = { foo: 'bar' }
