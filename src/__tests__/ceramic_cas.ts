@@ -2,8 +2,11 @@
  * @jest-environment ./build/index.js
  */
 
-import {Services} from "../index";
 import {AnchorStatus, CeramicApi} from "@ceramicnetwork/common"
+
+declare global {
+    const ceramic: CeramicApi
+}
 
 const registerChangeListener = function (doc: any): Promise<void> {
     return new Promise(resolve => {
@@ -28,12 +31,6 @@ const waitForAnchor = async (doc: any, onAnchorStatusChange: Promise<void>): Pro
 
 describe('Ceramic<->CAS integration', () => {
     jest.setTimeout(1000 * 60 * 5) // 5 minutes
-    let ceramic: CeramicApi
-
-    beforeAll(async () => {
-        const services: Services = global.services;
-        ({ceramic} = services);
-    });
 
     test("basic crud is anchored properly, single update per anchor batch", async () => {
         // Test document creation
