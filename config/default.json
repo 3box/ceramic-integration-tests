@@ -12,6 +12,6 @@
       "mode": "node",
       "apiURL": "http://localhost:5011",
       "dhtServerMode": false
-    },
-  },
+    }
+  }
 }
