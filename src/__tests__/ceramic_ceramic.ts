@@ -10,10 +10,6 @@ declare global {
     const ceramic2: CeramicApi;
 }
 
-async function delay(mills: number): Promise<void> {
-    await new Promise<void>(resolve => setTimeout(() => resolve(), mills))
-}
-
 const createWithOneLoadWithTheOther = async(ceramic1, ceramic2): Promise<void> => {
     const content = { foo: 'bar' }
     const doc1 = await ceramic1.createDocument('tile', {content})
