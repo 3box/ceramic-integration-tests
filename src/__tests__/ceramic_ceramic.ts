@@ -26,13 +26,13 @@ const waitForAnchor = async (doc: any): Promise<void> => {
     let onAnchorStatusChange = registerChangeListener(doc)
 
     while (doc.state.anchorStatus == AnchorStatus.NOT_REQUESTED ||
-           doc.state.anchorStatus == AnchorStatus.PENDING ||
-           doc.state.anchorStatus == AnchorStatus.PROCESSING) {
-        console.log("Waiting for anchor status, current status: ", doc.state.anchorStatus)
+    doc.state.anchorStatus == AnchorStatus.PENDING ||
+    doc.state.anchorStatus == AnchorStatus.PROCESSING) {
+        console.log(`Waiting for anchor of document ${doc.id.toString()}, current status: ${AnchorStatus[doc.state.anchorStatus]}. Anchor scheduled at ${doc.state.anchorScheduledFor?.toString()}`)
         await onAnchorStatusChange
         onAnchorStatusChange = registerChangeListener(doc)
     }
-    console.log("anchor status reached")
+    console.log(`anchor status reached for document ${doc.id.toString()}`)
     expect(doc.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
 }
 
@@ -95,10 +95,10 @@ const updatesAreShared = async(ceramic1, ceramic2): Promise<void> => {
     //doc2.change({content: content1})
 }
 
-describe('Ceramic<->Ceramic integration', () => {
-    jest.setTimeout(1000 * 60 * 5) // 5 minutes
+describe('Ceramic<->Ceramic multi-node integration', () => {
+    jest.setTimeout(1000 * 60 * 15) // 15 minutes
 
-    test("create with one, load with the other", async () => {
+    test.only("create with one, load with the other", async () => {
         console.log("Running test 'create with one, load with the other'")
         await createWithOneLoadWithTheOther(ceramic, ceramic2)
 
@@ -108,7 +108,7 @@ describe('Ceramic<->Ceramic integration', () => {
         }
     })
 
-    test.only("updates are shared", async () => {
+    test("updates are shared", async () => {
         console.log("Running test 'updates are shared'")
         await updatesAreShared(ceramic, ceramic2)
 

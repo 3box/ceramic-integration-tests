@@ -1,25 +1,22 @@
 {
   "services": {
     "ceramic": {
-      "mode": "node",
+      "mode": "client",
       "apiURL": "http://localhost:7007",
       "anchorServiceAPI": "http://localhost:8081",
       "ethereumRpc": "http://localhost:7545",
-      "network": "local",
-      "pubsubTopic": "ceramic-local-test"
+      "network": "dev-unstable"
     },
     "ceramic2": {
       "mode": "client",
       "apiURL": "http://localhost:7007",
       "anchorServiceAPI": "http://localhost:8081",
       "ethereumRpc": "http://localhost:7545",
-      "network": "local",
-      "pubsubTopic": "ceramic-local-test"
+      "network": "dev-unstable"
     },
     "ipfs": {
-      "mode": "node",
-      "apiURL": "http://localhost:5011",
-      "dhtServerMode": false
+      "mode": "client",
+      "apiURL": "http://localhost:5011"
     },
     "ipfs2": {
       "mode": "client",

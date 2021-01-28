@@ -95,6 +95,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
             await this.buildServicesFromConfig();
         } catch (e) {
             console.error("Building services failed", e.toString())
+            process.exit(1)
         }
     }
 
