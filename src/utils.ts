@@ -1,6 +1,6 @@
 import { AnchorStatus } from "@ceramicnetwork/common";
 
-async function registerChangeListener(doc: any): Promise<void> {
+export function registerChangeListener(doc: any): Promise<void> {
     return new Promise(resolve => {
         doc.on('change', () => {
             resolve()
