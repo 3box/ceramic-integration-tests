@@ -22,6 +22,5 @@
       "mode": "client",
       "apiURL": "http://localhost:5011"
     }
-  },
-  "rerunWithCeramicsSwapped": true
+  }
 }
