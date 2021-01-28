@@ -27,10 +27,10 @@ declare global {
 const buildCeramic = async (configObj, ipfs: IpfsApi): Promise<CeramicApi> => {
     let ceramic
     if (configObj.mode == "client") {
-        console.log("Creating ceramic via http client")
+        console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
         ceramic = new CeramicClient(configObj.apiURL, { docSyncEnabled: true, docSyncInterval: 500 })
     } else if (configObj.mode == "node") {
-        console.log("Creating ceramic via local node")
+        console.log("Creating ceramic local node")
         const ceramicConfig: CeramicConfig = {
             networkName: configObj.network,
             pubsubTopic: configObj.pubsubTopic,
@@ -55,8 +55,10 @@ const buildIpfs = async (configObj): Promise<IpfsApi> => {
     multiformats.multicodec.add(dagJose)
     const format = legacy(multiformats, dagJose.name)
     if (configObj.mode == "client") {
+        console.log(`Creating IPFS via http client, connected to ${configObj.apiURL}`)
         ipfs = ipfsClient({url: configObj.apiURL, ipld: {formats: [format]}})
     } else if (configObj.mode == "node") {
+        console.log(`Creating IPFS local node`)
         const repoPath = (await tmp.dir()).path
         ipfs = await IPFS.create({
             repo: repoPath,
