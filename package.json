@@ -31,6 +31,7 @@
     "@babel/preset-env": "^7.12.11",
     "@babel/preset-typescript": "^7.12.7",
     "@ceramicnetwork/cli": "^0.20.7",
+    "@ceramicnetwork/common": "^0.15.9-rc.0",
     "@ceramicnetwork/core": "^0.19.6",
     "@ceramicnetwork/http-client": "^0.9.5",
     "@types/jest": "^26.0.19",
