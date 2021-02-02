@@ -2,25 +2,25 @@
   "services": {
     "ceramic": {
       "mode": "client",
-      "apiURL": "http://localhost:7007",
-      "anchorServiceAPI": "http://localhost:8081",
-      "ethereumRpc": "http://localhost:7545",
+      "apiURL": "http://thisisaurl:1234",
+      "anchorServiceAPI": "http://thisisaurl:1234",
+      "ethereumRpc": "http://thisisaurl:1234",
       "network": "dev-unstable"
     },
     "ceramic2": {
       "mode": "client",
-      "apiURL": "http://localhost:7007",
-      "anchorServiceAPI": "http://localhost:8081",
-      "ethereumRpc": "http://localhost:7545",
+      "apiURL": "http://thisisaurl:1234",
+      "anchorServiceAPI": "http://thisisaurl:1234",
+      "ethereumRpc": "http://thisisaurl:1234",
       "network": "dev-unstable"
     },
     "ipfs": {
       "mode": "client",
-      "apiURL": "http://localhost:5011"
+      "apiURL": "http://thisisaurl:1234"
     },
     "ipfs2": {
       "mode": "client",
-      "apiURL": "http://localhost:5011"
+      "apiURL": "http://thisisaurl:1234"
     }
   }
 }
