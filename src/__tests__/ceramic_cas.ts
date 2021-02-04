@@ -2,35 +2,15 @@
  * @jest-environment ./build/index.js
  */
 
-import {AnchorStatus, CeramicApi} from "@ceramicnetwork/common"
+import { AnchorStatus, CeramicApi } from "@ceramicnetwork/common"
+import { waitForAnchor } from "../utils";
 
 declare global {
     const ceramic: CeramicApi
 }
 
-const registerChangeListener = function (doc: any): Promise<void> {
-    return new Promise(resolve => {
-        doc.on('change', () => {
-            resolve()
-        })
-    })
-}
-
-const waitForAnchor = async (doc: any, onAnchorStatusChange: Promise<void>): Promise<void> => {
-    await onAnchorStatusChange
-
-    // Depending on timing we might see the anchor status change from PENDING to PROCESSING, or
-    // go directly from PENDING to ANCHORED. If we do see it in PROCESSING, we should wait for
-    // another event to signal that it has finished being anchored.
-    if (doc.state.anchorStatus == AnchorStatus.PROCESSING) {
-        onAnchorStatusChange = registerChangeListener(doc)
-        await onAnchorStatusChange
-    }
-    expect(doc.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
-}
-
-describe('Ceramic<->CAS integration', () => {
-    jest.setTimeout(1000 * 60 * 5) // 5 minutes
+describe('Ceramic<->CAS basic integration', () => {
+    jest.setTimeout(1000 * 60 * 15) // 15 minutes
 
     test("basic crud is anchored properly, single update per anchor batch", async () => {
         // Test document creation
@@ -41,11 +21,7 @@ describe('Ceramic<->CAS integration', () => {
 
         // Test document creation is anchored correctly
         console.log("Waiting for anchor of genesis record")
-        const onCreateAnchor = registerChangeListener(doc)
-        expect(doc.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        expect(doc.state.log.length).toEqual(1)
-
-        await waitForAnchor(doc, onCreateAnchor)
+        await waitForAnchor(doc)
         expect(doc.state.log.length).toEqual(2)
 
         // Test document update
@@ -55,12 +31,8 @@ describe('Ceramic<->CAS integration', () => {
         expect(doc.content).toEqual(newContent)
 
         // Test document update is anchored correctly
-        const onUpdateAnchor = registerChangeListener(doc)
-        expect(doc.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        expect(doc.state.log.length).toEqual(3)
-
         console.log("Waiting for anchor of update")
-        await waitForAnchor(doc, onUpdateAnchor)
+        await waitForAnchor(doc)
         expect(doc.content).toEqual(newContent)
         expect(doc.state.log.length).toEqual(4)
     })
@@ -85,22 +57,10 @@ describe('Ceramic<->CAS integration', () => {
 
         // Test document creation is anchored correctly
         console.log("Waiting for anchor of genesis records")
-        const onCreateAnchor1 = registerChangeListener(doc1)
-        const onCreateAnchor2 = registerChangeListener(doc2)
-        const onCreateAnchor3 = registerChangeListener(doc3)
-        const onCreateAnchor4 = registerChangeListener(doc4)
-        expect(doc1.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        expect(doc1.state.log.length).toEqual(1)
-        expect(doc2.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        expect(doc2.state.log.length).toEqual(1)
-        expect(doc3.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        expect(doc3.state.log.length).toEqual(1)
-        expect(doc4.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        expect(doc4.state.log.length).toEqual(1)
-        await waitForAnchor(doc1, onCreateAnchor1)
-        await waitForAnchor(doc2, onCreateAnchor2)
-        await waitForAnchor(doc3, onCreateAnchor3)
-        await waitForAnchor(doc4, onCreateAnchor4)
+        await waitForAnchor(doc1)
+        await waitForAnchor(doc2)
+        await waitForAnchor(doc3)
+        await waitForAnchor(doc4)
 
         expect(doc1.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
         expect(doc1.state.log.length).toEqual(2)
@@ -140,24 +100,11 @@ describe('Ceramic<->CAS integration', () => {
         expect(doc4.content).toEqual(content4)
 
         // Test document updates are anchored correctly
-        const onUpdateAnchor1 = registerChangeListener(doc1)
-        const onUpdateAnchor2 = registerChangeListener(doc2)
-        const onUpdateAnchor3 = registerChangeListener(doc3)
-        const onUpdateAnchor4 = registerChangeListener(doc4)
-        expect(doc1.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        expect(doc2.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        expect(doc3.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        expect(doc4.state.anchorStatus).toEqual(AnchorStatus.PENDING)
-        expect(doc1.state.log.length).toEqual(3)
-        expect(doc2.state.log.length).toEqual(4)
-        expect(doc3.state.log.length).toEqual(5)
-        expect(doc4.state.log.length).toEqual(6)
-
         console.log("Waiting for anchor of updates")
-        await waitForAnchor(doc1, onUpdateAnchor1)
-        await waitForAnchor(doc2, onUpdateAnchor2)
-        await waitForAnchor(doc3, onUpdateAnchor3)
-        await waitForAnchor(doc4, onUpdateAnchor4)
+        await waitForAnchor(doc1)
+        await waitForAnchor(doc2)
+        await waitForAnchor(doc3)
+        await waitForAnchor(doc4)
 
         expect(doc1.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
         expect(doc2.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
