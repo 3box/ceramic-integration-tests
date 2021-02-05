@@ -12,11 +12,10 @@
       "network": "dev-unstable"
     },
     "ipfs": {
-      "mode": "node"
+      "mode": "none"
     },
     "ipfs2": {
       "mode": "none"
     }
-  },
-  "rerunWithCeramicsSwapped": true
+  }
 }
