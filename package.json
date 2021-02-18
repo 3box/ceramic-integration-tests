@@ -22,6 +22,7 @@
     "prebuild": "npm run clean",
     "postinstall": "node-config-ts",
     "test": "./node_modules/.bin/jest --runInBand",
+    "test:ci": "./node_modules/.bin/jest --runInBand --forceExit",
     "clean": "rm -rf ./build"
   },
   "dependencies": {
