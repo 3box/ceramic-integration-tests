@@ -40,6 +40,7 @@ function buildDiscordSummary(results, runId) {
     title = 'Tests Passed'
     color = 8781568
   }
+  const duration = Math.ceil((Date.now() - results.startTime) / (1000 * 60))
 
   const discordEmbeds = [
     {
@@ -57,6 +58,10 @@ function buildDiscordSummary(results, runId) {
           value: startedAt
         },
         {
+          name: 'Duration',
+          value: `~ ${duration} minutes`
+        },
+        {
           name: 'Suites',
           value: `Passed: ${results.numPassedTestSuites}, Failed: ${results.numFailedTestSuites}, Total: ${results.numTotalTestSuites}`,
         },
@@ -68,20 +73,6 @@ function buildDiscordSummary(results, runId) {
     },
   ]
   return discordEmbeds
-}
-
-function buildDiscordResults(results) {
-  content = '**TEST RESULTS:**\n'
-  content +='```js\n'
-
-  results.forEach(suite => {
-    suite.tests.forEach(result => {
-      content += `${result.ancestorTitles} (${result.duration}ms)\n`
-    })
-  })
-
-  content += '```'
-  return content
 }
 
 module.exports = MyCustomReporter
