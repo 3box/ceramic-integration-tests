@@ -27,4 +27,8 @@ jobs:
     - name: Run smoke tests
       if: contains('smoke', github.event.inputs.tests)
       run: |
-        aws ecs run-task --cluster "ceramic-dev-tests" --task-definition "ceramic-dev-tests-smoke_tests"
+        aws ecs run-task \
+          --cluster ceramic-dev-tests \
+          --task-definition ceramic-dev-tests-smoke_tests \
+          --launch-type FARGATE \
+          --network-configuration ${{ secrets.NETWORK_CONFIGURATION }}
