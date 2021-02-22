@@ -4,7 +4,7 @@ on:
       tests:
         description: "Comma separated list of test to run"
         required: false
-        default: '[smoke]'
+        default: ["smoke"]
 
 name: Run Tests on ECS
 
