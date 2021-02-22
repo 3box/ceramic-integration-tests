@@ -9,8 +9,8 @@ on:
 name: Run Tests on ECS
 
 jobs:
-  start_ecs_task:
-    name: Start ECS Task
+  run_ecs_tasks:
+    name: Run ECS Task
     runs-on: ubuntu-latest
 
     steps:
