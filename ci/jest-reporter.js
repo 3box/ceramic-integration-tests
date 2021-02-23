@@ -1,6 +1,6 @@
+const { BaseReporter } = require('@jest/reporters')
 const child_process = require('child_process')
 const { uniqueNamesGenerator, adjectives, animals, colors } = require('unique-names-generator')
-const { BaseReporter } = require('@jest/reporters')
 
 class MyCustomReporter extends BaseReporter {
   constructor(globalConfig, options) {
