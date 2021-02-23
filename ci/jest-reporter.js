@@ -1,7 +1,6 @@
-const child_process = require('child_process')
-const fs = require('fs')
-const { uniqueNamesGenerator, adjectives, animals, colors } = require('unique-names-generator')
 const { BaseReporter } = require('@jest/reporters')
+const child_process = require('child_process')
+const { uniqueNamesGenerator, adjectives, animals, colors } = require('unique-names-generator')
 
 class MyCustomReporter extends BaseReporter {
   constructor(globalConfig, options) {
@@ -28,16 +27,15 @@ class MyCustomReporter extends BaseReporter {
 
   onRunComplete(contexts, results) {
     const message = buildDiscordSummary(results, this.runId)
-    const summary = { embeds: message, username: 'jest-reporter' }
-    this.printResults(summary, 'summary')
-  }
-
-  printResults(data, fileSuffix) {
-    const file = `discord_results-${fileSuffix}.json`
-    console.log('Printing results to', file)
-    data = new Uint8Array(Buffer.from(JSON.stringify(data)))
-    // TODO: Replace with child process curl
-    fs.writeFileSync(file, data)
+    const data = { embeds: message, username: 'jest-reporter' }
+    const out = child_process.execSync(
+      `curl -X POST \
+        -H "Content-Type: application/json" \
+        -d '${JSON.stringify(data)}' \
+        ${process.env.DISCORD_WEBHOOK_URL}
+      `
+    )
+    console.log(out.toString())
   }
 }
 
