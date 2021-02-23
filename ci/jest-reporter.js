@@ -1,19 +1,34 @@
+const child_process = require('child_process')
 const fs = require('fs')
 const { uniqueNamesGenerator, adjectives, animals, colors } = require('unique-names-generator')
+const { BaseReporter } = require('@jest/reporters')
 
-class MyCustomReporter {
+class MyCustomReporter extends BaseReporter {
   constructor(globalConfig, options) {
+    super(globalConfig, options)
     this._globalConfig = globalConfig
     this._options = options
-  }
-
-  onRunComplete(contexts, results) {
-    const runId = uniqueNamesGenerator({
+    this.runId = uniqueNamesGenerator({
       dictionaries: [adjectives, animals, colors],
       length: 3
     })
-    const message = buildDiscordSummary(results, runId)
-    const summary = { embeds: message, username: 'jest-reporter'}
+  }
+
+  onRunStart(results, options) {
+    const message = buildDiscordStart(results, this.runId)
+    const data = { embeds: message, username: 'jest-reporter' }
+    const out = child_process.execSync(
+      `curl -X POST \
+        -H "Content-Type: application/json" \
+        -d '${JSON.stringify(data)}' \
+        ${process.env.DISCORD_WEBHOOK_URL}`
+    )
+    console.log(out.toString())
+  }
+
+  onRunComplete(contexts, results) {
+    const message = buildDiscordSummary(results, this.runId)
+    const summary = { embeds: message, username: 'jest-reporter' }
     this.printResults(summary, 'summary')
   }
 
@@ -21,8 +36,36 @@ class MyCustomReporter {
     const file = `discord_results-${fileSuffix}.json`
     console.log('Printing results to', file)
     data = new Uint8Array(Buffer.from(JSON.stringify(data)))
+    // TODO: Replace with child process curl
     fs.writeFileSync(file, data)
   }
+}
+
+function buildDiscordStart(results, runId) {
+  let startedAt = results.startTime
+  try {
+    startedAt = (new Date(results.startTime)).toGMTString()
+  } catch {
+    // pass
+  }
+  const discordEmbeds = [
+    {
+      title: 'Tests Started',
+      description: `Run Id: ${runId}`,
+      thumbnail: {},
+      fields: [
+        {
+          name: 'Environment',
+          value: process.env.NODE_ENV,
+        },
+        {
+          name: 'Started at',
+          value: startedAt
+        },
+      ],
+    },
+  ]
+  return discordEmbeds
 }
 
 function buildDiscordSummary(results, runId) {
