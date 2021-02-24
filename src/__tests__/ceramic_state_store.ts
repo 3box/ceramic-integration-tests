@@ -8,7 +8,7 @@ import { restartCeramic } from "../utils";
 import { config } from "node-config-ts";
 
 declare global {
-    const ceramic: CeramicApi
+    let ceramic: CeramicApi
 }
 
 const isPinned = async (ceramic: CeramicApi, docId: DocID): Promise<Boolean> => {
