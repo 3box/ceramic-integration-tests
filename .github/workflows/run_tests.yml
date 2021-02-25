@@ -2,19 +2,16 @@ on:
   workflow_dispatch:
     inputs:
       tests:
-        description: "Comma separated list of test to run"
+        description: "Space separated list of tests to run. Runs all available by default."
         required: false
-        default: '[smoke]'
+        default: 'smoke'
 
 name: Run Tests on ECS
 
 jobs:
-  start_ecs_task:
-    name: Start ECS Task
+  run_ecs_tasks:
+    name: Run ECS Task
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        test_type: ${{ github.event.inputs }}
 
     steps:
     - name: Checkout
@@ -27,6 +24,11 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: us-east-2
 
-    - name: Run ${{ matrix.test_type }} tests
+    - name: Run smoke tests
+      if: contains('smoke', github.event.inputs.tests)
       run: |
-        aws ecs run-task --cluster "ceramic-dev-tests" --task-definition "ceramic-dev-tests-${{ matrix.test_type }}_tests"
+        aws ecs run-task \
+          --cluster ceramic-dev-tests \
+          --task-definition ceramic-dev-tests-smoke_tests \
+          --launch-type FARGATE \
+          --network-configuration ${{ secrets.NETWORK_CONFIGURATION }}
