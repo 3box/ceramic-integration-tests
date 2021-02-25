@@ -38,4 +38,4 @@ jobs:
           --task-definition ceramic-dev-tests-smoke_tests \
           --launch-type FARGATE \
           --network-configuration ${{ secrets.NETWORK_CONFIGURATION }} \
-          --overrides '{ "containerOverrides": [{ "environment": [{ "name": "NODE_ENV", "value": "${{ matrix.smoke_test_config }}" }] }] }'
+          --overrides '{ "containerOverrides": [{ "name": "smoke_tests", "environment": [{ "name": "NODE_ENV", "value": "${{ matrix.smoke_test_config }}" }] }] }'
