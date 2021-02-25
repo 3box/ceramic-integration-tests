@@ -19,8 +19,8 @@ import legacy from 'multiformats/legacy'
 
 const seed = randomBytes(32)
 
-async function delay(mills: number): Promise<void> {
-    await new Promise<void>(resolve => setTimeout(() => resolve(), mills))
+async function delay(millseconds: number): Promise<void> {
+    await new Promise<void>(resolve => setTimeout(() => resolve(), millseconds))
 }
 
 export function registerChangeListener(doc: any): Promise<void> {
@@ -46,12 +46,11 @@ export async function waitForAnchor(doc: any): Promise<void> {
 }
 
 export async function buildIpfs(configObj): Promise<IpfsApi> {
-    let ipfs: IpfsApi
     multiformats.multicodec.add(dagJose)
     const format = legacy(multiformats, dagJose.name)
     if (configObj.mode == "client") {
         console.log(`Creating IPFS via http client, connected to ${configObj.apiURL}`)
-        ipfs = ipfsClient({url: configObj.apiURL, ipld: {formats: [format]}})
+        return ipfsClient({url: configObj.apiURL, ipld: {formats: [format]}})
     } else if (configObj.mode == "node") {
         throw new Error("Creating in-process IPFS node is not currently supported")
     } else if (configObj.mode == "none") {
@@ -59,8 +58,6 @@ export async function buildIpfs(configObj): Promise<IpfsApi> {
     } else {
         throw new Error(`IPFS mode "${configObj.mode}" not supported`)
     }
-
-    return ipfs
 }
 
 export async function buildCeramic (configObj, ipfs: IpfsApi): Promise<CeramicApi> {
@@ -94,9 +91,16 @@ export async function buildCeramic (configObj, ipfs: IpfsApi): Promise<CeramicAp
     return ceramic
 }
 
+/**
+ * Restarts the `ceramic` node, and reinstalls it into the `global` object.  Note that only
+ * restarting `ceramic` is supported, restarting `ceramic2` is not.  This is because `ceramic2`
+ * is always expected to be in `client` mode.
+ */
 export async function restartCeramic() {
+    if (config.services.ceramic.mode == "client") {
+        throw new Error("Cannot restart ceramic node running in http client mode")
+    }
     await ceramic.close()
     ceramic = null
-    await delay(1000)
     ceramic = await buildCeramic(config.services.ceramic, ipfs)
 }

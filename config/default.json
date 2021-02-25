@@ -10,10 +10,7 @@
     },
     "ceramic2": {
       "mode": "none",
-      "apiURL": "http://thisisaurl:1234",
-      "anchorServiceAPI": "http://thisisaurl:1234",
-      "ethereumRpc": "http://thisisaurl:1234",
-      "network": "dev-unstable"
+      "apiURL": "http://thisisaurl:1234"
     },
     "ipfs": {
       "mode": "none",

@@ -41,6 +41,7 @@ describe('Ceramic state store tests', () => {
         await restartCeramic()
 
         const loaded = await ceramic.loadDocument(doc.id)
+        expect(loaded.content).not.toEqual(newContent)
         expect(loaded.content).toEqual(initialContent)
     })
 
