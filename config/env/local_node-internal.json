@@ -1,0 +1,25 @@
+{
+  "services": {
+    "ceramic": {
+      "launchLocation": "jest",
+      "mode": "node",
+      "network": "dev-unstable",
+      "anchorServiceAPI": "https://cas-dev.3boxlabs.com"
+    },
+    "ipfs": {
+      "launchLocation": "serviceLauncher",
+      "mode": "client",
+      "apiURL": "http://localhost:5011",
+      "port": 5011
+    },
+    "ceramic2": {
+      "launchLocation": "jest",
+      "mode": "client",
+      "apiURL": "https://ceramic-dev-internal.3boxlabs.com"
+    },
+    "ipfs2": {
+      "launchLocation": "ceramic2",
+      "mode": "none"
+    }
+  }
+}

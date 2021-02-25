@@ -1,0 +1,23 @@
+{
+  "services": {
+    "ceramic": {
+      "launchLocation": "serviceLauncher",
+      "mode": "client",
+      "apiURL": "http://localhost:7007",
+      "port": 7007
+    },
+    "ipfs": {
+      "launchLocation": "ceramic",
+      "mode": "none"
+    },
+    "ceramic2": {
+      "launchLocation": "jest",
+      "mode": "client",
+      "apiURL": "https://ceramic-dev.3boxlabs.com"
+    },
+    "ipfs2": {
+      "launchLocation": "ceramic2",
+      "mode": "none"
+    }
+  }
+}
