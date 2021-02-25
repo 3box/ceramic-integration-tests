@@ -22,6 +22,6 @@ COPY src ./src
 RUN npm run build
 
 # NODE_ENV must match desired config file to use for tests
-ENV NODE_ENV="dev-unstable"
+ENV NODE_ENV="internal-external"
 
 CMD [ "./ci.sh" ]
