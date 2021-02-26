@@ -7,16 +7,13 @@
       "s3StateStoreBucketName": "ceramic-dev-ex-state-store",
       "network": "dev-unstable"
     },
-    "ceramic2": {
+    "ceramicClient": {
       "mode": "client",
       "apiURL": "https://ceramic-dev.3boxlabs.com"
     },
     "ipfs": {
       "mode": "client",
       "apiURL": "http://localhost:5011"
-    },
-    "ipfs2": {
-      "mode": "none"
     }
   }
 }

@@ -7,7 +7,7 @@ import { buildCeramic, buildIpfs } from './utils';
 // Global services that are set up once and then available in all integration tests
 declare global {
     let ceramic: CeramicApi
-    const ceramic2: CeramicApi
+    const ceramicClient: CeramicApi
     const ipfs: IpfsApi
     const ipfs2: IpfsApi
 }
@@ -28,20 +28,21 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
         // @ts-ignore
         await this.global.ceramic.close();
         // @ts-ignore
-        await this.global.ceramic2.close();
+        await this.global.ceramicClient.close();
 
         await super.teardown()
     }
 
     private async buildServicesFromConfig() {
+        if (config.services.ceramicClient.mode == "node") {
+            throw new Error("Mode 'node' isn't supported for 'ceramicClient'")
+        }
         const ipfs = await buildIpfs(config.services.ipfs)
-        const ipfs2 = await buildIpfs(config.services.ipfs2)
         const ceramic = await buildCeramic(config.services.ceramic, ipfs)
-        const ceramic2 = await buildCeramic(config.services.ceramic2, ipfs2)
+        const ceramicClient = await buildCeramic(config.services.ceramicClient)
 
         this.global.ceramic = ceramic
-        this.global.ceramic2 = ceramic2
+        this.global.ceramicClient = ceramicClient
         this.global.ipfs = ipfs
-        this.global.ipfs2 = ipfs2
     }
 }

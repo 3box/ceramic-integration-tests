@@ -8,15 +8,11 @@
       "s3StateStoreBucketName": "<bucketname>",
       "network": "dev-unstable"
     },
-    "ceramic2": {
+    "ceramicClient": {
       "mode": "none",
       "apiURL": "http://thisisaurl:1234"
     },
     "ipfs": {
-      "mode": "none",
-      "apiURL": "http://thisisaurl:1234"
-    },
-    "ipfs2": {
       "mode": "none",
       "apiURL": "http://thisisaurl:1234"
     }

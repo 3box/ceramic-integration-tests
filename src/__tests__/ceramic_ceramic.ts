@@ -7,7 +7,7 @@ import { registerChangeListener, waitForAnchor } from "../utils";
 
 declare global {
     const ceramic: CeramicApi;
-    const ceramic2: CeramicApi;
+    const ceramicClient: CeramicApi;
 }
 
 const createWithOneLoadWithTheOther = async(ceramic1, ceramic2): Promise<void> => {
@@ -70,33 +70,33 @@ describe('Ceramic<->Ceramic multi-node integration', () => {
 
     test("create with one, load with the other", async () => {
         console.info("Running test 'create with one, load with the other'")
-        await createWithOneLoadWithTheOther(ceramic, ceramic2)
+        await createWithOneLoadWithTheOther(ceramic, ceramicClient)
     })
 
     test("create with one, load with the other - ceramics swapped", async () => {
         console.info("Re-running test 'create with one, load with the other' with ceramics swapped")
-        await createWithOneLoadWithTheOther(ceramic2, ceramic)
+        await createWithOneLoadWithTheOther(ceramicClient, ceramic)
     })
 
     test("updates are shared without anchoring", async () => {
         console.info("Running test 'updates are shared without anchoring'")
-        await updatesAreShared(ceramic, ceramic2, false)
+        await updatesAreShared(ceramic, ceramicClient, false)
     })
 
     test("updates are shared without anchoring - ceramics swapped", async () => {
         console.info("Re-running test 'updates are shared without anchoring' with ceramics swapped")
-        await updatesAreShared(ceramic2, ceramic, false)
+        await updatesAreShared(ceramicClient, ceramic, false)
     })
 
     test("updates are shared with anchoring", async () => {
         console.log("Running test 'updates are shared with anchoring'")
-        await updatesAreShared(ceramic, ceramic2, true)
+        await updatesAreShared(ceramic, ceramicClient, true)
 
     })
 
     test("updates are shared with anchoring - ceramics swapped", async () => {
         console.log("Re-running test 'updates are shared with anchoring' with ceramics swapped")
-        await updatesAreShared(ceramic2, ceramic, true)
+        await updatesAreShared(ceramicClient, ceramic, true)
     })
 
 })

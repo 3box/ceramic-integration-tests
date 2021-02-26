@@ -60,7 +60,7 @@ export async function buildIpfs(configObj): Promise<IpfsApi> {
     }
 }
 
-export async function buildCeramic (configObj, ipfs: IpfsApi): Promise<CeramicApi> {
+export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicApi> {
     let ceramic
     if (configObj.mode == "client") {
         console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
@@ -93,8 +93,8 @@ export async function buildCeramic (configObj, ipfs: IpfsApi): Promise<CeramicAp
 
 /**
  * Restarts the `ceramic` node, and reinstalls it into the `global` object.  Note that only
- * restarting `ceramic` is supported, restarting `ceramic2` is not.  This is because `ceramic2`
- * is always expected to be in `client` mode.
+ * restarting `ceramic` is supported, restarting `ceramicClient` is not.  This is because
+ * `ceramicClient` is always expected to be in `client` mode.
  */
 export async function restartCeramic() {
     if (config.services.ceramic.mode == "client") {
