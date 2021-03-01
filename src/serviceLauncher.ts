@@ -36,8 +36,9 @@ function main() {
             )
         } else if (service.type == 'ceramic') {
             subprocess = exec(
-                `npx @ceramicnetwork/cli daemon \
-                    --port ${service.port}
+                `node node_modules/@ceramicnetwork/cli/bin/ceramic daemon \
+                    --port ${service.port} \
+                    --network dev-unstable
                 `
             )
         } else {
