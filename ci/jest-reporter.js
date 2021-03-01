@@ -49,7 +49,7 @@ function buildDiscordStart(results, runId) {
       thumbnail: {},
       fields: [
         {
-          name: 'Environment',
+          name: 'Configuration',
           value: process.env.NODE_ENV,
         },
         {
@@ -87,7 +87,7 @@ function buildDiscordSummary(results, runId) {
       thumbnail: {},
       fields: [
         {
-          name: 'Environment',
+          name: 'Configuration',
           value: process.env.NODE_ENV,
         },
         {
