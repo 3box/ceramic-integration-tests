@@ -5,7 +5,8 @@ COPY package*.json ./
 RUN apk add --no-cache python make g++
 
 RUN npm ci --ignore-scripts
-
+RUN npm rebuild bcrypto
+RUN npm rebuild loady
 
 FROM node:current-alpine as app
 
