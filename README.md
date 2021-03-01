@@ -7,3 +7,18 @@ npm install
 npm run build
 npm run test
 ```
+
+## Docker
+
+Tests can be run with Docker with the following commands:
+
+```
+docker build . -t ceramic-integration-tests
+```
+
+```
+docker run \
+  -e DISCORD_WEBHOOK_URL='<url>' \
+  -e NODE_ENV='<name_of_config_file>' \
+  ceramic-integration-tests
+```
