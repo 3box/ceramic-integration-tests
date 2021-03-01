@@ -6,7 +6,6 @@ function main() {
     length: 3
   })
   console.log(runId)
-  process.exit(1)
 }
 
 main()
