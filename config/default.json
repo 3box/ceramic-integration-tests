@@ -16,5 +16,6 @@
       "mode": "none",
       "apiURL": "http://thisisaurl:1234"
     }
-  }
+  },
+  "serviceLauncher": []
 }

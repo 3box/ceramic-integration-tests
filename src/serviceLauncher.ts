@@ -3,54 +3,57 @@ import EventEmitter from 'events'
 
 import { config } from 'node-config-ts'
 
-const subprocessList: Array<{ service: string, subprocess: ChildProcess }> = []
-const servicesReady: { [service: string]: number } = {}
+type LaunchedServiceId = number
+
+interface LaunchedService {
+    id: LaunchedServiceId,
+    type: string,
+    subprocess: ChildProcess
+}
+
+const launched: Array<LaunchedService> = []
+const ready: Array<LaunchedServiceId> = []
 const readyCounter = new EventEmitter()
 
 function main() {
     console.log('\nServiceLauncher: running')
 
-    const services = Object.keys(config.services)
-    // Must start all ipfs services before ceramic ones
-    services.sort((a, b) => (a > b) ? 1 : -1)
+    for (const service of config.serviceLauncher) {
+        console.log('=> Launching:', service.type)
+        console.log(service)
 
-    for (const service of services) {
-        const serviceConfig = config.services[service]
-        if (serviceConfig.launchLocation != 'serviceLauncher') {
-            continue
-        } else {
-            console.log('=> Launching:', service)
-            console.log(serviceConfig)
+        let subprocess = null
 
-            let subprocess = null
-            if (service.startsWith('ipfs')) {
-                subprocess = exec(`node node_modules/js-ipfs-ceramic/build/index`,
-                    {
-                        env: {
-                            ...process.env,
-                            IPFS_API_PORT: serviceConfig.port
-                        }
+        if (service.type == 'ipfs') {
+            subprocess = exec(`node node_modules/js-ipfs-ceramic/build/index`,
+                {
+                    env: {
+                        ...process.env,
+                        IPFS_API_PORT: service.port
                     }
-                )
-            } else if (service.startsWith('ceramic')) {
-                subprocess = exec(
-                    `npx @ceramicnetwork/cli daemon \
-                      --port ${serviceConfig.port}
-                    `
-                )
-            } else {
-                throw Error(`Unsupported service with name ${service}`)
-            }
-
-            subprocess && subprocessList.push({ service, subprocess })
+                }
+            )
+        } else if (service.type == 'ceramic') {
+            subprocess = exec(
+                `npx @ceramicnetwork/cli daemon \
+                    --port ${service.port}
+                `
+            )
+        } else {
+            throw Error(`Unsupported service type: ${service.type}`)
         }
+        subprocess && launched.push({
+            id: launched.length + 1,
+            type: service.type,
+            subprocess
+        })
     }
-    subprocessList.forEach((item) => {
-        item.subprocess.stderr.on('data', console.error)
-        item.subprocess.stdout.on('data', (data) => {
-            if (servicesReady[item.service] != 1) {
-                servicesReady[item.service] = 1
-                readyCounter.emit('update', item.service, item.subprocess.pid)
+    launched.forEach((service) => {
+        service.subprocess.stderr.on('data', console.error)
+        service.subprocess.stdout.on('data', (data) => {
+            if (!ready.includes(service.id)) {
+                ready.push(service.id)
+                readyCounter.emit('update', service)
             }
             console.log(data)
         })
@@ -59,12 +62,12 @@ function main() {
     console.log('=> Launched: all')
 }
 
-readyCounter.on('update', (service, pid) => {
-    const count = Object.values(servicesReady).reduce((x: number, y: number) => x + y)
-    const total = subprocessList.length
+readyCounter.on('update', (service: LaunchedService) => {
+    const count = ready.length
+    const total = launched.length
     console.log('\nServiceLauncher: updated')
-    console.log(`=> Ready: ${service}`)
-    console.log(`=> Pid: ${pid}`)
+    console.log(`=> Ready: ${service.type}`)
+    console.log(`=> Pid: ${service.subprocess.pid}`)
     console.log(`=> Count: ${count}/${total}`)
     if (count >= total) {
         console.log('\nServiceLauncher: done')
@@ -73,8 +76,8 @@ readyCounter.on('update', (service, pid) => {
 })
 
 process.on('SIGINT', () => {
-    subprocessList.forEach((item) => {
-        item.subprocess.kill()
+    launched.forEach((service) => {
+        service.subprocess.kill()
     })
 })
 
