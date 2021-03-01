@@ -5,6 +5,7 @@ function main() {
     {
       title: 'Tests Exited',
       description: `Run Id: ${process.env.RUN_ID}`,
+      color: 16711712,
       fields: [
         {
           name: 'Configuration',
