@@ -25,11 +25,12 @@ function main() {
         let subprocess = null
 
         if (service.type == 'ipfs') {
-            subprocess = exec(`node node_modules/js-ipfs-ceramic/build/index`,
+            subprocess = exec(`node node_modules/@ceramicnetwork/ipfs-daemon/bin/ipfs-daemon`,
                 {
                     env: {
                         ...process.env,
-                        IPFS_API_PORT: service.port
+                        IPFS_API_PORT: service.port,
+                        CERAMIC_NETWORK: 'dev-unstable'
                     }
                 }
             )
