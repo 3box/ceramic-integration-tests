@@ -5,20 +5,14 @@
       "apiURL": "http://thisisaurl:1234",
       "anchorServiceAPI": "http://thisisaurl:1234",
       "ethereumRpc": "http://thisisaurl:1234",
+      "s3StateStoreBucketName": "<bucketname>",
       "network": "dev-unstable"
     },
-    "ceramic2": {
-      "mode": "none",
-      "apiURL": "http://thisisaurl:1234",
-      "anchorServiceAPI": "http://thisisaurl:1234",
-      "ethereumRpc": "http://thisisaurl:1234",
-      "network": "dev-unstable"
-    },
-    "ipfs": {
+    "ceramicClient": {
       "mode": "none",
       "apiURL": "http://thisisaurl:1234"
     },
-    "ipfs2": {
+    "ipfs": {
       "mode": "none",
       "apiURL": "http://thisisaurl:1234"
     }
