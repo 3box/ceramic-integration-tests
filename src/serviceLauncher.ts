@@ -53,11 +53,14 @@ function main() {
     launched.forEach((service) => {
         service.subprocess.stderr.on('data', console.error)
         service.subprocess.stdout.on('data', (data) => {
-            if (!ready.includes(service.id)) {
-                ready.push(service.id)
-                readyCounter.emit('update', service)
-            }
             console.log(data)
+            // Wait for service to be ready
+            setTimeout(() => {
+                if (!ready.includes(service.id)) {
+                    ready.push(service.id)
+                    readyCounter.emit('update', service)
+                }
+            }, 10000)
         })
     })
     console.log('\nServiceLauncher: standby')
