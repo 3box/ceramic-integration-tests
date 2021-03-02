@@ -34,12 +34,12 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
     }
 
     private async buildServicesFromConfig() {
-        if (config.services.ceramicClient.mode == "node") {
+        if (config.jest.services.ceramicClient.mode == "node") {
             throw new Error("Mode 'node' isn't supported for 'ceramicClient'")
         }
-        const ipfs = await buildIpfs(config.services.ipfs)
-        const ceramic = await buildCeramic(config.services.ceramic, ipfs)
-        const ceramicClient = await buildCeramic(config.services.ceramicClient)
+        const ipfs = await buildIpfs(config.jest.services.ipfs)
+        const ceramic = await buildCeramic(config.jest.services.ceramic, ipfs)
+        const ceramicClient = await buildCeramic(config.jest.services.ceramicClient)
 
         this.global.ceramic = ceramic
         this.global.ceramicClient = ceramicClient

@@ -97,10 +97,10 @@ export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicA
  * `ceramicClient` is always expected to be in `client` mode.
  */
 export async function restartCeramic() {
-    if (config.services.ceramic.mode == "client") {
+    if (config.jest.services.ceramic.mode == "client") {
         throw new Error("Cannot restart ceramic node running in http client mode")
     }
     await ceramic.close()
     ceramic = null
-    ceramic = await buildCeramic(config.services.ceramic, ipfs)
+    ceramic = await buildCeramic(config.jest.services.ceramic, ipfs)
 }

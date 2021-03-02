@@ -1,0 +1,25 @@
+{
+  "jest": {
+    "services": {
+      "ceramic": {
+        "mode": "client",
+        "apiURL": "http://localhost:7007"
+      },
+      "ipfs": {
+        "mode": "none"
+      },
+      "ceramicClient": {
+        "mode": "client",
+        "apiURL": "https://ceramic-dev.3boxlabs.com"
+      }
+    }
+  },
+  "serviceLauncher": {
+    "services": [
+      {
+        "type": "ceramic",
+        "port": 7007
+      }
+    ]
+  }
+}

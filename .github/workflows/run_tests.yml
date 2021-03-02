@@ -12,6 +12,12 @@ jobs:
   run_ecs_tasks:
     name: Run ECS Task
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - smoke_test_config: "internal-external"
+          - smoke_test_config: "local_client-external"
+          - smoke_test_config: "local_node-internal"
 
     steps:
     - name: Checkout
@@ -31,4 +37,5 @@ jobs:
           --cluster ceramic-dev-tests \
           --task-definition ceramic-dev-tests-smoke_tests \
           --launch-type FARGATE \
-          --network-configuration ${{ secrets.NETWORK_CONFIGURATION }}
+          --network-configuration ${{ secrets.NETWORK_CONFIGURATION }} \
+          --overrides '{ "containerOverrides": [{ "name": "smoke_tests", "environment": [{ "name": "NODE_ENV", "value": "${{ matrix.smoke_test_config }}" }, { "name": "AWS_ACCESS_KEY_ID", "value": "${{ secrets.S3_STATE_STORE_AWS_ACCESS_KEY_ID }}" }, { "name": "AWS_SECRET_ACCESS_KEY", "value": "${{ secrets.S3_STATE_STORE_AWS_SECRET_ACCESS_KEY }}" }] }] }'

@@ -1,0 +1,20 @@
+{
+  "jest": {
+    "services": {
+      "ceramic": {
+        "mode": "client",
+        "apiURL": "https://ceramic-dev-internal.3boxlabs.com"
+      },
+      "ipfs": {
+        "mode": "none"
+      },
+      "ceramicClient": {
+        "mode": "client",
+        "apiURL": "https://ceramic-dev.3boxlabs.com"
+      }
+    }
+  },
+  "serviceLauncher": {
+    "services": []
+  }
+}

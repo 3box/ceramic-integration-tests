@@ -1,16 +1,12 @@
 const { BaseReporter } = require('@jest/reporters')
 const child_process = require('child_process')
-const { uniqueNamesGenerator, adjectives, animals, colors } = require('unique-names-generator')
 
 class MyCustomReporter extends BaseReporter {
   constructor(globalConfig, options) {
     super(globalConfig, options)
     this._globalConfig = globalConfig
     this._options = options
-    this.runId = uniqueNamesGenerator({
-      dictionaries: [adjectives, animals, colors],
-      length: 3
-    })
+    this.runId = process.env.RUN_ID
   }
 
   onRunStart(results, options) {
@@ -53,7 +49,7 @@ function buildDiscordStart(results, runId) {
       thumbnail: {},
       fields: [
         {
-          name: 'Environment',
+          name: 'Configuration',
           value: process.env.NODE_ENV,
         },
         {
@@ -91,7 +87,7 @@ function buildDiscordSummary(results, runId) {
       thumbnail: {},
       fields: [
         {
-          name: 'Environment',
+          name: 'Configuration',
           value: process.env.NODE_ENV,
         },
         {
