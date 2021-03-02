@@ -20,5 +20,7 @@ docker build . -t ceramic-integration-tests
 docker run \
   -e DISCORD_WEBHOOK_URL='<url>' \
   -e NODE_ENV='<name_of_config_file>' \
+  -e AWS_ACCESS_KEY_ID='<only_if_using_s3_state_store>' \
+  -e AWS_SECRET_ACCESS_KEY='<only_if_using_s3_state_store>' \
   ceramic-integration-tests
 ```
