@@ -24,7 +24,7 @@ describe('Ceramic state store tests', () => {
     jest.setTimeout(1000 * 60 * 5) // 5 minutes
 
     test("Unpinned doc state does not survive ceramic restart", async () => {
-        if (config.services.ceramic.mode == "client") {
+        if (config.jest.services.ceramic.mode == "client") {
             console.warn("skipping test since 'ceramic' is in http-client mode")
             return
         }
@@ -46,7 +46,7 @@ describe('Ceramic state store tests', () => {
     })
 
     test("Pinned doc state does survive ceramic restart", async () => {
-        if (config.services.ceramic.mode == "client") {
+        if (config.jest.services.ceramic.mode == "client") {
             console.warn("skipping test since 'ceramic' is in http-client mode")
             return
         }
