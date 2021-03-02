@@ -1,21 +1,25 @@
 {
-  "services": {
-    "ceramic": {
-      "mode": "none",
-      "apiURL": "http://thisisaurl:1234",
-      "anchorServiceAPI": "http://thisisaurl:1234",
-      "ethereumRpc": "http://thisisaurl:1234",
-      "s3StateStoreBucketName": "<bucketname>",
-      "network": "dev-unstable"
-    },
-    "ceramicClient": {
-      "mode": "none",
-      "apiURL": "http://thisisaurl:1234"
-    },
-    "ipfs": {
-      "mode": "none",
-      "apiURL": "http://thisisaurl:1234"
+  "jest": {
+    "services": {
+      "ceramic": {
+        "mode": "none",
+        "apiURL": "http://thisisaurl:1234",
+        "anchorServiceAPI": "http://thisisaurl:1234",
+        "ethereumRpc": "http://thisisaurl:1234",
+        "s3StateStoreBucketName": "<bucketname>",
+        "network": "dev-unstable"
+      },
+      "ceramicClient": {
+        "mode": "none",
+        "apiURL": "http://thisisaurl:1234"
+      },
+      "ipfs": {
+        "mode": "none",
+        "apiURL": "http://thisisaurl:1234"
+      }
     }
   },
-  "serviceLauncher": []
+  "serviceLauncher": {
+    "services": []
+  }
 }

@@ -1,26 +1,29 @@
 {
-  "services": {
-    "ceramic": {
-      "mode": "node",
-      "network": "dev-unstable",
-      "anchorServiceAPI": "https://cas-dev.3boxlabs.com"
-    },
-    "ipfs": {
-      "mode": "client",
-      "apiURL": "http://localhost:5011"
-    },
-    "ceramic2": {
-      "mode": "client",
-      "apiURL": "https://ceramic-dev-internal.3boxlabs.com"
-    },
-    "ipfs2": {
-      "mode": "none"
+  "jest": {
+    "services": {
+      "ceramic": {
+        "mode": "node",
+        "anchorServiceAPI": "https://cas-dev.3boxlabs.com",
+        "ethereumRpc": null,
+        "s3StateStoreBucketName": "ceramic-dev-state-store",
+        "network": "dev-unstable"
+      },
+      "ipfs": {
+        "mode": "client",
+        "apiURL": "http://localhost:5011"
+      },
+      "ceramicClient": {
+        "mode": "client",
+        "apiURL": "https://ceramic-dev-internal.3boxlabs.com"
+      }
     }
   },
-  "serviceLauncher": [
-    {
-      "type": "ipfs",
-      "port": 5011
-    }
-  ]
+  "serviceLauncher": {
+    "services": [
+      {
+        "type": "ipfs",
+        "port": 5011
+      }
+    ]
+  }
 }

@@ -18,7 +18,7 @@ const readyCounter = new EventEmitter()
 function main() {
     console.log('\nServiceLauncher: running')
 
-    for (const service of config.serviceLauncher) {
+    for (const service of config.serviceLauncher.services) {
         console.log('=> Launching:', service.type)
         console.log(service)
 

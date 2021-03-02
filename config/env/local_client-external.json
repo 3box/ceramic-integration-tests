@@ -1,24 +1,25 @@
 {
-  "services": {
-    "ceramic": {
-      "mode": "client",
-      "apiURL": "http://localhost:7007"
-    },
-    "ipfs": {
-      "mode": "none"
-    },
-    "ceramic2": {
-      "mode": "client",
-      "apiURL": "https://ceramic-dev.3boxlabs.com"
-    },
-    "ipfs2": {
-      "mode": "none"
+  "jest": {
+    "services": {
+      "ceramic": {
+        "mode": "client",
+        "apiURL": "http://localhost:7007"
+      },
+      "ipfs": {
+        "mode": "none"
+      },
+      "ceramicClient": {
+        "mode": "client",
+        "apiURL": "https://ceramic-dev.3boxlabs.com"
+      }
     }
   },
-  "serviceLauncher": [
-    {
-      "type": "ceramic",
-      "port": 7007
-    }
-  ]
+  "serviceLauncher": {
+    "services": [
+      {
+        "type": "ceramic",
+        "port": 7007
+      }
+    ]
+  }
 }
