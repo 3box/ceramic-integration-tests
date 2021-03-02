@@ -38,4 +38,4 @@ jobs:
           --task-definition ceramic-dev-tests-smoke_tests \
           --launch-type FARGATE \
           --network-configuration ${{ secrets.NETWORK_CONFIGURATION }} \
-          --overrides '{ "containerOverrides": [{ "name": "smoke_tests", "environment": [{ "name": "NODE_ENV", "value": "${{ matrix.smoke_test_config }}" }] }] }'
+          --overrides '{ "containerOverrides": [{ "name": "smoke_tests", "environment": [{ "name": "NODE_ENV", "value": "${{ matrix.smoke_test_config }}" }, { "name": "AWS_ACCESS_KEY_ID", "value": "${{ secrets.S3_STATE_STORE_AWS_ACCESS_KEY_ID }}" }, { "name": "AWS_SECRET_ACCESS_KEY", "value": "${{ secrets.S3_STATE_STORE_AWS_SECRET_ACCESS_KEY }}" }] }] }'
