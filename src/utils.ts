@@ -1,16 +1,13 @@
-import { AnchorStatus, CeramicApi, IpfsApi } from "@ceramicnetwork/common";
-import { S3StateStore } from "@ceramicnetwork/cli";
-import Ceramic, { CeramicConfig } from "@ceramicnetwork/core";
+import {AnchorStatus, CeramicApi, DoctypeUtils, IpfsApi} from "@ceramicnetwork/common";
+import {S3StateStore} from "@ceramicnetwork/cli";
+import Ceramic, {CeramicConfig} from "@ceramicnetwork/core";
 import CeramicClient from '@ceramicnetwork/http-client';
 
-import tmp from 'tmp-promise'
-
 import dagJose from 'dag-jose'
-import { randomBytes } from '@stablelib/random'
-import { Ed25519Provider } from 'key-did-provider-ed25519'
+import {randomBytes} from '@stablelib/random'
+import {Ed25519Provider} from 'key-did-provider-ed25519'
 import ipfsClient from "ipfs-http-client"
-import IPFS from "ipfs-core"
-import { config } from 'node-config-ts';
+import {config} from 'node-config-ts';
 
 //@ts-ignore
 import multiformats from 'multiformats/basics'
@@ -31,18 +28,19 @@ export function registerChangeListener(doc: any): Promise<void> {
     })
 }
 
-export async function waitForAnchor(doc: any): Promise<void> {
-    let onAnchorStatusChange = registerChangeListener(doc)
+export async function waitForCondition(doc: any, condition: (doc) => boolean): Promise<void> {
+    let onStateChange = registerChangeListener(doc)
 
-    while (doc.state.anchorStatus == AnchorStatus.NOT_REQUESTED ||
-    doc.state.anchorStatus == AnchorStatus.PENDING ||
-    doc.state.anchorStatus == AnchorStatus.PROCESSING) {
-        console.log(`Waiting for anchor of document ${doc.id.toString()}, current status: ${AnchorStatus[doc.state.anchorStatus]}. Anchor scheduled at ${doc.state.anchorScheduledFor?.toString()}`)
-        await onAnchorStatusChange
-        onAnchorStatusChange = registerChangeListener(doc)
+    while (!condition(doc)) {
+        console.debug('Waiting for a specific doc state. Current doc state: '
+            + JSON.stringify(DoctypeUtils.serializeState(doc.state)))
+        await onStateChange
+        onStateChange = registerChangeListener(doc)
     }
-    console.log(`anchor status reached for document ${doc.id.toString()}`)
-    expect(doc.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
+}
+
+export async function waitForAnchor(doc: any): Promise<void> {
+    await waitForCondition(doc, function(doc) { return doc.state.anchorStatus == AnchorStatus.ANCHORED})
 }
 
 export async function buildIpfs(configObj): Promise<IpfsApi> {

@@ -3,7 +3,7 @@
  */
 
 import { CeramicApi, DoctypeUtils } from "@ceramicnetwork/common"
-import { registerChangeListener, waitForAnchor } from "../utils";
+import {registerChangeListener, waitForAnchor, waitForCondition} from "../utils";
 
 declare global {
     const ceramic: CeramicApi;
@@ -19,9 +19,9 @@ const createWithOneLoadWithTheOther = async(ceramic1, ceramic2): Promise<void> =
 }
 
 const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, anchor: boolean): Promise<void> => {
-    const content0 = { state: 0 }
-    const content1 = { state: 1 }
-    const content2 = { state: 2 }
+    const content0 = { foo: 0 }
+    const content1 = { foo: 1 }
+    const content2 = { foo: 2 }
 
     // Create initial doc
     console.log("Creating document on node 1")
@@ -41,16 +41,18 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
     // Load doc from other node, make sure it sees the update
     console.log("Loading document on node 2")
     const doc2 = await ceramic2.loadDocument(doc1.id)
-    expect(doc2.content).toEqual(doc1.content)
+    await waitForCondition(doc2, function(doc) {return doc.content.foo == content1.foo})
+    if (anchor) {
+        await waitForAnchor(doc2)
+    }
     expect(DoctypeUtils.serializeState(doc2.state)).toEqual(DoctypeUtils.serializeState(doc1.state))
 
     // Now do an update from the second node, and make sure the first gets it
     console.log("Updating document on node 2")
-    const onUpdate = registerChangeListener(doc1)
     await doc2.change({content: content2}, {anchor})
 
     console.log("Waiting for node 1 to learn of update from node 2")
-    await onUpdate
+    await waitForCondition(doc1, function(doc) {return doc.content.foo == content2.foo})
 
     expect(doc2.content).toEqual(content2)
     expect(doc1.content).toEqual(content2)
@@ -66,7 +68,7 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
 }
 
 describe('Ceramic<->Ceramic multi-node integration', () => {
-    jest.setTimeout(1000 * 60 * 15) // 15 minutes
+    jest.setTimeout(1000 * 60 * 30) // 30 minutes
 
     test("create with one, load with the other", async () => {
         console.info("Running test 'create with one, load with the other'")
