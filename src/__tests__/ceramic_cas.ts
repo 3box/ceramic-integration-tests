@@ -9,7 +9,7 @@ declare global {
     const ceramic: CeramicApi
 }
 
-const ANCHOR_TIMEOUT = 60 * 5 // 5 minutes for anchors to happen and be noticed
+const ANCHOR_TIMEOUT = 60 * 10 // 10 minutes for anchors to happen and be noticed
 
 describe('Ceramic<->CAS basic integration', () => {
     jest.setTimeout(1000 * 60 * 15) // 15 minutes
