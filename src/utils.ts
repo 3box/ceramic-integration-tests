@@ -23,7 +23,7 @@ async function delay(millseconds: number): Promise<void> {
 async function withTimeout(func: () => any, timeoutSecs) {
     return new Promise(async (resolve, reject) => {
         setTimeout(() => {
-            reject(`Timed out after ${timeoutSecs} seconds`);
+            reject(`Timed out after ${timeoutSecs} seconds. Current time: ${new Date().toISOString()}`);
         }, timeoutSecs * 1000);
         resolve(await func());
     });
@@ -42,7 +42,7 @@ export async function waitForCondition(doc: any, condition: (doc) => boolean, ti
         let onStateChange = registerChangeListener(doc)
 
         while (!condition(doc)) {
-            console.debug('Waiting for a specific doc state. Current doc state: '
+            console.debug(`Waiting for a specific doc state. Current time: ${new Date().toISOString()}. Current doc state: `
                 + JSON.stringify(DoctypeUtils.serializeState(doc.state)))
             await onStateChange
             onStateChange = registerChangeListener(doc)
