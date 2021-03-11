@@ -20,6 +20,15 @@ async function delay(millseconds: number): Promise<void> {
     await new Promise<void>(resolve => setTimeout(() => resolve(), millseconds))
 }
 
+async function withTimeout(func: () => any, timeoutSecs) {
+    return new Promise(async (resolve, reject) => {
+        setTimeout(() => {
+            reject(`Timed out after ${timeoutSecs} seconds. Current time: ${new Date().toISOString()}`);
+        }, timeoutSecs * 1000);
+        resolve(await func());
+    });
+}
+
 export function registerChangeListener(doc: any): Promise<void> {
     return new Promise(resolve => {
         doc.on('change', () => {
@@ -28,19 +37,22 @@ export function registerChangeListener(doc: any): Promise<void> {
     })
 }
 
-export async function waitForCondition(doc: any, condition: (doc) => boolean): Promise<void> {
-    let onStateChange = registerChangeListener(doc)
+export async function waitForCondition(doc: any, condition: (doc) => boolean, timeoutSecs: number): Promise<void> {
+    const waiter = async function() {
+        let onStateChange = registerChangeListener(doc)
 
-    while (!condition(doc)) {
-        console.debug('Waiting for a specific doc state. Current doc state: '
-            + JSON.stringify(DoctypeUtils.serializeState(doc.state)))
-        await onStateChange
-        onStateChange = registerChangeListener(doc)
+        while (!condition(doc)) {
+            console.debug(`Waiting for a specific doc state. Current time: ${new Date().toISOString()}. Current doc state: `
+                + JSON.stringify(DoctypeUtils.serializeState(doc.state)))
+            await onStateChange
+            onStateChange = registerChangeListener(doc)
+        }
     }
+    await withTimeout(waiter, timeoutSecs)
 }
 
-export async function waitForAnchor(doc: any): Promise<void> {
-    await waitForCondition(doc, function(doc) { return doc.state.anchorStatus == AnchorStatus.ANCHORED})
+export async function waitForAnchor(doc: any, timeoutSecs: number): Promise<void> {
+    await waitForCondition(doc, function(doc) { return doc.state.anchorStatus == AnchorStatus.ANCHORED}, timeoutSecs)
 }
 
 export async function buildIpfs(configObj): Promise<IpfsApi> {
