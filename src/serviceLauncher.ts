@@ -39,7 +39,7 @@ function main() {
                 `node node_modules/@ceramicnetwork/cli/bin/ceramic daemon \
                     --port ${service.port} \
                     --network dev-unstable \
-                    --ethereum-rpc ${process.env.ETH_RPC_URL}
+                    --ethereum-rpc ${service.ethereumRpc}
                 `
             )
         } else {

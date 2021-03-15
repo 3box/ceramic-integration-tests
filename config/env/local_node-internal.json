@@ -22,7 +22,8 @@
     "services": [
       {
         "type": "ipfs",
-        "port": 5011
+        "port": 5011,
+        "ethereumRpc": "@@ETH_RPC_URL"
       }
     ]
   }
