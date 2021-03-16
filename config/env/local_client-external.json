@@ -18,7 +18,8 @@
     "services": [
       {
         "type": "ceramic",
-        "port": 7007
+        "port": 7007,
+        "ethereumRpc": "@@ETH_RPC_URL"
       }
     ]
   }
