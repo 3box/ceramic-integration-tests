@@ -9,6 +9,7 @@ module.exports = {
     ],
     moduleNameMapper: {
       "multiformats/basics": "multiformats/cjs/src/basics-import.js",
-      "multiformats/legacy": "multiformats/cjs/src/legacy.js"
+      "multiformats/legacy": "multiformats/cjs/src/legacy.js",
+      "multiformats/hashes/sha2": "multiformats/cjs/src/hashes/sha2.js"
     }
 }
