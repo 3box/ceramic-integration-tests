@@ -73,7 +73,7 @@ function buildDiscordSummary(results, runId) {
   let title = 'Tests Failed'
   let description = `Run Id: ${runId}`
   let color = 16711712
-  if (results.success) {
+  if (results.numFailedTestSuites < 1) {
     title = 'Tests Passed'
     color = 8781568
   }
