@@ -1,6 +1,6 @@
 on:
   schedule:
-  - cron: "0 5 * * *" # 12pm EST
+  - cron: "0 5,17 * * *" # 12am and 12pm EST
   workflow_dispatch:
     inputs:
       tests:
