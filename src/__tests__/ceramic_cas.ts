@@ -13,7 +13,7 @@ declare global {
 const ANCHOR_TIMEOUT = 60 * 15
 
 describe('Ceramic<->CAS basic integration', () => {
-    jest.setTimeout(1000 * 60 * 15) // 15 minutes
+    jest.setTimeout(1000 * 60 * 30) // 30 minutes
 
     test("basic crud is anchored properly, single update per anchor batch", async () => {
         // Test document creation
