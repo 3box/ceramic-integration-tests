@@ -11,7 +11,8 @@ declare global {
 }
 
 const UPDATE_TIMEOUT = 30     // 30 seconds for regular updates to propagate from one node to another
-const ANCHOR_TIMEOUT = 60 * 10 // 10 minutes for anchors to happen and be noticed
+// 15 minutes for anchors to happen and be noticed (including potential failures and retries)
+const ANCHOR_TIMEOUT = 60 * 15
 
 const createWithOneLoadWithTheOther = async(ceramic1, ceramic2): Promise<void> => {
     const content = { foo: 'bar' }
