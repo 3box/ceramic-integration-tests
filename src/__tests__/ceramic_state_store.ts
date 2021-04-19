@@ -3,7 +3,8 @@
  */
 
 import { CeramicApi } from "@ceramicnetwork/common";
-import {DocID, DocRef} from "@ceramicnetwork/docid";
+import { StreamID } from "@ceramicnetwork/streamid";
+import { TileDocument } from "@ceramicnetwork/stream-tile";
 import { restartCeramic } from "../utils";
 import { config } from "node-config-ts";
 
@@ -11,13 +12,13 @@ declare global {
     let ceramic: CeramicApi
 }
 
-const isPinned = async (ceramic: CeramicApi, docId: DocID): Promise<Boolean> => {
-    const pinnedDocsIterator = await ceramic.pin.ls(docId)
-    const pinnedDocIds = []
-    for await (const id of pinnedDocsIterator) {
-        pinnedDocIds.push(id)
+const isPinned = async (ceramic: CeramicApi, streamId: StreamID): Promise<Boolean> => {
+    const pinnedStreamsIterator = await ceramic.pin.ls(streamId)
+    const pinnedStreamIds = []
+    for await (const id of pinnedStreamsIterator) {
+        pinnedStreamIds.push(id)
     }
-    return pinnedDocIds.includes(docId.toString())
+    return pinnedStreamIds.includes(streamId.toString())
 }
 
 describe('Ceramic state store tests', () => {
@@ -30,17 +31,16 @@ describe('Ceramic state store tests', () => {
         }
 
         const initialContent = { foo: 'bar' }
-        const doc = await ceramic.createDocument(
-            'tile', {content: initialContent}, {anchor:false, publish:false})
+        const doc = await TileDocument.create(ceramic, initialContent, null, {anchor:false, publish:false})
         expect(doc.content).toEqual(initialContent)
         const newContent = { bar: 'baz'}
-        await doc.change({content: newContent}, {anchor:false, publish:false})
+        await doc.update(newContent, null, {anchor:false, publish:false})
         expect(doc.content).toEqual(newContent)
 
         expect(await isPinned(ceramic, doc.id)).toBeFalsy()
         await restartCeramic()
 
-        const loaded = await ceramic.loadDocument(doc.id)
+        const loaded = await ceramic.loadStream<TileDocument>(doc.id)
         expect(loaded.content).not.toEqual(newContent)
         expect(loaded.content).toEqual(initialContent)
     })
@@ -52,18 +52,17 @@ describe('Ceramic state store tests', () => {
         }
 
         const initialContent = { foo: 'bar' }
-        const doc = await ceramic.createDocument(
-            'tile', {content: initialContent}, {anchor:false, publish:false})
+        const doc = await TileDocument.create(ceramic, initialContent, null, {anchor:false, publish:false})
         expect(doc.content).toEqual(initialContent)
         const newContent = { bar: 'baz'}
-        await doc.change({content: newContent}, {anchor:false, publish:false})
+        await doc.update(newContent, null, {anchor:false, publish:false})
         expect(doc.content).toEqual(newContent)
 
         await ceramic.pin.add(doc.id)
 
         await restartCeramic()
 
-        const loaded = await ceramic.loadDocument(doc.id)
+        const loaded = await ceramic.loadStream<TileDocument>(doc.id)
         expect(loaded.content).toEqual(newContent)
 
         expect(await isPinned(ceramic, doc.id)).toBeTruthy()

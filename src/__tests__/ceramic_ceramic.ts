@@ -2,7 +2,8 @@
  * @jest-environment ./build/index.js
  */
 
-import { CeramicApi, DoctypeUtils } from "@ceramicnetwork/common"
+import { CeramicApi, StreamUtils } from "@ceramicnetwork/common"
+import { TileDocument } from "@ceramicnetwork/stream-tile";
 import { waitForAnchor, waitForCondition} from "../utils";
 
 declare global {
@@ -16,8 +17,8 @@ const ANCHOR_TIMEOUT = 60 * 15
 
 const createWithOneLoadWithTheOther = async(ceramic1, ceramic2): Promise<void> => {
     const content = { foo: 'bar' }
-    const doc1 = await ceramic1.createDocument('tile', {content})
-    const doc2 = await ceramic2.loadDocument(doc1.id)
+    const doc1 = await TileDocument.create(ceramic1, content)
+    const doc2 = await TileDocument.load(ceramic2, doc1.id)
     expect(doc1.content).toEqual(content)
     expect(doc2.content).toEqual(doc1.content)
 }
@@ -29,14 +30,14 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
 
     // Create initial doc
     console.log("Creating document on node 1")
-    const doc1 = await ceramic1.createDocument('tile', {content: content0}, {anchor})
+    const doc1 = await TileDocument.create(ceramic1, content0, null, {anchor})
     if (anchor) {
         await waitForAnchor(doc1, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr)} )
     }
 
     // Perform an update
     console.log("Updating document on node 1")
-    await doc1.change({content: content1}, {anchor})
+    await doc1.update(content1, null,{anchor})
     if (anchor) {
         await waitForAnchor(doc1, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr)} )
     }
@@ -44,18 +45,18 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
 
     // Load doc from other node, make sure it sees the update
     console.log("Loading document on node 2")
-    const doc2 = await ceramic2.loadDocument(doc1.id)
+    const doc2 = await ceramic2.loadStream<TileDocument>(doc1.id)
     await waitForCondition(
         doc2, function(doc) {return doc.content.foo == content1.foo}, UPDATE_TIMEOUT)
         .catch(errStr => { throw new Error(errStr) })
     if (anchor) {
         await waitForAnchor(doc2, ANCHOR_TIMEOUT).catch(errStr => {throw new Error(errStr)})
     }
-    expect(DoctypeUtils.serializeState(doc2.state)).toEqual(DoctypeUtils.serializeState(doc1.state))
+    expect(StreamUtils.serializeState(doc2.state)).toEqual(StreamUtils.serializeState(doc1.state))
 
     // Now do an update from the second node, and make sure the first gets it
     console.log("Updating document on node 2")
-    await doc2.change({content: content2}, {anchor})
+    await doc2.update(content2, null, {anchor})
 
     console.log("Waiting for node 1 to learn of update from node 2")
     await waitForCondition(doc1, function(doc) {return doc.content.foo == content2.foo}, UPDATE_TIMEOUT)
@@ -70,7 +71,7 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
 
     expect(doc2.content).toEqual(content2)
     expect(doc1.content).toEqual(content2)
-    expect(DoctypeUtils.serializeState(doc1.state)).toEqual(DoctypeUtils.serializeState(doc2.state))
+    expect(StreamUtils.serializeState(doc1.state)).toEqual(StreamUtils.serializeState(doc2.state))
 }
 
 describe('Ceramic<->Ceramic multi-node integration', () => {

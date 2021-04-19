@@ -1,11 +1,13 @@
-import {AnchorStatus, CeramicApi, DoctypeUtils, IpfsApi} from "@ceramicnetwork/common";
+import {AnchorStatus, CeramicApi, StreamUtils, IpfsApi} from "@ceramicnetwork/common";
 import {S3StateStore} from "@ceramicnetwork/cli";
 import Ceramic, {CeramicConfig} from "@ceramicnetwork/core";
 import CeramicClient from '@ceramicnetwork/http-client';
 
 import dagJose from 'dag-jose'
 import {randomBytes} from '@stablelib/random'
-import {Ed25519Provider} from 'key-did-provider-ed25519'
+import { Ed25519Provider } from 'key-did-provider-ed25519'
+import KeyDidResolver from 'key-did-resolver';
+import { DID } from 'dids';
 import ipfsClient from "ipfs-http-client"
 import {config} from 'node-config-ts';
 
@@ -43,7 +45,7 @@ export async function waitForCondition(doc: any, condition: (doc) => boolean, ti
 
         while (!condition(doc)) {
             console.debug(`Waiting for a specific doc state. Current time: ${new Date().toISOString()}. Current doc state: `
-                + JSON.stringify(DoctypeUtils.serializeState(doc.state)))
+                + JSON.stringify(StreamUtils.serializeState(doc.state)))
             await onStateChange
             onStateChange = registerChangeListener(doc)
         }
@@ -74,7 +76,7 @@ export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicA
     let ceramic
     if (configObj.mode == "client") {
         console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
-        ceramic = new CeramicClient(configObj.apiURL, { docSyncEnabled: true, docSyncInterval: 500 })
+        ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
     } else if (configObj.mode == "node") {
         console.log("Creating ceramic local node")
         const ceramicConfig: CeramicConfig = {
@@ -95,8 +97,11 @@ export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicA
         throw new Error(`Ceramic mode "${configObj.mode}" not supported`)
     }
 
-    const didProvider = new Ed25519Provider(seed)
-    await ceramic.setDIDProvider(didProvider)
+    const provider = new Ed25519Provider(seed)
+    const resolver = KeyDidResolver.getResolver();
+    const did = new DID({ provider, resolver })
+    await ceramic.setDID(did)
+    await did.authenticate()
 
     return ceramic
 }

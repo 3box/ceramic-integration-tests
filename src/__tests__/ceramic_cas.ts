@@ -3,6 +3,7 @@
  */
 
 import { AnchorStatus, CeramicApi } from "@ceramicnetwork/common"
+import { TileDocument } from "@ceramicnetwork/stream-tile"
 import { waitForAnchor } from "../utils";
 
 declare global {
@@ -19,7 +20,7 @@ describe('Ceramic<->CAS basic integration', () => {
         // Test document creation
         console.log("Creating document")
         const initialContent = { foo: 'bar' }
-        const doc = await ceramic.createDocument('tile', {content: initialContent})
+        const doc = await TileDocument.create(ceramic, initialContent)
         expect(doc.content).toEqual(initialContent)
 
         // Test document creation is anchored correctly
@@ -30,7 +31,7 @@ describe('Ceramic<->CAS basic integration', () => {
         // Test document update
         console.log("Updating document")
         const newContent = { bar: 'baz'}
-        await doc.change({content: newContent})
+        await doc.update(newContent)
         expect(doc.content).toEqual(newContent)
 
         // Test document update is anchored correctly
@@ -49,10 +50,10 @@ describe('Ceramic<->CAS basic integration', () => {
 
         // Create some documents
         console.log("Creating documents")
-        const doc1 = await ceramic.createDocument('tile', {content: content0})
-        const doc2 = await ceramic.createDocument('tile', {content: content0})
-        const doc3 = await ceramic.createDocument('tile', {content: content0})
-        const doc4 = await ceramic.createDocument('tile', {content: content0})
+        const doc1 = await TileDocument.create(ceramic, content0)
+        const doc2 = await TileDocument.create(ceramic, content0)
+        const doc3 = await TileDocument.create(ceramic, content0)
+        const doc4 = await TileDocument.create(ceramic, content0)
         expect(doc1.content).toEqual(content0)
         expect(doc2.content).toEqual(content0)
         expect(doc3.content).toEqual(content0)
@@ -83,19 +84,19 @@ describe('Ceramic<->CAS basic integration', () => {
 
         // Test document updates
         console.log("Updating documents")
-        await doc1.change({content: content1}, {anchor: true})
-        await doc2.change({content: content1}, {anchor: false})
-        await doc3.change({content: content1}, {anchor: false})
-        await doc4.change({content: content1}, {anchor: false})
+        await doc1.update(content1, null,{anchor: true})
+        await doc2.update(content1, null, {anchor: false})
+        await doc3.update(content1, null, {anchor: false})
+        await doc4.update(content1, null, {anchor: false})
 
-        await doc2.change({content: content2}, {anchor: true})
-        await doc3.change({content: content2}, {anchor: false})
-        await doc4.change({content: content2}, {anchor: false})
+        await doc2.update(content2, null, {anchor: true})
+        await doc3.update(content2, null, {anchor: false})
+        await doc4.update(content2, null, {anchor: false})
 
-        await doc3.change({content: content3}, {anchor: true})
-        await doc4.change({content: content3}, {anchor: false})
+        await doc3.update(content3, null, {anchor: true})
+        await doc4.update(content3, null, {anchor: false})
 
-        await doc4.change({content: content4}, {anchor: true})
+        await doc4.update(content4, null, {anchor: true})
 
         expect(doc1.content).toEqual(content1)
         expect(doc2.content).toEqual(content2)
