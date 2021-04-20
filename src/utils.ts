@@ -31,9 +31,11 @@ async function delay(millseconds: number): Promise<void> {
 }
 
 async function withTimeout(prom: Promise<any>, timeoutSecs) {
+    const startTime = new Date().toISOString()
     return new Promise(async (resolve, reject) => {
         setTimeout(() => {
-            reject(`Timed out after ${timeoutSecs} seconds. Current time: ${new Date().toISOString()}`); // todo put into function
+            const curTime = new Date().toISOString()
+            reject(`Timed out after ${timeoutSecs} seconds. Current time: ${curTime}, start time: ${startTime}`);
         }, timeoutSecs * 1000);
         resolve(await prom);
     });
