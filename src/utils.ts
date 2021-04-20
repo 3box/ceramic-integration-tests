@@ -41,24 +41,47 @@ async function withTimeout(prom: Promise<any>, timeoutSecs) {
     });
 }
 
-export async function waitForCondition(stream: Stream, condition: (stream: StreamState) => boolean, timeoutSecs: number): Promise<void> {
+const defaultMsgGenerator = function(stream) {
+    const curTime = new Date().toISOString()
+    return `Waiting for stream ${stream.id.toString()} to hit a specific stream state. Current time: ${curTime}. Current stream state: ${JSON.stringify(StreamUtils.serializeState(stream.state))}`
+}
+
+/**
+ * Waits for 'timeoutSecs' for the given 'condition' to evaluate to try when applied to the current
+ * stream state for 'stream'.
+ * @param stream
+ * @param condition
+ * @param timeoutSecs
+ * @param msgGenerator - Function that takes a stream and returns a string to log every time
+ *   a new state is found that *doesn't* satisfy 'condition'
+ */
+export async function waitForCondition(stream: Stream, condition: (stream: StreamState) => boolean, timeoutSecs: number, msgGenerator?: (stream: Stream) => string): Promise<void> {
     const waiter = stream.pipe(
         filter((state: StreamState) => {
             if (condition(state)) {
                 return true
             }
-            console.debug(`Waiting for a specific stream state. Current time: ${new Date().toISOString()}. Current stream state: `
-                + JSON.stringify(StreamUtils.serializeState(stream.state)))
+            const msg = msgGenerator ? msgGenerator(stream) : defaultMsgGenerator(stream)
+            console.debug(msg)
             return false
         }),
         take(1),
     ).toPromise()
 
+    if (condition(stream.state)) {
+        // Handle case where condition is already true when this gets called
+        return
+    }
+
     await withTimeout(waiter, timeoutSecs)
 }
 
 export async function waitForAnchor(stream: any, timeoutSecs: number): Promise<void> {
-    await waitForCondition(stream, function(state) { return state.anchorStatus == AnchorStatus.ANCHORED}, timeoutSecs)
+    const msgGenerator = function(stream) {
+        const curTime = new Date().toISOString()
+        return `Waiting for stream ${stream.id.toString()} to be anchored. Current time: ${curTime}. Current stream state: ${JSON.stringify(StreamUtils.serializeState(stream.state))}`
+    }
+    await waitForCondition(stream, function(state) { return state.anchorStatus == AnchorStatus.ANCHORED}, timeoutSecs, msgGenerator)
 }
 
 export async function buildIpfs(configObj): Promise<IpfsApi> {
