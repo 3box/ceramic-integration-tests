@@ -47,7 +47,11 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
     console.log("Loading document on node 2")
     const doc2 = await ceramic2.loadStream<TileDocument>(doc1.id)
     await waitForCondition(
-        doc2, function(doc) {return doc.content.foo == content1.foo}, UPDATE_TIMEOUT)
+        doc2,
+        function(state) {
+            return state.next?.content.foo == content1.foo || state.content.foo == content1.foo
+        },
+        UPDATE_TIMEOUT)
         .catch(errStr => { throw new Error(errStr) })
     if (anchor) {
         await waitForAnchor(doc2, ANCHOR_TIMEOUT).catch(errStr => {throw new Error(errStr)})
@@ -59,7 +63,11 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
     await doc2.update(content2, null, {anchor})
 
     console.log("Waiting for node 1 to learn of update from node 2")
-    await waitForCondition(doc1, function(doc) {return doc.content.foo == content2.foo}, UPDATE_TIMEOUT)
+    await waitForCondition(doc1,
+        function(state) {
+            return state.next?.content.foo == content2.foo || state.content.foo == content2.foo
+        },
+        UPDATE_TIMEOUT)
 
     expect(doc2.content).toEqual(content2)
     expect(doc1.content).toEqual(content2)

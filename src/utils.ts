@@ -1,4 +1,11 @@
-import {AnchorStatus, CeramicApi, StreamUtils, IpfsApi} from "@ceramicnetwork/common";
+import {
+    AnchorStatus,
+    CeramicApi,
+    StreamUtils,
+    IpfsApi,
+    StreamState,
+    Stream
+} from "@ceramicnetwork/common";
 import {S3StateStore} from "@ceramicnetwork/cli";
 import Ceramic, {CeramicConfig} from "@ceramicnetwork/core";
 import CeramicClient from '@ceramicnetwork/http-client';
@@ -10,6 +17,7 @@ import KeyDidResolver from 'key-did-resolver';
 import { DID } from 'dids';
 import ipfsClient from "ipfs-http-client"
 import {config} from 'node-config-ts';
+import { filter, take } from 'rxjs/operators';
 
 //@ts-ignore
 import multiformats from 'multiformats/basics'
@@ -22,39 +30,33 @@ async function delay(millseconds: number): Promise<void> {
     await new Promise<void>(resolve => setTimeout(() => resolve(), millseconds))
 }
 
-async function withTimeout(func: () => any, timeoutSecs) {
+async function withTimeout(prom: Promise<any>, timeoutSecs) {
     return new Promise(async (resolve, reject) => {
         setTimeout(() => {
-            reject(`Timed out after ${timeoutSecs} seconds. Current time: ${new Date().toISOString()}`);
+            reject(`Timed out after ${timeoutSecs} seconds. Current time: ${new Date().toISOString()}`); // todo put into function
         }, timeoutSecs * 1000);
-        resolve(await func());
+        resolve(await prom);
     });
 }
 
-export function registerChangeListener(doc: any): Promise<void> {
-    return new Promise(resolve => {
-        doc.on('change', () => {
-            resolve()
-        })
-    })
-}
+export async function waitForCondition(stream: Stream, condition: (stream: StreamState) => boolean, timeoutSecs: number): Promise<void> {
+    const waiter = stream.pipe(
+        filter((state: StreamState) => {
+            if (condition(state)) {
+                return true
+            }
+            console.debug(`Waiting for a specific stream state. Current time: ${new Date().toISOString()}. Current stream state: `
+                + JSON.stringify(StreamUtils.serializeState(stream.state)))
+            return false
+        }),
+        take(1),
+    ).toPromise()
 
-export async function waitForCondition(doc: any, condition: (doc) => boolean, timeoutSecs: number): Promise<void> {
-    const waiter = async function() {
-        let onStateChange = registerChangeListener(doc)
-
-        while (!condition(doc)) {
-            console.debug(`Waiting for a specific doc state. Current time: ${new Date().toISOString()}. Current doc state: `
-                + JSON.stringify(StreamUtils.serializeState(doc.state)))
-            await onStateChange
-            onStateChange = registerChangeListener(doc)
-        }
-    }
     await withTimeout(waiter, timeoutSecs)
 }
 
-export async function waitForAnchor(doc: any, timeoutSecs: number): Promise<void> {
-    await waitForCondition(doc, function(doc) { return doc.state.anchorStatus == AnchorStatus.ANCHORED}, timeoutSecs)
+export async function waitForAnchor(stream: any, timeoutSecs: number): Promise<void> {
+    await waitForCondition(stream, function(state) { return state.anchorStatus == AnchorStatus.ANCHORED}, timeoutSecs)
 }
 
 export async function buildIpfs(configObj): Promise<IpfsApi> {
