@@ -69,7 +69,7 @@ export async function waitForCondition(stream: Stream, condition: (stream: Strea
     ).toPromise()
 
     if (condition(stream.state)) {
-        // Handle case where condition is already true when this gets called
+        // Handle case where condition is already true when waitForCondition gets called
         return
     }
 
