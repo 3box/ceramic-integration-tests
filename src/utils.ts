@@ -1,13 +1,23 @@
-import {AnchorStatus, CeramicApi, DoctypeUtils, IpfsApi} from "@ceramicnetwork/common";
+import {
+    AnchorStatus,
+    CeramicApi,
+    StreamUtils,
+    IpfsApi,
+    StreamState,
+    Stream
+} from "@ceramicnetwork/common";
 import {S3StateStore} from "@ceramicnetwork/cli";
 import Ceramic, {CeramicConfig} from "@ceramicnetwork/core";
 import CeramicClient from '@ceramicnetwork/http-client';
 
 import dagJose from 'dag-jose'
 import {randomBytes} from '@stablelib/random'
-import {Ed25519Provider} from 'key-did-provider-ed25519'
+import { Ed25519Provider } from 'key-did-provider-ed25519'
+import KeyDidResolver from 'key-did-resolver';
+import { DID } from 'dids';
 import ipfsClient from "ipfs-http-client"
 import {config} from 'node-config-ts';
+import { filter, take } from 'rxjs/operators';
 
 //@ts-ignore
 import multiformats from 'multiformats/basics'
@@ -20,39 +30,35 @@ async function delay(millseconds: number): Promise<void> {
     await new Promise<void>(resolve => setTimeout(() => resolve(), millseconds))
 }
 
-async function withTimeout(func: () => any, timeoutSecs) {
+async function withTimeout(prom: Promise<any>, timeoutSecs) {
+    const startTime = new Date().toISOString()
     return new Promise(async (resolve, reject) => {
         setTimeout(() => {
-            reject(`Timed out after ${timeoutSecs} seconds. Current time: ${new Date().toISOString()}`);
+            const curTime = new Date().toISOString()
+            reject(`Timed out after ${timeoutSecs} seconds. Current time: ${curTime}, start time: ${startTime}`);
         }, timeoutSecs * 1000);
-        resolve(await func());
+        resolve(await prom);
     });
 }
 
-export function registerChangeListener(doc: any): Promise<void> {
-    return new Promise(resolve => {
-        doc.on('change', () => {
-            resolve()
-        })
-    })
-}
+export async function waitForCondition(stream: Stream, condition: (stream: StreamState) => boolean, timeoutSecs: number): Promise<void> {
+    const waiter = stream.pipe(
+        filter((state: StreamState) => {
+            if (condition(state)) {
+                return true
+            }
+            console.debug(`Waiting for a specific stream state. Current time: ${new Date().toISOString()}. Current stream state: `
+                + JSON.stringify(StreamUtils.serializeState(stream.state)))
+            return false
+        }),
+        take(1),
+    ).toPromise()
 
-export async function waitForCondition(doc: any, condition: (doc) => boolean, timeoutSecs: number): Promise<void> {
-    const waiter = async function() {
-        let onStateChange = registerChangeListener(doc)
-
-        while (!condition(doc)) {
-            console.debug(`Waiting for a specific doc state. Current time: ${new Date().toISOString()}. Current doc state: `
-                + JSON.stringify(DoctypeUtils.serializeState(doc.state)))
-            await onStateChange
-            onStateChange = registerChangeListener(doc)
-        }
-    }
     await withTimeout(waiter, timeoutSecs)
 }
 
-export async function waitForAnchor(doc: any, timeoutSecs: number): Promise<void> {
-    await waitForCondition(doc, function(doc) { return doc.state.anchorStatus == AnchorStatus.ANCHORED}, timeoutSecs)
+export async function waitForAnchor(stream: any, timeoutSecs: number): Promise<void> {
+    await waitForCondition(stream, function(state) { return state.anchorStatus == AnchorStatus.ANCHORED}, timeoutSecs)
 }
 
 export async function buildIpfs(configObj): Promise<IpfsApi> {
@@ -74,7 +80,7 @@ export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicA
     let ceramic
     if (configObj.mode == "client") {
         console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
-        ceramic = new CeramicClient(configObj.apiURL, { docSyncEnabled: true, docSyncInterval: 500 })
+        ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
     } else if (configObj.mode == "node") {
         console.log("Creating ceramic local node")
         const ceramicConfig: CeramicConfig = {
@@ -95,8 +101,11 @@ export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicA
         throw new Error(`Ceramic mode "${configObj.mode}" not supported`)
     }
 
-    const didProvider = new Ed25519Provider(seed)
-    await ceramic.setDIDProvider(didProvider)
+    const provider = new Ed25519Provider(seed)
+    const resolver = KeyDidResolver.getResolver();
+    const did = new DID({ provider, resolver })
+    await ceramic.setDID(did)
+    await did.authenticate()
 
     return ceramic
 }
