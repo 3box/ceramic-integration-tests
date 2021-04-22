@@ -22,7 +22,7 @@
     "launch:services": "node build/serviceLauncher",
     "prebuild": "npm run clean",
     "postinstall": "node-config-ts",
-    "test": "./node_modules/.bin/jest --config jest.config.js --runInBand",
+    "test": "./node_modules/.bin/jest --config jest.config.js --runInBand --verbose",
     "test:ci": "./node_modules/.bin/jest --config jest.config.ci.js --runInBand --forceExit",
     "clean": "rm -rf ./build"
   },
