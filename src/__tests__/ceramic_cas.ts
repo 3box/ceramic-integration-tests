@@ -20,7 +20,7 @@ describe('Ceramic<->CAS basic integration', () => {
         // Test document creation
         console.log("Creating document")
         const initialContent = { foo: 'bar' }
-        const doc = await TileDocument.create(ceramic, initialContent)
+        const doc = await TileDocument.create<any>(ceramic, initialContent)
         expect(doc.content).toEqual(initialContent)
 
         // Test document creation is anchored correctly
