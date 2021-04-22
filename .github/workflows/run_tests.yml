@@ -30,7 +30,7 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-2
+        aws-region: ${{ secrets.AWS_REGION }}
 
     - name: Run smoke tests
       if: contains('smoke', github.event.inputs.tests)
@@ -40,4 +40,4 @@ jobs:
           --task-definition ceramic-dev-tests-smoke_tests \
           --launch-type FARGATE \
           --network-configuration ${{ secrets.NETWORK_CONFIGURATION }} \
-          --overrides '{ "containerOverrides": [{ "name": "smoke_tests", "environment": [{ "name": "NODE_ENV", "value": "${{ matrix.smoke_test_config }}" }, { "name": "AWS_ACCESS_KEY_ID", "value": "${{ secrets.S3_STATE_STORE_AWS_ACCESS_KEY_ID }}" }, { "name": "AWS_SECRET_ACCESS_KEY", "value": "${{ secrets.S3_STATE_STORE_AWS_SECRET_ACCESS_KEY }}" }, { "name": "AWS_REGION", "value": "${{ secrets.S3_AWS_REGION }}" }, { "name": "ETH_RPC_URL", "value": "${{ secrets.ETH_RPC_URL }}" }] }] }'
+          --overrides '{ "containerOverrides": [{ "name": "smoke_tests", "environment": [{ "name": "NODE_ENV", "value": "${{ matrix.smoke_test_config }}" }, { "name": "AWS_ACCESS_KEY_ID", "value": "${{ secrets.S3_AWS_ACCESS_KEY_ID }}" }, { "name": "AWS_SECRET_ACCESS_KEY", "value": "${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}" }, { "name": "AWS_REGION", "value": "${{ secrets.S3_AWS_REGION }}" }, { "name": "ETH_RPC_URL", "value": "${{ secrets.ETH_RPC_URL }}" }] }] }'
