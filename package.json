@@ -23,7 +23,7 @@
     "prebuild": "npm run clean",
     "postinstall": "node-config-ts",
     "test": "./node_modules/.bin/jest --config jest.config.js --runInBand --verbose",
-    "test:ci": "./node_modules/.bin/jest --config jest.config.ci.js --runInBand --forceExit",
+    "test:ci": "./node_modules/.bin/jest --config jest.config.ci.js --runInBand --verbose --forceExit",
     "clean": "rm -rf ./build"
   },
   "dependencies": {
