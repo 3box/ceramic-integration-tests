@@ -1,12 +1,43 @@
 # ceramic-integration-tests
 
-To use, first set up your config files/environment variables for node-config as specified here: https://www.npmjs.com/package/node-config-ts#using-files.
-Then to actually run the tests:
+## Building
+
 ```
 npm install
 npm run build
-npm run test
 ```
+
+## Running tests
+
+There are currently 3 different configurations that the tests can be run in, which correspond to the 3 json files in the `config/env` directory:
+
+#### internal-external
+
+`NODE_ENV=internal-external npm run test`
+
+Tests against the two nodes (called 'internal' and 'external') running in our infra.  Requires no local nodes.
+
+#### local_client-external
+
+`NODE_ENV=local_client-external npm run test`
+
+Tests integration between a local node and the 'external' node in our infra.
+Before running tests a ceramic node connected to the dev-unstable network
+must be running on the same machine. The tests communicate to the local node via an http-client.
+
+#### local_node-internal
+
+`NODE_ENV=local_node-internal npm run test`
+
+Tests integration between a local node and the 'internal' node in our infra.
+Before running tests an ipfs node must be running on the same machine.
+The tests start an in-process ceramic node (connected over http to the local ipfs node).
+
+Note that this is the only configuration that meaningfully runs the 'ceramic_state_store' test,
+as it's the only configuration in which the test has the ability to restart the ceramic node.
+Since the 'ceramic_state_store' test tests integration with S3, you also need to set the proper
+environment variables for the S3 bucket configuration and access keys in order to run the
+tests in the `local_node-internal` configuration.
 
 ## Docker
 
