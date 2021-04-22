@@ -5,7 +5,7 @@
         "mode": "node",
         "anchorServiceAPI": "https://cas-dev.3boxlabs.com",
         "ethereumRpc": "@@ETH_RPC_URL",
-        "s3StateStoreBucketName": "ceramic-dev-node",
+        "s3StateStoreBucketName": "ceramic-dev-tests/node",
         "network": "dev-unstable"
       },
       "ipfs": {
