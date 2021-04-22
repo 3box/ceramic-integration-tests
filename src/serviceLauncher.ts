@@ -37,6 +37,8 @@ function main() {
         } else if (service.type == 'ceramic') {
             subprocess = exec(
                 `node node_modules/@ceramicnetwork/cli/bin/ceramic daemon \
+                    --debug \
+                    --log-to-files \
                     --port ${service.port} \
                     --network dev-unstable \
                     --ethereum-rpc ${service.ethereumRpc}
