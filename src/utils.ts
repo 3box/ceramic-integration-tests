@@ -82,6 +82,7 @@ export async function waitForAnchor(stream: any, timeoutSecs: number): Promise<v
         return `Waiting for stream ${stream.id.toString()} to be anchored. Current time: ${curTime}. Current stream state: ${JSON.stringify(StreamUtils.serializeState(stream.state))}`
     }
     await waitForCondition(stream, function(state) { return state.anchorStatus == AnchorStatus.ANCHORED}, timeoutSecs, msgGenerator)
+    console.log(`Stream ${stream.id.toString()} successfully anchored`)
 }
 
 export async function buildIpfs(configObj): Promise<IpfsApi> {
