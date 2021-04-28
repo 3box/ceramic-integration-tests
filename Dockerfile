@@ -2,7 +2,7 @@ FROM node:current-alpine as builder
 
 COPY package*.json ./
 
-RUN apk add --no-cache python make g++
+RUN apk add --no-cache python3 make g++
 
 RUN npm ci --ignore-scripts
 RUN npm rebuild bcrypto
