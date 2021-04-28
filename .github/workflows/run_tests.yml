@@ -40,4 +40,4 @@ jobs:
           --task-definition ceramic-dev-tests-smoke_tests \
           --launch-type FARGATE \
           --network-configuration ${{ secrets.NETWORK_CONFIGURATION }} \
-          --overrides '{ "containerOverrides": [{ "name": "smoke_tests", "environment": [{ "name": "NODE_ENV", "value": "${{ matrix.smoke_test_config }}" }, { "name": "AWS_ACCESS_KEY_ID", "value": "${{ secrets.S3_AWS_ACCESS_KEY_ID }}" }, { "name": "AWS_SECRET_ACCESS_KEY", "value": "${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}" }, { "name": "AWS_REGION", "value": "${{ secrets.S3_AWS_REGION }}" }, { "name": "ETH_RPC_URL", "value": "${{ secrets.ETH_RPC_URL }}" }] }] }'
+          --overrides '{ "containerOverrides": [{ "name": "smoke_tests", "environment": [{ "name": "DEBUG", "value": "bitswap*,libp2p:dialer" }, { "name": "NODE_ENV", "value": "${{ matrix.smoke_test_config }}" }, { "name": "AWS_ACCESS_KEY_ID", "value": "${{ secrets.S3_AWS_ACCESS_KEY_ID }}" }, { "name": "AWS_SECRET_ACCESS_KEY", "value": "${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}" }, { "name": "AWS_REGION", "value": "${{ secrets.S3_AWS_REGION }}" }, { "name": "ETH_RPC_URL", "value": "${{ secrets.ETH_RPC_URL }}" }] }] }'
