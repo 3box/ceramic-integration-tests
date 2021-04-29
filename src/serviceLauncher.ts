@@ -30,7 +30,8 @@ function main() {
                     env: {
                         ...process.env,
                         IPFS_API_PORT: service.port,
-                        CERAMIC_NETWORK: 'dev-unstable'
+                        CERAMIC_NETWORK: 'dev-unstable',
+                        DEBUG: 'bitswap*'
                     }
                 }
             )
