@@ -30,7 +30,8 @@ function main() {
                     env: {
                         ...process.env,
                         IPFS_API_PORT: service.port,
-                        CERAMIC_NETWORK: 'dev-unstable'
+                        CERAMIC_NETWORK: 'dev-unstable',
+                        DEBUG: 'bitswap*,libp2p:dialer'
                     }
                 }
             )
@@ -43,7 +44,8 @@ function main() {
                     --network dev-unstable \
                     --ethereum-rpc ${service.ethereumRpc}
                 `
-            )
+            ,
+            { env: { DEBUG: 'bitswap*,libp2p:dialer' }})
         } else {
             throw Error(`Unsupported service type: ${service.type}`)
         }
