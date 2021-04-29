@@ -68,12 +68,12 @@ export async function waitForCondition(stream: Stream, condition: (stream: Strea
         take(1),
     ).toPromise()
 
-    if (condition(stream.state)) {
-        // Handle case where condition is already true when waitForCondition gets called
-        return
+    if (!condition(stream.state)) {
+        // Only wait if condition isn't already true
+        await withTimeout(waiter, timeoutSecs)
     }
 
-    await withTimeout(waiter, timeoutSecs)
+    console.debug(`Stream ${stream.id.toString()} successfully reached desired state. Current stream state: ${JSON.stringify(StreamUtils.serializeState(stream.state))}`)
 }
 
 export async function waitForAnchor(stream: any, timeoutSecs: number): Promise<void> {
@@ -82,7 +82,6 @@ export async function waitForAnchor(stream: any, timeoutSecs: number): Promise<v
         return `Waiting for stream ${stream.id.toString()} to be anchored. Current time: ${curTime}. Current stream state: ${JSON.stringify(StreamUtils.serializeState(stream.state))}`
     }
     await waitForCondition(stream, function(state) { return state.anchorStatus == AnchorStatus.ANCHORED}, timeoutSecs, msgGenerator)
-    console.debug(`Stream ${stream.id.toString()} successfully anchored`)
 }
 
 export async function buildIpfs(configObj): Promise<IpfsApi> {
