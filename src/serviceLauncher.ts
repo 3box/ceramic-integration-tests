@@ -43,7 +43,8 @@ function main() {
                     --port ${service.port} \
                     --network dev-unstable \
                     --ethereum-rpc ${service.ethereumRpc}
-                `)
+                `
+            )
         } else {
             throw Error(`Unsupported service type: ${service.type}`)
         }
