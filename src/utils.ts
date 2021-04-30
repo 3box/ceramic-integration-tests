@@ -3,8 +3,10 @@ import {
     CeramicApi,
     StreamUtils,
     IpfsApi,
+    LogLevel,
+    LoggerProvider,
     StreamState,
-    Stream
+    Stream,
 } from "@ceramicnetwork/common";
 import {S3StateStore} from "@ceramicnetwork/cli";
 import Ceramic, {CeramicConfig} from "@ceramicnetwork/core";
@@ -106,10 +108,12 @@ export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicA
         ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
     } else if (configObj.mode == "node") {
         console.log("Creating ceramic local node")
+        const loggerProvider = new LoggerProvider({ logLevel: LogLevel.debug })
         const ceramicConfig: CeramicConfig = {
             networkName: configObj.network,
             ethereumRpcUrl: configObj.ethereumRpc,
             anchorServiceUrl: configObj.anchorServiceAPI,
+            loggerProvider,
         }
         const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
         if (configObj.s3StateStoreBucketName) {
