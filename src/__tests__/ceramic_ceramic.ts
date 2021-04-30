@@ -11,7 +11,7 @@ declare global {
     const ceramicClient: CeramicApi;
 }
 
-const UPDATE_TIMEOUT = 30     // 30 seconds for regular updates to propagate from one node to another
+const UPDATE_TIMEOUT = 60     // 60 seconds for regular updates to propagate from one node to another
 // 15 minutes for anchors to happen and be noticed (including potential failures and retries)
 const ANCHOR_TIMEOUT = 60 * 15
 
