@@ -19,6 +19,7 @@
   "homepage": "https://github.com/3box/ceramic-integration-tests#readme",
   "scripts": {
     "build": "node_modules/.bin/tsc -p tsconfig.json",
+    "build:submodules": "./build_submodules.sh",
     "launch:services": "node build/serviceLauncher",
     "prebuild": "npm run clean",
     "postinstall": "node-config-ts",

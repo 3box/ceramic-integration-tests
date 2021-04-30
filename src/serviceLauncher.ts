@@ -25,13 +25,13 @@ function main() {
         let subprocess = null
 
         if (service.type == 'ipfs') {
-            subprocess = exec(`node node_modules/@ceramicnetwork/ipfs-daemon/bin/ipfs-daemon`,
+            subprocess = exec(`node src/submodules/js-ceramic/packages/ipfs-daemon/bin/ipfs-daemon`,
                 {
                     env: {
                         ...process.env,
                         IPFS_API_PORT: service.port,
                         CERAMIC_NETWORK: 'dev-unstable',
-                        DEBUG: 'bitswap*'
+                        DEBUG: '*error,ipfs:repo,libp2p:connection-manager,libp2p,libp2p:transports,libp2p:tcp*,libp2p:gossipsub*,libp2p:persisten-peer-store,libp2p:peer-store*,libp2p:websockets,libp2p:dialer'
                     }
                 }
             )
