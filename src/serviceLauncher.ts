@@ -31,7 +31,7 @@ function main() {
                         ...process.env,
                         IPFS_API_PORT: service.port,
                         CERAMIC_NETWORK: 'dev-unstable',
-                        DEBUG: '*error,ipfs:repo,libp2p:connection-manager,libp2p,libp2p:transports,libp2p:tcp*,libp2p:gossipsub*,libp2p:persisten-peer-store,libp2p:peer-store*,libp2p:websockets,libp2p:dialer'
+                        DEBUG: '*error,bitswap*,ipfs:repo,libp2p:connection-manager,libp2p,libp2p:transports,libp2p:tcp*,libp2p:gossipsub*,libp2p:persisten-peer-store,libp2p:peer-store*,libp2p:websockets,libp2p:dialer'
                     }
                 }
             )
