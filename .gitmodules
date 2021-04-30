@@ -1,0 +1,3 @@
+[submodule "src/submodules/js-ceramic"]
+	path = src/submodules/js-ceramic
+	url = https://github.com/ceramicnetwork/js-ceramic
