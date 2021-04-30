@@ -16,7 +16,7 @@ RUN apk add --no-cache curl
 
 COPY --from=builder node_modules ./node_modules
 
-COPY package*.json jest.config.js babel.config.js tsconfig.json ci/* ./
+COPY package*.json jest.config.js babel.config.js tsconfig.json build_submodules.sh ci/* ./
 COPY config ./config
 COPY src ./src
 
