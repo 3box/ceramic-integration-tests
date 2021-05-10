@@ -106,6 +106,7 @@ export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicA
     if (configObj.mode == "client") {
         console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
         ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
+        console.log(`Ceramic client connected successfully to ${configObj.apiURL}`)
     } else if (configObj.mode == "node") {
         console.log("Creating ceramic local node")
         const loggerProvider = new LoggerProvider({ logLevel: LogLevel.debug })
@@ -122,6 +123,7 @@ export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicA
         }
         ceramic = new Ceramic(modules, params)
         await ceramic._init(true, true)
+        console.log(`Ceramic local node started successfully`)
     } else if (configObj.mode == "none") {
         return null
     } else {
@@ -142,11 +144,16 @@ export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicA
  * restarting `ceramic` is supported, restarting `ceramicClient` is not.  This is because
  * `ceramicClient` is always expected to be in `client` mode.
  */
-export async function restartCeramic() {
+export async function restartCeramic(): Promise<void> {
     if (config.jest.services.ceramic.mode == "client") {
         throw new Error("Cannot restart ceramic node running in http client mode")
     }
     await ceramic.close()
+    await delay(3000) // Give some time for things to fully shut down before restarting
+
     ceramic = null
-    ceramic = await buildCeramic(config.jest.services.ceramic, ipfs)
+    ceramic = await buildCeramic(config.jest.services.ceramic, ipfs).catch((error) => {
+        console.error(error)
+        throw error
+    })
 }
