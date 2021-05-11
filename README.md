@@ -11,25 +11,25 @@ npm run build
 
 There are currently 3 different configurations that the tests can be run in, which correspond to the 3 json files in the `config/env` directory:
 
-#### internal-external
+#### private-public
 
-`NODE_ENV=internal-external npm run test`
+`NODE_ENV=private-public npm run test`
 
-Tests against the two nodes (called 'internal' and 'external') running in our infra.  Requires no local nodes.
+Tests against the two nodes (called 'private' and 'public') running in our infra.  Requires no local nodes.
 
-#### local_client-external
+#### local_client-public
 
-`NODE_ENV=local_client-external npm run test`
+`NODE_ENV=local_client-public npm run test`
 
-Tests integration between a local node and the 'external' node in our infra.
+Tests integration between a local node and the 'public' node in our infra.
 Before running tests a ceramic node connected to the dev-unstable network
 must be running on the same machine. The tests communicate to the local node via an http-client.
 
-#### local_node-internal
+#### local_node-private
 
-`NODE_ENV=local_node-internal npm run test`
+`NODE_ENV=local_node-private npm run test`
 
-Tests integration between a local node and the 'internal' node in our infra.
+Tests integration between a local node and the 'private' node in our infra.
 Before running tests an ipfs node must be running on the same machine.
 The tests start an in-process ceramic node (connected over http to the local ipfs node).
 
@@ -37,7 +37,7 @@ Note that this is the only configuration that meaningfully runs the 'ceramic_sta
 as it's the only configuration in which the test has the ability to restart the ceramic node.
 Since the 'ceramic_state_store' test tests integration with S3, you also need to set the proper
 environment variables for the S3 bucket configuration and access keys in order to run the
-tests in the `local_node-internal` configuration.
+tests in the `local_node-private` configuration.
 
 ## Docker
 
