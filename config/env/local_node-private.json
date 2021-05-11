@@ -14,7 +14,7 @@
       },
       "ceramicClient": {
         "mode": "client",
-        "apiURL": "https://ceramic-dev-internal.3boxlabs.com"
+        "apiURL": "https://ceramic-private-dev.3boxlabs.com"
       }
     }
   },

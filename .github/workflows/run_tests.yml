@@ -17,9 +17,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - smoke_test_config: "internal-external"
-          - smoke_test_config: "local_client-external"
-          - smoke_test_config: "local_node-internal"
+          - smoke_test_config: "private-public"
+          - smoke_test_config: "local_client-public"
+          - smoke_test_config: "local_node-private"
 
     steps:
     - name: Checkout
