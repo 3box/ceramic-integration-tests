@@ -50,7 +50,6 @@
     "jest-resolver-enhanced": "^1.0.0",
     "key-did-provider-ed25519": "^1.1.0",
     "key-did-resolver": "^1.1.2-rc2",
-    "multiformats": "^4.6.3",
     "node-config-ts": "^3.1.0",
     "tmp-promise": "^2.0.2",
     "ts-jest": "^26.4.4",
