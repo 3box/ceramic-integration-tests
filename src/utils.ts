@@ -7,18 +7,18 @@ import {
     LoggerProvider,
     StreamState,
     Stream,
-} from "@ceramicnetwork/common";
-import {S3StateStore} from "@ceramicnetwork/cli";
-import Ceramic, {CeramicConfig} from "@ceramicnetwork/core";
-import CeramicClient from '@ceramicnetwork/http-client';
+} from '@ceramicnetwork/common'
+import {S3StateStore} from '@ceramicnetwork/cli'
+import Ceramic, {CeramicConfig} from '@ceramicnetwork/core'
+import CeramicClient from '@ceramicnetwork/http-client'
 
 import dagJose from 'dag-jose'
 import { convert } from 'blockcodec-to-ipld-format'
 import {randomBytes} from '@stablelib/random'
 import { Ed25519Provider } from 'key-did-provider-ed25519'
-import KeyDidResolver from 'key-did-resolver';
-import { DID } from 'dids';
-import ipfsClient from "ipfs-http-client"
+import KeyDidResolver from 'key-did-resolver'
+import { DID } from 'dids'
+import ipfsClient from 'ipfs-http-client'
 import {config} from 'node-config-ts'
 import { filter, take } from 'rxjs/operators'
 
