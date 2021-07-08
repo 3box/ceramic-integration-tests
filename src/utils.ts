@@ -24,6 +24,9 @@ import { filter, take } from 'rxjs/operators'
 
 const seed = randomBytes(32)
 
+// 15 minutes for anchors to happen and be noticed (including potential failures and retries)
+export const ANCHOR_TIMEOUT = 60 * 15
+
 async function delay(millseconds: number): Promise<void> {
     await new Promise<void>(resolve => setTimeout(() => resolve(), millseconds))
 }
@@ -74,7 +77,7 @@ export async function waitForCondition(stream: Stream, condition: (stream: Strea
     console.debug(`Stream ${stream.id.toString()} successfully reached desired state. Current stream state: ${JSON.stringify(StreamUtils.serializeState(stream.state))}`)
 }
 
-export async function waitForAnchor(stream: any, timeoutSecs: number): Promise<void> {
+export async function waitForAnchor(stream: any, timeoutSecs: number = ANCHOR_TIMEOUT): Promise<void> {
     const msgGenerator = function(stream) {
         const curTime = new Date().toISOString()
         return `Waiting for stream ${stream.id.toString()} to be anchored. Current time: ${curTime}. Current stream state: ${JSON.stringify(StreamUtils.serializeState(stream.state))}`

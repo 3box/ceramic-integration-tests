@@ -12,8 +12,6 @@ declare global {
 }
 
 const UPDATE_TIMEOUT = 60     // 60 seconds for regular updates to propagate from one node to another
-// 15 minutes for anchors to happen and be noticed (including potential failures and retries)
-const ANCHOR_TIMEOUT = 60 * 15
 
 const createWithOneLoadWithTheOther = async(ceramic1, ceramic2): Promise<void> => {
     const content = { foo: 'bar' }
@@ -32,14 +30,14 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
     console.log("Creating document on node 1")
     const doc1 = await TileDocument.create(ceramic1, content0, null, {anchor})
     if (anchor) {
-        await waitForAnchor(doc1, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr)} )
+        await waitForAnchor(doc1).catch(errStr => { throw new Error(errStr)} )
     }
 
     // Perform an update
     console.log("Updating document on node 1")
     await doc1.update(content1, null,{anchor})
     if (anchor) {
-        await waitForAnchor(doc1, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr)} )
+        await waitForAnchor(doc1).catch(errStr => { throw new Error(errStr)} )
     }
     expect(doc1.content).toEqual(content1)
 
@@ -54,7 +52,7 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
         UPDATE_TIMEOUT)
         .catch(errStr => { throw new Error(errStr) })
     if (anchor) {
-        await waitForAnchor(doc2, ANCHOR_TIMEOUT).catch(errStr => {throw new Error(errStr)})
+        await waitForAnchor(doc2).catch(errStr => {throw new Error(errStr)})
     }
     expect(StreamUtils.serializeState(doc2.state)).toEqual(StreamUtils.serializeState(doc1.state))
 
@@ -73,8 +71,8 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
     expect(doc1.content).toEqual(content2)
 
     if (anchor) {
-        await waitForAnchor(doc1, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr)} )
-        await waitForAnchor(doc2, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr)} )
+        await waitForAnchor(doc1).catch(errStr => { throw new Error(errStr)} )
+        await waitForAnchor(doc2).catch(errStr => { throw new Error(errStr)} )
     }
 
     expect(doc2.content).toEqual(content2)

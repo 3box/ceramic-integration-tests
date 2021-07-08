@@ -10,9 +10,6 @@ declare global {
     const ceramic: CeramicApi
 }
 
-// 15 minutes for anchors to happen and be noticed (including potential failures and retries)
-const ANCHOR_TIMEOUT = 60 * 15
-
 describe('Ceramic<->CAS basic integration', () => {
     jest.setTimeout(1000 * 60 * 30) // 30 minutes
 
@@ -25,7 +22,7 @@ describe('Ceramic<->CAS basic integration', () => {
 
         // Test document creation is anchored correctly
         console.log("Waiting for anchor of genesis record")
-        await waitForAnchor(doc, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr) })
+        await waitForAnchor(doc).catch(errStr => { throw new Error(errStr) })
         expect(doc.state.log.length).toEqual(2)
 
         // Test document update
@@ -36,7 +33,7 @@ describe('Ceramic<->CAS basic integration', () => {
 
         // Test document update is anchored correctly
         console.log("Waiting for anchor of update")
-        await waitForAnchor(doc, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr) })
+        await waitForAnchor(doc).catch(errStr => { throw new Error(errStr) })
         expect(doc.content).toEqual(newContent)
         expect(doc.state.log.length).toEqual(4)
     })
@@ -61,10 +58,10 @@ describe('Ceramic<->CAS basic integration', () => {
 
         // Test document creation is anchored correctly
         console.log("Waiting for anchor of genesis records")
-        await waitForAnchor(doc1, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr) })
-        await waitForAnchor(doc2, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr) })
-        await waitForAnchor(doc3, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr) })
-        await waitForAnchor(doc4, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr) })
+        await waitForAnchor(doc1).catch(errStr => { throw new Error(errStr) })
+        await waitForAnchor(doc2).catch(errStr => { throw new Error(errStr) })
+        await waitForAnchor(doc3).catch(errStr => { throw new Error(errStr) })
+        await waitForAnchor(doc4).catch(errStr => { throw new Error(errStr) })
 
         expect(doc1.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
         expect(doc1.state.log.length).toEqual(2)
@@ -105,10 +102,10 @@ describe('Ceramic<->CAS basic integration', () => {
 
         // Test document updates are anchored correctly
         console.log("Waiting for anchor of updates")
-        await waitForAnchor(doc1, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr) })
-        await waitForAnchor(doc2, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr) })
-        await waitForAnchor(doc3, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr) })
-        await waitForAnchor(doc4, ANCHOR_TIMEOUT).catch(errStr => { throw new Error(errStr) })
+        await waitForAnchor(doc1).catch(errStr => { throw new Error(errStr) })
+        await waitForAnchor(doc2).catch(errStr => { throw new Error(errStr) })
+        await waitForAnchor(doc3).catch(errStr => { throw new Error(errStr) })
+        await waitForAnchor(doc4).catch(errStr => { throw new Error(errStr) })
 
         expect(doc1.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
         expect(doc2.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)

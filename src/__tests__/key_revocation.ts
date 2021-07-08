@@ -68,7 +68,7 @@ test('key revocation', async () => {
     await tile.update({ stage: "Signed second time" }, undefined, {
         anchor: true,
     });
-    await waitForAnchor(tile, 60*60);
+    await waitForAnchor(tile);
 
     // 3. Rotate key
     await threeIdProvider.keychain.add(
