@@ -41,6 +41,7 @@
     "@ceramicnetwork/streamid": "^1.0.2",
     "@jest/reporters": "^26.6.2",
     "@types/jest": "^26.0.19",
+    "3id-did-provider": "^1.1.0",
     "babel-jest": "^26.6.3",
     "blockcodec-to-ipld-format": "^1.0.0",
     "dag-jose": "^0.3.0",
