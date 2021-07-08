@@ -16,7 +16,6 @@ import * as didJWT from "did-jwt";
 
 declare global {
     const ceramic: CeramicApi;
-    const ceramicClient: CeramicApi;
 }
 
 async function extractKid(did: DID): Promise<string> {
@@ -39,11 +38,11 @@ function toGeneralJWS(jws: string): GeneralJWS {
 let originalDid: DID
 
 beforeEach(() => {
-    originalDid = ceramicClient.did
+    originalDid = ceramic.did
 })
 
 afterEach(() => {
-    ceramicClient.did = originalDid
+    ceramic.did = originalDid
 })
 
 test('key revocation', async () => {
@@ -60,19 +59,19 @@ test('key revocation', async () => {
         getPermission: async () => [],
         authSecret: seed,
         authId: "first",
-        ceramic: ceramicClient,
+        ceramic: ceramic,
     });
     const did = new DID({
         provider: threeIdProvider.getDidProvider(),
         resolver: resolver,
     });
     await did.authenticate();
-    ceramicClient.did = did;
+    ceramic.did = did;
     const firstKid = await extractKid(ceramic.did);
     const firstSigner = threeIdProvider.keychain._keyring.getSigner();
 
     // 2. Create tile
-    const tile = await TileDocument.create(ceramicClient, {
+    const tile = await TileDocument.create(ceramic, {
         stage: "Signed by vanilla",
     });
     await tile.update({ stage: "Signed second time" }, undefined, {
@@ -87,11 +86,11 @@ test('key revocation', async () => {
     );
     await threeIdProvider.keychain.remove("first");
     await threeIdProvider.keychain.commit();
-    const didTile = await ceramicClient.loadStream(did.id.replace(`did:3:`, ''))
+    const didTile = await ceramic.loadStream(did.id.replace(`did:3:`, ''))
     await waitForAnchor(didTile, 60 * 60)
 
     // 3. Prepare signing with the old key
-    ceramicClient.did.createJWS = async (payload, options) => {
+    ceramic.did.createJWS = async (payload, options) => {
         const compactJWS = await didJWT.createJWS(payload, firstSigner, {
             kid: firstKid,
         });
