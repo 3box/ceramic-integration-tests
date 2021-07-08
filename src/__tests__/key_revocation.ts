@@ -36,6 +36,16 @@ function toGeneralJWS(jws: string): GeneralJWS {
     }
 }
 
+let originalDid: DID
+
+beforeEach(() => {
+    originalDid = ceramicClient.did
+})
+
+afterEach(() => {
+    ceramicClient.did = originalDid
+})
+
 test('key revocation', async () => {
     // 1. Setup initial keys
     const seedString = `first-seed-${Math.random()}`
