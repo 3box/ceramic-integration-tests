@@ -90,6 +90,7 @@ test('key revocation', async () => {
     await waitForAnchor(didTile, 60 * 60)
 
     // 3. Prepare signing with the old key
+    const vanillaCreateJWS = ceramic.did.createJWS.bind(ceramic.did)
     ceramic.did.createJWS = async (payload, options) => {
         const compactJWS = await didJWT.createJWS(payload, firstSigner, {
             kid: firstKid,
@@ -98,7 +99,11 @@ test('key revocation', async () => {
     };
 
     // 4. This should blow
-    await expect(tile.update({ stage: "Third round" }, undefined, {
+    await expect(tile.update({ stage: "Should blow" }, undefined, {
         anchor: true,
     })).rejects.toThrow(/JWS was signed with a revoked DID version/)
+
+    // 5. Current key should work though
+    ceramic.did.createJWS = vanillaCreateJWS
+    await expect(tile.update({stage: "Should work"})).resolves.toBeTruthy()
 })
