@@ -46,8 +46,9 @@ afterEach(() => {
 })
 
 test('key revocation', async () => {
+    jest.setTimeout(1000 * 60 * 30) // 30 minutes
     // 1. Setup initial keys
-    const seedString = `first-seed-${Math.random()}`
+    const seedString = `first-seed-${Math.random()}`;
     const seed = sha256.hash(uint8arrays.fromString(seedString));
     const keyDidResolver = KeyDidResolver.getResolver();
     const threeIdResolver = ThreeIdResolver.getResolver(ceramic);
