@@ -106,5 +106,7 @@ test('key revocation', async () => {
 
     // 5. Current key should work though
     ceramic.did.createJWS = vanillaCreateJWS
-    await expect(tile.update({stage: "Should work"})).resolves.toBeTruthy()
+    const okContent = { stage: 'Should work' }
+    await tile.update(okContent)
+    expect(tile.content).toEqual(okContent)
 })
