@@ -88,7 +88,7 @@ test('key revocation', async () => {
     await threeIdProvider.keychain.remove("first");
     await threeIdProvider.keychain.commit();
     const didTile = await ceramic.loadStream(did.id.replace(`did:3:`, ''))
-    await waitForAnchor(didTile, 60 * 60)
+    await waitForAnchor(didTile)
 
     // 3. Prepare signing with the old key
     const vanillaCreateJWS = ceramic.did.createJWS.bind(ceramic.did)
@@ -102,7 +102,7 @@ test('key revocation', async () => {
     // 4. This should blow
     await expect(tile.update({ stage: "Should blow" }, undefined, {
         anchor: true,
-    })).rejects.toThrow(/JWS was signed with a revoked DID version/)
+    })).rejects.toThrow(/signature authored with a revoked DID version/)
 
     // 5. Current key should work though
     ceramic.did.createJWS = vanillaCreateJWS
