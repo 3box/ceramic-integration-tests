@@ -5,7 +5,7 @@
 import { CeramicApi } from "@ceramicnetwork/common";
 import { StreamID } from "@ceramicnetwork/streamid";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
-import { restartCeramic } from "../utils";
+import { delay, restartCeramic } from "../utils";
 import { config } from "node-config-ts";
 
 declare global {
@@ -23,6 +23,11 @@ const isPinned = async (ceramic: CeramicApi, streamId: StreamID): Promise<Boolea
 
 describe('Ceramic state store tests', () => {
     jest.setTimeout(1000 * 60 * 5) // 5 minutes
+
+    beforeAll(async () => {
+        // Wait for previous test to fully finish cleaning up before restarting the Ceramic node
+        await delay(2000)
+    })
 
     test("Unpinned doc state does not survive ceramic restart", async () => {
         if (config.jest.services.ceramic.mode == "client") {
