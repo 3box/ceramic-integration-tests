@@ -24,5 +24,12 @@ RUN npm run build
 
 # NODE_ENV must match desired config file to use for tests
 ENV NODE_ENV="private-public"
+ENV AWS_REGION=${AWS_REGION}
+ENV AWS_ECS_CLUSTER=${AWS_ECS_CLUSTER}
+ENV AWS_ECS_FAMILY=${AWS_ECS_FAMILY}
+
+# Discord notifications about running ECS tasks
+ENV DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+ENV CLOUDWATCH_LOG_BASE_URL=${CLOUDWATCH_LOG_BASE_URL}
 
 CMD [ "./ci.sh" ]
