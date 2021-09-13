@@ -29,9 +29,14 @@ async function main() {
     },
   ]
   const data = { embeds: message, username: 'jest-reporter' }
+  //ACTUAL// const testPassUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
+  //ACTUAL// const testFailUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
+  const testPassUrl = 'https://discordapp.com/api/webhooks/877880441254842388/OnoMzNAHIzWawEymW7Cp_2WNOCjggtoJyjFnMOTx_ut43yFlp4RRSQKd8W6vGjgQiL9O' //TEST//
+  const testFailUrl = 'https://discordapp.com/api/webhooks/879318039064100894/fcAM5HypKLuwWIIcYEoOzVEI6eLIv6Mah3Af991NbE75zfMZPlfVbT2S_dde10pUt6xn' //TEST//
+ 
   const retryDelayMs = 300000 // 300k ms = 5 mins
-  sendDiscordNotification(process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS, data, retryDelayMs)
-  sendDiscordNotification(process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES, data, retryDelayMs)
+  sendDiscordNotification(testPassUrl, data, retryDelayMs)
+  sendDiscordNotification(testFailUrl, data, retryDelayMs)
 }
 
 main().then(() => {
