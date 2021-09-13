@@ -30,7 +30,8 @@ async function main() {
   ]
   const data = { embeds: message, username: 'jest-reporter' }
   const retryDelayMs = 300000 // 300k ms = 5 mins
-  sendDiscordNotification(process.env.DISCORD_WEBHOOK_URL, data, retryDelayMs)
+  sendDiscordNotification(process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS, data, retryDelayMs)
+  sendDiscordNotification(process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES, data, retryDelayMs)
 }
 
 main().then(() => {
