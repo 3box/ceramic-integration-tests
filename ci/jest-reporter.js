@@ -8,9 +8,11 @@ async function main_task() {
   taskArns = await listECSTasks()  // like taskArns = ['arn:aws:ecs:us-east-2:967314784947:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
 
   if (taskArns.length > 1) {
-    console.warn('WARN: NEEDS INVESTIGATION, more than one task running')
-  } else {
+    console.warn('WARN: NEEDS INVESTIGATION, more than one task running !!!')
+  } else if (taskArns.length === 1) {
     console.log('INFO: OK, only one running task found (assumed to be self)')
+  } else {
+    console.warn('WARN: NEEDS INVESTIGATION, no task found running !!!')
   }
 
   console.log("INFO: taskArns:=", taskArns)
@@ -30,7 +32,7 @@ class MyCustomReporter extends BaseReporter {
 
   onRunStart(results, options) {
     main_task().then(() => {
-      console.log('Done!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
+      console.log('Done !!!')
       this.taskArns = taskArns
       this.LogFiles = generateDiscordCloudwatchLogFile(taskArns)
       //ACTUAL// this.testPassUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
