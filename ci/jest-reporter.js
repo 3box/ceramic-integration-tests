@@ -8,12 +8,12 @@ async function main_task() {
   taskArns = await listECSTasks()  // like taskArns = ['arn:aws:ecs:us-east-2:967314784947:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
 
   if (taskArns.length > 1) {
-    console.log('Warn: Needs invetigation, more than one task running')
+    console.warn('WARN: NEEDS INVESTIGATION, more than one task running')
   } else {
-    console.log('Info: Ok, only one running task found (assumed to be self)')
+    console.log('INFO: OK, only one running task found (assumed to be self)')
   }
 
-  console.log("Info: taskArns:=", taskArns)
+  console.log("INFO: taskArns:=", taskArns)
 }
 
 
