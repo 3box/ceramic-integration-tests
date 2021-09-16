@@ -108,7 +108,7 @@ function buildDiscordStart(results, runId, logFileName) {
           value: startedAt
         },
         {
-          name: 'Log file',
+          name: 'Log file (Currently all test run tasks logs running shown, will fix to one relevant one in future)',
           value: `${logFile}`,
         },
       ],
@@ -169,7 +169,7 @@ function buildDiscordSummary(results, runId, logFileName) {
           value: `Passed: ${results.numPassedTests}, Failed: ${results.numFailedTests}, Total: ${results.numTotalTests}`,
         },
         {
-          name: 'Log file',
+          name: 'Log file (Currently all test run tasks logs running shown, will fix to one relevant one in future)',
           value: `${logFile}`,
         },
       ],

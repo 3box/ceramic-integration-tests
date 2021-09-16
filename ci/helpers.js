@@ -1,11 +1,13 @@
 const https = require('https')
 const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
 
+
 /**
  * Returns kv object for Discord fields
  * @param {Array<string>} taskArns 
  * @returns {object}
  */
+
 function generateDiscordCloudwatchLogFile(taskArns) {
   const arnRegex = /\w+$/
 
@@ -15,7 +17,8 @@ function generateDiscordCloudwatchLogFile(taskArns) {
     if (id) {
       LogFileName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${id[0]}`
     }
-    return LogFileName 
+
+    return `${LogFileName}\n`
   })
 
   return LogFiles 
