@@ -35,10 +35,8 @@ class MyCustomReporter extends BaseReporter {
       console.log('Done !!!')
       this.taskArns = taskArns
       this.LogFiles = generateDiscordCloudwatchLogFile(taskArns)
-      //ACTUAL// this.testPassUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
-      //ACTUAL// this.testFailUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
-      this.testPassUrl = 'https://discordapp.com/api/webhooks/877880441254842388/OnoMzNAHIzWawEymW7Cp_2WNOCjggtoJyjFnMOTx_ut43yFlp4RRSQKd8W6vGjgQiL9O' //TEST//
-      this.testFailUrl = 'https://discordapp.com/api/webhooks/879318039064100894/fcAM5HypKLuwWIIcYEoOzVEI6eLIv6Mah3Af991NbE75zfMZPlfVbT2S_dde10pUt6xn' //TEST//
+      this.testPassUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
+      this.testFailUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
 
       const message = buildDiscordStart(results, this.runId, this.LogFiles)
       const data = { embeds: message, username: 'jest-reporter' }
