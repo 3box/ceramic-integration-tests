@@ -3,19 +3,8 @@ const { generateDiscordCloudwatchLogFile, listECSTasks, sendDiscordNotification 
 const { BaseReporter } = require('@jest/reporters')
 const child_process = require('child_process')
 
-async function main_task() {
-
-  taskArns = await listECSTasks()  // like taskArns = ['arn:aws:ecs:us-east-2:967314784947:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
-
-  if (taskArns.length > 1) {
-    console.warn('WARN: NEEDS INVESTIGATION, more than one task running !!!')
-  } else if (taskArns.length === 1) {
-    console.log('INFO: OK, only one running task found (assumed to be self)')
-  } else {
-    console.warn('WARN: NEEDS INVESTIGATION, no task found running !!!')
-  }
-
-  console.log("INFO: taskArns:=", taskArns)
+async function listArntasks() {
+  taskArns = await listECSTasks()  // like taskArns = ['arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
 }
 
 
@@ -27,19 +16,20 @@ class MyCustomReporter extends BaseReporter {
     this._options = options
     this.runId = process.env.RUN_ID
     this.taskArns = []
-    this.LogFiles = []
+    this.LogUrls = []
   }
 
   onRunStart(results, options) {
-    main_task().then(() => {
-      console.log('Done !!!')
+    listArntasks().then(() => {
+      console.log("INFO: listArntasks taskArns:=", taskArns)
       this.taskArns = taskArns
-      this.LogFiles = generateDiscordCloudwatchLogFile(taskArns)
+      this.LogUrls = generateDiscordCloudwatchLogFile(taskArns)
       this.testPassUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
       this.testFailUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
 
-      const message = buildDiscordStart(results, this.runId, this.LogFiles)
-      const data = { embeds: message, username: 'jest-reporter' }
+      const message = buildDiscordStartMessage(results, this.runId, this.LogUrls)
+      const userName = 'jest-reporter'
+      const data = { embeds: message, username: userName }
 
       const retryDelayMs = 300000 // 300k ms = 5 mins
       sendDiscordNotification(this.testPassUrl, data, retryDelayMs)
@@ -51,10 +41,11 @@ class MyCustomReporter extends BaseReporter {
   }
 
   onRunComplete(contexts, results) {
-    const message = buildDiscordSummary(results, this.runId, this.LogFiles)
-    const data = { embeds: message, username: 'jest-reporter' }
+    const message = buildDiscordSummaryMessage(results, this.runId, this.LogUrls)
+    const userName = 'jest-reporter'
+    const data = { embeds: message, username: userName }
 
-    if (results.numFailedTestSuites > 0) {  // Test Failures
+    if (results.numFailedTestSuites > 0) {
       const out2 = child_process.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
         `curl -X POST \
           -H "Content-Type: application/json" \
@@ -76,7 +67,7 @@ class MyCustomReporter extends BaseReporter {
   }
 }
 
-function buildDiscordStart(results, runId, logFileName) {
+function buildDiscordStartMessage(results, runId, logUrls) {
   let startedAt = results.startTime
   try {
     startedAt = (new Date(results.startTime)).toGMTString()
@@ -84,9 +75,8 @@ function buildDiscordStart(results, runId, logFileName) {
     // pass
   }
 
-  let logFile = logFileName
-  if (logFileName.length === 0) {
-    logFile = ["No LogFile found!!!"]
+  if (logUrls.length === 0) {
+    logUrls = ["No LogFile found"]
   }
 
   let commitHashNames = 'js-ceramic (85d6c9789d28)\nipfs-daemon (85d6c9789d28)' // Placeholder work-in-progress
@@ -106,8 +96,8 @@ function buildDiscordStart(results, runId, logFileName) {
           value: startedAt
         },
         {
-          name: 'Log file (Currently all test run tasks logs running shown, will fix to one relevant one in future)',
-          value: `${logFile}`,
+          name: 'Logs',
+          value: `${logUrls}`,
         },
       ],
     },
@@ -115,7 +105,7 @@ function buildDiscordStart(results, runId, logFileName) {
   return discordEmbeds
 }
 
-function buildDiscordSummary(results, runId, logFileName) {
+function buildDiscordSummaryMessage(results, runId, logUrls) {
   let startedAt = results.startTime
   try {
     startedAt = (new Date(results.startTime)).toGMTString()
@@ -123,18 +113,17 @@ function buildDiscordSummary(results, runId, logFileName) {
     // pass
   }
 
-  let title = 'Tests Passed'
+  let title = 'Tests Failed'
   let description = `Run Id: ${runId}`
-  let color = 8781568
-  if (results.numFailedTestSuites > 0) {
-    title = 'Tests Failed'
-    color = 16711712
+  let color = 16711712
+  if (results.numFailedTestSuites < 1) {
+    title = 'Tests Passed'
+    color = 8781568
   }
   const duration = Math.ceil((Date.now() - results.startTime) / (1000 * 60))
 
-  let logFile = logFileName
-  if (logFileName.length === 0) {
-    logFile = ["No LogFile found!!!"]
+  if (logUrls.length === 0) {
+    logUrls = ["No LogFile found"]
   }
 
   let commitHashNames = 'js-ceramic (85d6c9789d28)\nipfs-daemon (85d6c9789d28)' // Placeholder work-in-progress
@@ -167,8 +156,8 @@ function buildDiscordSummary(results, runId, logFileName) {
           value: `Passed: ${results.numPassedTests}, Failed: ${results.numFailedTests}, Total: ${results.numTotalTests}`,
         },
         {
-          name: 'Log file (Currently all test run tasks logs running shown, will fix to one relevant one in future)',
-          value: `${logFile}`,
+          name: 'Logs',
+          value: `${logUrls}`,
         },
       ],
     },
