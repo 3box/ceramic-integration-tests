@@ -7,7 +7,6 @@ const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
  * @param {Array<string>} taskArns 
  * @returns {object}
  */
-
 function generateDiscordCloudwatchLogFile(taskArns) {
   const arnRegex = /\w+$/
 
