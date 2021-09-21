@@ -3,24 +3,24 @@ const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
 
 
 /**
- * Returns kv object for Discord fields
+ * Returns list of running ECS Cloudwatch logs for running test tasks
  * @param {Array<string>} taskArns 
- * @returns {object}
+ * @returns {Array<string>}
  */
-function generateDiscordCloudwatchLogFile(taskArns) {
+function generateDiscordCloudwatchLogUrls(taskArns) {
   const arnRegex = /\w+$/
 
-  const LogFiles = taskArns.map((arn, index) => {
-    let LogFileName 
+  const LogUrls = taskArns.map((arn, index) => {
+    let LogUrlName 
     const id = arn.match(arnRegex)
     if (id) {
-      LogFileName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${id[0]}`
+      LogUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${id[0]}`
     }
 
-    return `${LogFileName}\n`
+    return `${LogUrlName}\n`
   })
 
-  return LogFiles 
+  return LogUrls 
 }
 
 
@@ -82,7 +82,7 @@ function sendDiscordNotification(webhookUrl, data, retryDelayMs = -1) {
 }
 
 module.exports = {
-  generateDiscordCloudwatchLogFile,
+  generateDiscordCloudwatchLogUrls,
   listECSTasks,
   sendDiscordNotification
 }

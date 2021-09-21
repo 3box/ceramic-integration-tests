@@ -1,10 +1,11 @@
-const { generateDiscordCloudwatchLogFile, listECSTasks, sendDiscordNotification } = require('./helpers')
+const { generateDiscordCloudwatchLogUrls, listECSTasks, sendDiscordNotification } = require('./helpers')
 
 const { BaseReporter } = require('@jest/reporters')
 const child_process = require('child_process')
 
 async function listArntasks() {
   taskArns = await listECSTasks()  // like taskArns = ['arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
+  return taskArns
 }
 
 
@@ -16,23 +17,23 @@ class MyCustomReporter extends BaseReporter {
     this._options = options
     this.runId = process.env.RUN_ID
     this.taskArns = []
-    this.LogUrls = []
+    this.logUrls = []
   }
 
   onRunStart(results, options) {
-    listArntasks().then(() => {
+    listArntasks().then((taskArns) => {
       console.log("INFO: listArntasks taskArns:=", taskArns)
       this.taskArns = taskArns
-      this.LogUrls = generateDiscordCloudwatchLogFile(taskArns)
-      this.testPassUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
-      this.testFailUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
+      this.logUrls = generateDiscordCloudwatchLogUrls(taskArns)
+      this.testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
+      this.testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
 
-      const message = buildDiscordStartMessage(results, this.runId, this.LogUrls)
+      const message = buildDiscordStartMessage(results, this.runId, this.logUrls)
       const userName = 'jest-reporter'
       const data = { embeds: message, username: userName }
 
       const retryDelayMs = 300000 // 300k ms = 5 mins
-      sendDiscordNotification(this.testPassUrl, data, retryDelayMs)
+      sendDiscordNotification(this.testResultsUrl, data, retryDelayMs)
     })
       .catch((error) => {
         console.error(error)
@@ -41,29 +42,29 @@ class MyCustomReporter extends BaseReporter {
   }
 
   onRunComplete(contexts, results) {
-    const message = buildDiscordSummaryMessage(results, this.runId, this.LogUrls)
+    const message = buildDiscordSummaryMessage(results, this.runId, this.logUrls)
     const userName = 'jest-reporter'
     const data = { embeds: message, username: userName }
 
     if (results.numFailedTestSuites > 0) {
-      const out2 = child_process.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
+      const outToFailuresChannel = child_process.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
         `curl -X POST \
           -H "Content-Type: application/json" \
           -d '${JSON.stringify(data)}' \
-          ${this.testFailUrl}
+          ${this.testFailuresUrl}
         `
       )
-      console.log(out2.toString())
+      console.log(outToFailuresChannel.toString())
     }
     
-    const out = child_process.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
+    const outToResultsChannel = child_process.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
       `curl -X POST \
         -H "Content-Type: application/json" \
         -d '${JSON.stringify(data)}' \
-        ${this.testPassUrl}
+        ${this.testResultsUrl}
       `
     )
-    console.log(out.toString())
+    console.log(outToResultsChannel.toString())
   }
 }
 
@@ -78,8 +79,6 @@ function buildDiscordStartMessage(results, runId, logUrls) {
   if (logUrls.length === 0) {
     logUrls = ["No LogFile found"]
   }
-
-  let commitHashNames = 'js-ceramic (85d6c9789d28)\nipfs-daemon (85d6c9789d28)' // Placeholder work-in-progress
 
   const discordEmbeds = [
     {
@@ -125,8 +124,6 @@ function buildDiscordSummaryMessage(results, runId, logUrls) {
   if (logUrls.length === 0) {
     logUrls = ["No LogFile found"]
   }
-
-  let commitHashNames = 'js-ceramic (85d6c9789d28)\nipfs-daemon (85d6c9789d28)' // Placeholder work-in-progress
 
   const discordEmbeds = [
     {
