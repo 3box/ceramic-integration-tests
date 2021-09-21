@@ -41,7 +41,7 @@ tests in the `local_node-private` configuration.
 
 ## Docker
 
-Tests can be run with Docker with the following commands:
+Tests can be run with Docker with the following commands: (Note: These commands can be ../symlinked out of the repo with the local placeholder ./my_docker_run.sh file so it does not get checked in with your secrets)
 
 ```
 docker build . -t ceramic-integration-tests
