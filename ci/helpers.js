@@ -1,6 +1,35 @@
 const https = require('https')
 const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
 
+// Load the AWS SDK for Node.js
+const AWS = require('aws-sdk');
+// Set the region 
+AWS.config.update({region: 'REGION'});
+// Create the DynamoDB service object
+var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+
+/**
+ * Returns commitHashes
+ */
+function getCommitHashes() {
+  var params = {
+    TableName: 'TABLE',
+    Key: {
+      'KEY_NAME': {N: '001'}
+    },
+    ProjectionExpression: 'ATTRIBUTE_NAME'
+  };
+  
+  // Call DynamoDB to read the item from the table
+  ddb.getItem(params, function(err, data) {
+    if (err) {
+      console.log("Error", err);
+    } else {
+      console.log("Success", data.Item);
+      return data.Item
+    }
+  });
+}
 
 /**
  * Returns list of running ECS Cloudwatch logs for running test tasks

@@ -75,6 +75,8 @@ function buildDiscordStartMessage(results, runId, logUrls) {
     logUrls = ["No log Urls found"]
   }
 
+  const commitHashNames = 'js-ceramic (85d6c9789d28)\nipfs-daemon (85d6c9789d28)'
+
   const discordEmbeds = [
     {
       title: 'Tests Started',
@@ -88,6 +90,10 @@ function buildDiscordStartMessage(results, runId, logUrls) {
         {
           name: 'Started at',
           value: startedAt
+        },
+        {
+          name: 'Commit hashes',
+          value: commitHashNames
         },
         {
           name: 'Logs',
@@ -120,6 +126,8 @@ function buildDiscordSummaryMessage(results, runId, logUrls) {
     logUrls = ["No log Urls found"]
   }
 
+  const commitHashNames = 'js-ceramic (85d6c9789d28)\nipfs-daemon (85d6c9789d28)'
+
   const discordEmbeds = [
     {
       title,
@@ -146,6 +154,10 @@ function buildDiscordSummaryMessage(results, runId, logUrls) {
         {
           name: 'Tests',
           value: `Passed: ${results.numPassedTests}, Failed: ${results.numFailedTests}, Total: ${results.numTotalTests}`,
+        },
+        {
+          name: 'Commit hashes',
+          value: commitHashNames
         },
         {
           name: 'Logs',
