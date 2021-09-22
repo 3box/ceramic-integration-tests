@@ -5,7 +5,7 @@ async function main() {
   const taskArns = await listECSTasks()  // like  taskArns =  [ 'arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84' ]
   const logUrls = generateDiscordCloudwatchLogUrls(taskArns)
   if (logUrls.length < 1) {
-    logUrls = ["No LogFile found"]
+    logUrls = ["No log Urls found"]
   }
 
   const message = [
@@ -25,8 +25,7 @@ async function main() {
       ],
     },
   ]
-  const userName = 'jest-reporter'}
-  const data = { embeds: message, username: userName }
+  const data = { embeds: message, username: 'jest-reporter' }
   const testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
   const testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
  

@@ -41,7 +41,7 @@ tests in the `local_node-private` configuration.
 
 ## Docker
 
-Tests can be run with Docker with the following commands: (Note: These commands can be ../symlinked out of the repo with the local placeholder ./my_docker_run.sh file so it does not get checked in with your secrets)
+Tests can be run with Docker with the following commands: 
 
 ```
 docker build . -t ceramic-integration-tests
@@ -49,9 +49,20 @@ docker build . -t ceramic-integration-tests
 
 ```
 docker run \
-  -e DISCORD_WEBHOOK_URL='<url>' \
+  -e DISCORD_WEBHOOK_URL_TEST_RESULTS='<url_for_results>' \
+  -e DISCORD_WEBHOOK_URL_TEST_FAILURES='<url_for_failures>' \
   -e NODE_ENV='<name_of_config_file>' \
   -e AWS_ACCESS_KEY_ID='<only_if_using_s3_state_store>' \
   -e AWS_SECRET_ACCESS_KEY='<only_if_using_s3_state_store>' \
+  -e AWS_REGION='<name_of_region>' \
+  -e AWS_ECS_CLUSTER='ceramic-dev-tests' \
+  -e AWS_ECS_FAMILY='ceramic-dev-tests-smoke_tests' \
+  -e CLOUDWATCH_LOG_BASE_URL='https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#logsV2:log-groups/log-group/$252Fecs$252Fceramic-dev-tests/log-events/smoke_tests$252Fsmoke_tests$252F' \
   ceramic-integration-tests
 ```
+
+Please note: the above docker build and run commands can be placed into your copy of the local ./my_docker_run.sh file which is actually a symlink to the parent directory outside the repo, so your secrets do not get checked into the repo by accident, so 
+Step 1. Copy the above docker commands into the currently empty placeholder local ./my_docker_run.sh file.
+Step 2. Replace the -e environment fields with your values
+Step 3. Now your ready to run ./my_docker_run.sh
+

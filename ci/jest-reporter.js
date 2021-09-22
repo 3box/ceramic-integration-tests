@@ -1,7 +1,8 @@
 const { generateDiscordCloudwatchLogUrls, listECSTasks, sendDiscordNotification } = require('./helpers')
-
 const { BaseReporter } = require('@jest/reporters')
 const child_process = require('child_process')
+
+const userName = 'jest-reporter'
 
 async function listArntasks() {
   taskArns = await listECSTasks()  // like taskArns = ['arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
@@ -29,7 +30,6 @@ class MyCustomReporter extends BaseReporter {
       this.testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
 
       const message = buildDiscordStartMessage(results, this.runId, this.logUrls)
-      const userName = 'jest-reporter'
       const data = { embeds: message, username: userName }
 
       const retryDelayMs = 300000 // 300k ms = 5 mins
@@ -43,7 +43,6 @@ class MyCustomReporter extends BaseReporter {
 
   onRunComplete(contexts, results) {
     const message = buildDiscordSummaryMessage(results, this.runId, this.logUrls)
-    const userName = 'jest-reporter'
     const data = { embeds: message, username: userName }
 
     if (results.numFailedTestSuites > 0) {
@@ -76,8 +75,8 @@ function buildDiscordStartMessage(results, runId, logUrls) {
     // pass
   }
 
-  if (logUrls.length === 0) {
-    logUrls = ["No LogFile found"]
+  if (logUrls.length < 1) {
+    logUrls = ["No log Urls found"]
   }
 
   const discordEmbeds = [
@@ -121,8 +120,8 @@ function buildDiscordSummaryMessage(results, runId, logUrls) {
   }
   const duration = Math.ceil((Date.now() - results.startTime) / (1000 * 60))
 
-  if (logUrls.length === 0) {
-    logUrls = ["No LogFile found"]
+  if (logUrls.length < 1) {
+    logUrls = ["No log Urls found"]
   }
 
   const discordEmbeds = [

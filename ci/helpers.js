@@ -10,22 +10,22 @@ const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
 function generateDiscordCloudwatchLogUrls(taskArns) {
   const arnRegex = /\w+$/
 
-  const LogUrls = taskArns.map((arn, index) => {
-    let LogUrlName 
+  const logUrls = taskArns.map((arn, index) => {
+    let logUrlName 
     const id = arn.match(arnRegex)
     if (id) {
-      LogUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${id[0]}`
+      logUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${id[0]}`
     }
 
-    return `${LogUrlName}\n`
+    return `${logUrlName}\n`
   })
 
-  return LogUrls 
+  return logUrls 
 }
 
 
 /**
- * Returns list of running ECS anchor tasks
+ * Returns list of running ECS tasks
  * @returns {Array<string>}
  */
 async function listECSTasks() {
