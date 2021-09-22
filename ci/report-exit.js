@@ -1,5 +1,4 @@
 const { generateDiscordCloudwatchLogUrls, listECSTasks, sendDiscordNotification } = require('./helpers')
-const child_process = require('child_process')
 
 async function main() {
   const taskArns = await listECSTasks()  // like  taskArns =  [ 'arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84' ]
