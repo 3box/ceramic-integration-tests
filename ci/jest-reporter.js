@@ -3,13 +3,11 @@ const { BaseReporter } = require('@jest/reporters')
 const child_process = require('child_process')
 
 const userName = 'jest-reporter'
+let g_taskArns
 
 async function listArntasks() {
-  taskArns = await listECSTasks()  // like taskArns = ['arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
-  return taskArns
+  g_taskArns = await listECSTasks()  // like taskArns = ['arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
 }
-
-
 
 class MyCustomReporter extends BaseReporter {
   constructor(globalConfig, options) {
@@ -17,15 +15,13 @@ class MyCustomReporter extends BaseReporter {
     this._globalConfig = globalConfig
     this._options = options
     this.runId = process.env.RUN_ID
-    this.taskArns = []
     this.logUrls = []
   }
 
   onRunStart(results, options) {
-    listArntasks().then((taskArns) => {
-      console.log("INFO: listArntasks taskArns:=", taskArns)
-      this.taskArns = taskArns
-      this.logUrls = generateDiscordCloudwatchLogUrls(taskArns)
+    listArntasks().then(() => {
+      console.log("INFO: listECSTasks g_taskArns:=", g_taskArns)
+      this.logUrls = generateDiscordCloudwatchLogUrls(g_taskArns)
       this.testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
       this.testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
 
