@@ -40,7 +40,6 @@ function main() {
                 `node node_modules/@ceramicnetwork/cli/bin/ceramic daemon \
                     --verbose \
                     --log-to-files \
-                    --port ${service.port} \
                     --network dev-unstable \
                     --ethereum-rpc ${service.ethereumRpc}
                 `
