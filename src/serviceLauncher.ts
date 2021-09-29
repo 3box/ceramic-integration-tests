@@ -36,14 +36,25 @@ function main() {
                 }
             )
         } else if (service.type == 'ceramic') {
+            // Removing port due to https://github.com/ceramicnetwork/js-ceramic/issues/1681
+            // and verbose logging
             subprocess = exec(
                 `node node_modules/@ceramicnetwork/cli/bin/ceramic daemon \
-                    --verbose \
                     --log-to-files \
                     --network dev-unstable \
                     --ethereum-rpc ${service.ethereumRpc}
                 `
             )
+            // Original command:
+            // subprocess = exec(
+            //     `node node_modules/@ceramicnetwork/cli/bin/ceramic daemon \
+            //         --verbose \
+            //         --log-to-files \
+            //         --port ${service.port} \
+            //         --network dev-unstable \
+            //         --ethereum-rpc ${service.ethereumRpc}
+            //     `
+            // )
         } else {
             throw Error(`Unsupported service type: ${service.type}`)
         }
@@ -70,23 +81,4 @@ function main() {
     console.log('=> Launched: all')
 }
 
-readyCounter.on('update', (service: LaunchedService) => {
-    const count = ready.length
-    const total = launched.length
-    console.log('\nServiceLauncher: updated')
-    console.log(`=> Ready: ${service.type}`)
-    console.log(`=> Pid: ${service.subprocess.pid}`)
-    console.log(`=> Count: ${count}/${total}`)
-    if (count >= total) {
-        console.log('\nServiceLauncher: done')
-        process.exit(0)
-    }
-})
-
-process.on('SIGINT', () => {
-    launched.forEach((service) => {
-        service.subprocess.kill()
-    })
-})
-
-main()
+readyCounter.on('update', (service:
