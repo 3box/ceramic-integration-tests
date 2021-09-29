@@ -34,9 +34,9 @@ const main = async () => {
     sendDiscordNotification(testResultsUrl, data, retryDelayMs)
     sendDiscordNotification(testFailuresUrl, data, retryDelayMs)
   } catch (err) {
-    console.error(err);
+    console.error(err)
     process.exit(1)
   }
 }
 
-main();
+main()

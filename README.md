@@ -41,7 +41,7 @@ tests in the `local_node-private` configuration.
 
 ## Docker
 
-Tests can be run with Docker with the following commands: 
+Tests can be run with Docker with the following commands:
 
 ```
 docker build . -t ceramic-integration-tests
@@ -49,15 +49,15 @@ docker build . -t ceramic-integration-tests
 
 ```
 docker run \
-  -e DISCORD_WEBHOOK_URL_TEST_RESULTS='<url_for_results>' \
-  -e DISCORD_WEBHOOK_URL_TEST_FAILURES='<url_for_failures>' \
-  -e NODE_ENV='<name_of_config_file>' \
   -e AWS_ACCESS_KEY_ID='<only_if_using_s3_state_store>' \
   -e AWS_SECRET_ACCESS_KEY='<only_if_using_s3_state_store>' \
   -e AWS_REGION='<name_of_region>' \
   -e AWS_ECS_CLUSTER='ceramic-dev-tests' \
   -e AWS_ECS_FAMILY='ceramic-dev-tests-smoke_tests' \
-  -e CLOUDWATCH_LOG_BASE_URL='https://us-east-2.console.aws.amazon.com/cloudwatch/home?region=us-east-2#logsV2:log-groups/log-group/$252Fecs$252Fceramic-dev-tests/log-events/smoke_tests$252Fsmoke_tests$252F' \
+  -e CLOUDWATCH_LOG_BASE_URL='https://<AWS_REGION>.console.aws.amazon.com/cloudwatch/home?region=<AWS_REGION>#logsV2:log-groups/log-group/$252Fecs$252Fceramic-dev-tests/log-events/smoke_tests$252Fsmoke_tests$252F' \
+  -e DISCORD_WEBHOOK_URL_TEST_FAILURES='<url_for_failures>' \
+  -e DISCORD_WEBHOOK_URL_TEST_RESULTS='<url_for_results>' \
+  -e NODE_ENV='<name_of_config_file>' \
   ceramic-integration-tests
 ```
 
