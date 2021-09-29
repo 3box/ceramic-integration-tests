@@ -1,12 +1,13 @@
-const { generateDiscordCloudwatchLogUrls, listECSTasks, sendDiscordNotification } = require('./helpers')
+const { generateDiscordCloudwatchLogUrls, listECSTasks, sendDiscordNotification, getCommitHashes } = require('./helpers')
 const { BaseReporter } = require('@jest/reporters')
 const child_process = require('child_process')
 
 const userName = 'jest-reporter'
-let g_taskArns
+let g_taskArns, g_commitHashes
 
-async function listArntasks() {
-  g_taskArns = await listECSTasks()  // like taskArns = ['arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
+async function listArntasksAndCommitHashes() {
+  g_taskArns = await listECSTasks()        // like g_taskArns = ['arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
+  g_commitHashes = await getCommitHashes() // like g_commitHashes = "ceramic-anchor-service (333fc9afb59a) <==> ipfs-daemon (6871b7dcd27d)\n"
 }
 
 class MyCustomReporter extends BaseReporter {
@@ -19,13 +20,15 @@ class MyCustomReporter extends BaseReporter {
   }
 
   onRunStart(results, options) {
-    listArntasks().then(() => {
+    listArntasksAndCommitHashes().then(() => {
       console.log("INFO: listECSTasks g_taskArns:=", g_taskArns)
+      console.log("INFO: listECSTasks g_commitHashes:=", g_commitHashes)
+      this.commitHashes = g_commitHashes
       this.logUrls = generateDiscordCloudwatchLogUrls(g_taskArns)
-      this.testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
       this.testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
+      this.testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
 
-      const message = buildDiscordStartMessage(results, this.runId, this.logUrls)
+      const message = buildDiscordStartMessage(results, this.runId, this.logUrls, this.commitHashes)
       const data = { embeds: message, username: userName }
 
       const retryDelayMs = 300000 // 300k ms = 5 mins
@@ -38,7 +41,7 @@ class MyCustomReporter extends BaseReporter {
   }
 
   onRunComplete(contexts, results) {
-    const message = buildDiscordSummaryMessage(results, this.runId, this.logUrls)
+    const message = buildDiscordSummaryMessage(results, this.runId, this.logUrls, this.commitHashes)
     const data = { embeds: message, username: userName }
 
     if (results.numFailedTestSuites > 0) {
@@ -51,7 +54,7 @@ class MyCustomReporter extends BaseReporter {
       )
       console.log(outToFailuresChannel.toString())
     }
-    
+
     const outToResultsChannel = child_process.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
       `curl -X POST \
         -H "Content-Type: application/json" \
@@ -63,7 +66,7 @@ class MyCustomReporter extends BaseReporter {
   }
 }
 
-function buildDiscordStartMessage(results, runId, logUrls) {
+function buildDiscordStartMessage(results, runId, logUrls, commitHashes) {
   let startedAt = results.startTime
   try {
     startedAt = (new Date(results.startTime)).toGMTString()
@@ -75,8 +78,6 @@ function buildDiscordStartMessage(results, runId, logUrls) {
     logUrls = ["No log Urls found"]
   }
 
-  const commitHashNames = 'js-ceramic (85d6c9789d28)\nipfs-daemon (85d6c9789d28)'
-
   const discordEmbeds = [
     {
       title: 'Tests Started',
@@ -85,7 +86,7 @@ function buildDiscordStartMessage(results, runId, logUrls) {
       fields: [
         {
           name: 'Configuration',
-          value: process.env.NODE_ENV,
+          value: process.env.NODE_ENV
         },
         {
           name: 'Started at',
@@ -93,7 +94,7 @@ function buildDiscordStartMessage(results, runId, logUrls) {
         },
         {
           name: 'Commit hashes',
-          value: commitHashNames
+          value: `${commitHashes}`
         },
         {
           name: 'Logs',
@@ -105,7 +106,7 @@ function buildDiscordStartMessage(results, runId, logUrls) {
   return discordEmbeds
 }
 
-function buildDiscordSummaryMessage(results, runId, logUrls) {
+function buildDiscordSummaryMessage(results, runId, logUrls, commitHashes) {
   let startedAt = results.startTime
   try {
     startedAt = (new Date(results.startTime)).toGMTString()
@@ -125,8 +126,6 @@ function buildDiscordSummaryMessage(results, runId, logUrls) {
   if (logUrls.length < 1) {
     logUrls = ["No log Urls found"]
   }
-
-  const commitHashNames = 'js-ceramic (85d6c9789d28)\nipfs-daemon (85d6c9789d28)'
 
   const discordEmbeds = [
     {
@@ -157,7 +156,7 @@ function buildDiscordSummaryMessage(results, runId, logUrls) {
         },
         {
           name: 'Commit hashes',
-          value: commitHashNames
+          value: `${commitHashes}`
         },
         {
           name: 'Logs',

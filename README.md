@@ -61,8 +61,8 @@ docker run \
   ceramic-integration-tests
 ```
 
-Please note: the above docker build and run commands can be placed into your copy of the local ./my_docker_run.sh file which is actually a symlink to the parent directory outside the repo, so your secrets do not get checked into the repo by accident, so 
-Step 1. Copy the above docker commands into the currently empty placeholder local ./my_docker_run.sh file.
-Step 2. Replace the -e environment fields with your values
-Step 3. Now your ready to run ./my_docker_run.sh
+Please note: the above docker build and run commands can be placed into your copy of the local ./my_docker_run.sh file which is actually a symlink to the parent directory outside the repo, so your secrets do not get checked into the repo by accident, so   
+Step 1. Copy the above docker commands into the currently empty placeholder local ./my_docker_run.sh file.   
+Step 2. Replace the -e environment fields with your values   
+Step 3. Now your ready to run ./my_docker_run.sh   
 

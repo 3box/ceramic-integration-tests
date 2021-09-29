@@ -1,35 +1,49 @@
 const https = require('https')
+const AWS = require("aws-sdk")
 const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
 
-// Load the AWS SDK for Node.js
-const AWS = require('aws-sdk');
-// Set the region 
-AWS.config.update({region: 'REGION'});
-// Create the DynamoDB service object
-var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+let g_ceramicDeployTag, g_ceramicIpfsDeployTag, g_casDeployTag, g_casIpfsDeployTag
 
-/**
- * Returns commitHashes
- */
-function getCommitHashes() {
-  var params = {
-    TableName: 'TABLE',
-    Key: {
-      'KEY_NAME': {N: '001'}
-    },
-    ProjectionExpression: 'ATTRIBUTE_NAME'
-  };
-  
-  // Call DynamoDB to read the item from the table
-  ddb.getItem(params, function(err, data) {
-    if (err) {
-      console.log("Error", err);
-    } else {
-      console.log("Success", data.Item);
-      return data.Item
-    }
-  });
+const getCommitHashes = async () => {
+  try {
+    AWS.config.update({
+      region: process.env.AWS_REGION,
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    });
+
+    const docClient = new AWS.DynamoDB.DocumentClient();
+
+    const ceramicParams = {
+      TableName: "ceramic-utils-dev", // TABLE_NAME
+      Key: {
+        key: "ceramic"
+      }
+    };
+    let ceramicData = await docClient.get(ceramicParams).promise()
+    g_ceramicDeployTag = ceramicData.Item.deployTag
+    g_ceramicIpfsDeployTag = ceramicData.Item.buildInfo.sha_tag
+
+    const casParams = {
+      TableName: "ceramic-utils-dev", // TABLE_NAME
+      Key: {
+        key: "cas"
+      }
+    };
+    let casData = await docClient.get(casParams).promise()
+    g_casDeployTag = casData.Item.deployTag
+    g_casIpfsDeployTag = casData.Item.buildInfo.ipfs_sha_tag
+
+    const ceramicRepository = 'https://github.com/ceramicnetwork/js-ceramic'
+    const casRepository = 'https://github.com/ceramicnetwork/ceramic-anchor-service'
+    const deployed = `[js-ceramic (${g_ceramicDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${g_ceramicDeployTag}) <==> [ipfs-daemon (${g_ceramicIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${g_ceramicIpfsDeployTag})
+                      [ceramic-anchor-service (${g_casDeployTag.substr(0, 12)})](${casRepository}/commit/${g_casDeployTag}) <==> [ipfs-daemon (${g_casIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${g_casIpfsDeployTag})`
+    return deployed
+  } catch (err) {
+    console.error(err);
+  }
 }
+
 
 /**
  * Returns list of running ECS Cloudwatch logs for running test tasks
@@ -40,7 +54,7 @@ function generateDiscordCloudwatchLogUrls(taskArns) {
   const arnRegex = /\w+$/
 
   const logUrls = taskArns.map((arn, index) => {
-    let logUrlName 
+    let logUrlName
     const id = arn.match(arnRegex)
     if (id) {
       logUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${id[0]}`
@@ -49,7 +63,7 @@ function generateDiscordCloudwatchLogUrls(taskArns) {
     return `${logUrlName}\n`
   })
 
-  return logUrls 
+  return logUrls
 }
 
 
@@ -113,5 +127,6 @@ function sendDiscordNotification(webhookUrl, data, retryDelayMs = -1) {
 module.exports = {
   generateDiscordCloudwatchLogUrls,
   listECSTasks,
-  sendDiscordNotification
+  sendDiscordNotification,
+  getCommitHashes
 }
