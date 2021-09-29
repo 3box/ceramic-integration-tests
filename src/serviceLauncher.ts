@@ -81,4 +81,23 @@ function main() {
     console.log('=> Launched: all')
 }
 
-readyCounter.on('update', (service:
+readyCounter.on('update', (service: LaunchedService) => {
+    const count = ready.length
+    const total = launched.length
+    console.log('\nServiceLauncher: updated')
+    console.log(`=> Ready: ${service.type}`)
+    console.log(`=> Pid: ${service.subprocess.pid}`)
+    console.log(`=> Count: ${count}/${total}`)
+    if (count >= total) {
+        console.log('\nServiceLauncher: done')
+        process.exit(0)
+    }
+})
+
+process.on('SIGINT', () => {
+    launched.forEach((service) => {
+        service.subprocess.kill()
+    })
+})
+
+main()
