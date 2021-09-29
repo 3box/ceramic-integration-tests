@@ -27,6 +27,7 @@
     "clean": "rm -rf ./build"
   },
   "dependencies": {
+    "@aws-sdk/client-ecs": "^3.8.1",
     "@babel/core": "^7.12.10",
     "@babel/plugin-proposal-decorators": "^7.12.1",
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
