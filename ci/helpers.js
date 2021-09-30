@@ -1,44 +1,38 @@
 const https = require('https')
-const AWS = require("aws-sdk")
+const child_process = require('child_process')
 const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
-
-let g_ceramicDeployTag, g_ceramicIpfsDeployTag, g_casDeployTag, g_casIpfsDeployTag
 
 const getCommitHashes = async () => {
   try {
-    AWS.config.update({
-      region: process.env.AWS_REGION,
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    });
+    const outCeramicData = child_process.execSync( // aws-sigv4 signing added with/after curl-7.75.0
+      `curl --aws-sigv4 "aws:amz:${process.env.AWS_REGION}:execute-api" \
+        --user "${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}" \
+        -X GET \
+        https://mm3h2ee4pj.execute-api.us-east-2.amazonaws.com/dev/v1.0/infra?name=ceramic
+      `
+    )
+    const jsonCeramicData = JSON.parse(outCeramicData)
+    const ceramicDeployTag = jsonCeramicData.deployTag
+    const ceramicIpfsDeployTag = jsonCeramicData.buildInfo.sha_tag
 
-    const docClient = new AWS.DynamoDB.DocumentClient();
+    const outCasData = child_process.execSync( // aws-sigv4 signing added with/after curl-7.75.0
+      `curl --aws-sigv4 "aws:amz:${process.env.AWS_REGION}:execute-api" \
+        --user "${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}" \
+        -X GET \
+        https://mm3h2ee4pj.execute-api.us-east-2.amazonaws.com/dev/v1.0/infra?name=cas
+      `
+    )
+    const jsonCasData = JSON.parse(outCasData)
+    const casDeployTag = jsonCasData.deployTag
+    const casIpfsDeployTag = jsonCasData.buildInfo.ipfs_sha_tag
 
-    const ceramicParams = {
-      TableName: "ceramic-utils-dev", // TABLE_NAME
-      Key: {
-        key: "ceramic"
-      }
-    };
-    let ceramicData = await docClient.get(ceramicParams).promise()
-    g_ceramicDeployTag = ceramicData.Item.deployTag
-    g_ceramicIpfsDeployTag = ceramicData.Item.buildInfo.sha_tag
-
-    const casParams = {
-      TableName: "ceramic-utils-dev", // TABLE_NAME
-      Key: {
-        key: "cas"
-      }
-    };
-    let casData = await docClient.get(casParams).promise()
-    g_casDeployTag = casData.Item.deployTag
-    g_casIpfsDeployTag = casData.Item.buildInfo.ipfs_sha_tag
-
+    const envUrls = `${process.env.CERAMIC_URLS}`.replace(/,/g,"\n")
     const ceramicRepository = 'https://github.com/ceramicnetwork/js-ceramic'
     const casRepository = 'https://github.com/ceramicnetwork/ceramic-anchor-service'
-    const deployed = `[js-ceramic (${g_ceramicDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${g_ceramicDeployTag}) <==> [ipfs-daemon (${g_ceramicIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${g_ceramicIpfsDeployTag})
-                      [ceramic-anchor-service (${g_casDeployTag.substr(0, 12)})](${casRepository}/commit/${g_casDeployTag}) <==> [ipfs-daemon (${g_casIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${g_casIpfsDeployTag})`
-    return deployed
+    const commitHashesDiscordNotification = `[js-ceramic (${ceramicDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${ceramicDeployTag}) <==> [ipfs-daemon (${ceramicIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${ceramicIpfsDeployTag})
+                      [ceramic-anchor-service (${casDeployTag.substr(0, 12)})](${casRepository}/commit/${casDeployTag}) <==> [ipfs-daemon (${casIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${casIpfsDeployTag})
+                      \`\`\`\n${envUrls}\`\`\` `
+    return commitHashesDiscordNotification
   } catch (err) {
     console.error(err);
   }
