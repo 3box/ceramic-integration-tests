@@ -8,7 +8,7 @@ const getCommitHashes = async () => {
       `curl --aws-sigv4 "aws:amz:${process.env.AWS_REGION}:execute-api" \
         --user "${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}" \
         -X GET \
-        https://mm3h2ee4pj.execute-api.us-east-2.amazonaws.com/dev/v1.0/infra?name=ceramic
+        "${process.env.DYNAMODB_ENDPOINT_BASE_URL}name=ceramic"
       `
     )
     const jsonCeramicData = JSON.parse(outCeramicData)
@@ -19,7 +19,7 @@ const getCommitHashes = async () => {
       `curl --aws-sigv4 "aws:amz:${process.env.AWS_REGION}:execute-api" \
         --user "${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}" \
         -X GET \
-        https://mm3h2ee4pj.execute-api.us-east-2.amazonaws.com/dev/v1.0/infra?name=cas
+        "${process.env.DYNAMODB_ENDPOINT_BASE_URL}name=cas"
       `
     )
     const jsonCasData = JSON.parse(outCasData)
@@ -31,7 +31,7 @@ const getCommitHashes = async () => {
     const casRepository = 'https://github.com/ceramicnetwork/ceramic-anchor-service'
     const commitHashesDiscordNotification = `[js-ceramic (${ceramicDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${ceramicDeployTag}) <==> [ipfs-daemon (${ceramicIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${ceramicIpfsDeployTag})
                       [ceramic-anchor-service (${casDeployTag.substr(0, 12)})](${casRepository}/commit/${casDeployTag}) <==> [ipfs-daemon (${casIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${casIpfsDeployTag})
-                      \`\`\`\n${envUrls}\`\`\` `
+                      \`\`\`\n ${envUrls}\`\`\` `
     return commitHashesDiscordNotification
   } catch (err) {
     console.error(err);
