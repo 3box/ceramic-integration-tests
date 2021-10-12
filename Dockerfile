@@ -8,7 +8,7 @@ RUN npm ci --ignore-scripts
 RUN npm rebuild bcrypto
 RUN npm rebuild loady
 
-FROM node:current-alpine as app
+FROM node:14.18.0-alpine3.14 as app
 
 WORKDIR /app
 
