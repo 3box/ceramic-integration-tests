@@ -1,5 +1,42 @@
 const https = require('https')
+const child_process = require('child_process')
 const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
+
+const getCommitHashes = async () => {
+  try {
+    const outCeramicData = child_process.execSync( // aws-sigv4 signing added with/after curl-7.75.0
+      `curl --aws-sigv4 "aws:amz:${process.env.AWS_REGION}:execute-api" \
+        --user "${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}" \
+        -X GET \
+        "${process.env.INFRA_STATUS_ENDPOINT_BASE_URL}name=ceramic"
+      `
+    )
+    const jsonCeramicData = JSON.parse(outCeramicData)
+    const ceramicDeployTag = jsonCeramicData.deployTag
+    const ceramicIpfsDeployTag = jsonCeramicData.buildInfo.sha_tag
+
+    const outCasData = child_process.execSync( // aws-sigv4 signing added with/after curl-7.75.0
+      `curl --aws-sigv4 "aws:amz:${process.env.AWS_REGION}:execute-api" \
+        --user "${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}" \
+        -X GET \
+        "${process.env.INFRA_STATUS_ENDPOINT_BASE_URL}name=cas"
+      `
+    )
+    const jsonCasData = JSON.parse(outCasData)
+    const casDeployTag = jsonCasData.deployTag
+    const casIpfsDeployTag = jsonCasData.buildInfo.ipfs_sha_tag
+
+    const envUrls = `${process.env.CERAMIC_URLS}`.replace(/ /g,"\n")
+    const ceramicRepository = 'https://github.com/ceramicnetwork/js-ceramic'
+    const casRepository = 'https://github.com/ceramicnetwork/ceramic-anchor-service'
+    const commitHashesDiscordNotification = `[js-ceramic (${ceramicDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${ceramicDeployTag}) <==> [ipfs-daemon (${ceramicIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${ceramicIpfsDeployTag})
+                      [ceramic-anchor-service (${casDeployTag.substr(0, 12)})](${casRepository}/commit/${casDeployTag}) <==> [ipfs-daemon (${casIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${casIpfsDeployTag})
+                      \`\`\`\n${envUrls}\`\`\` `
+    return commitHashesDiscordNotification
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 
 /**
@@ -11,7 +48,7 @@ function generateDiscordCloudwatchLogUrls(taskArns) {
   const arnRegex = /\w+$/
 
   const logUrls = taskArns.map((arn, index) => {
-    let logUrlName 
+    let logUrlName
     const id = arn.match(arnRegex)
     if (id) {
       logUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${id[0]}`
@@ -20,7 +57,7 @@ function generateDiscordCloudwatchLogUrls(taskArns) {
     return `${logUrlName}\n`
   })
 
-  return logUrls 
+  return logUrls
 }
 
 
@@ -84,5 +121,6 @@ function sendDiscordNotification(webhookUrl, data, retryDelayMs = -1) {
 module.exports = {
   generateDiscordCloudwatchLogUrls,
   listECSTasks,
-  sendDiscordNotification
+  sendDiscordNotification,
+  getCommitHashes
 }

@@ -57,12 +57,13 @@ docker run \
   -e CLOUDWATCH_LOG_BASE_URL='https://<AWS_REGION>.console.aws.amazon.com/cloudwatch/home?region=<AWS_REGION>#logsV2:log-groups/log-group/$252Fecs$252Fceramic-dev-tests/log-events/smoke_tests$252Fsmoke_tests$252F' \
   -e DISCORD_WEBHOOK_URL_TEST_FAILURES='<url_for_failures>' \
   -e DISCORD_WEBHOOK_URL_TEST_RESULTS='<url_for_results>' \
+  -e INFRA_STATUS_ENDPOINT_BASE_URL='<url_for_dynamodb_endpoint>' \
   -e NODE_ENV='<name_of_config_file>' \
   ceramic-integration-tests
 ```
 
-Please note: the above docker build and run commands can be placed into your copy of the local ./my_docker_run.sh file which is actually a symlink to the parent directory outside the repo, so your secrets do not get checked into the repo by accident, so 
-Step 1. Copy the above docker commands into the currently empty placeholder local ./my_docker_run.sh file.
-Step 2. Replace the -e environment fields with your values
-Step 3. Now your ready to run ./my_docker_run.sh
+Please note: the above docker build and run commands can be placed into your copy of the local ./my_docker_run.sh file which is actually a symlink to the parent directory outside the repo, so your secrets do not get checked into the repo by accident, so   
+Step 1. Copy the above docker commands into the currently empty placeholder local ./my_docker_run.sh file.   
+Step 2. Replace the -e environment fields with your values   
+Step 3. Now your ready to run ./my_docker_run.sh   
 
