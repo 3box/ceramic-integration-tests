@@ -57,7 +57,7 @@ docker run \
   -e CLOUDWATCH_LOG_BASE_URL='https://<AWS_REGION>.console.aws.amazon.com/cloudwatch/home?region=<AWS_REGION>#logsV2:log-groups/log-group/$252Fecs$252Fceramic-dev-tests/log-events/smoke_tests$252Fsmoke_tests$252F' \
   -e DISCORD_WEBHOOK_URL_TEST_FAILURES='<url_for_failures>' \
   -e DISCORD_WEBHOOK_URL_TEST_RESULTS='<url_for_results>' \
-  -e DYNAMODB_ENDPOINT_BASE_URL='<url_for_dynamodb_endpoint>' \
+  -e INFRA_STATUS_ENDPOINT_BASE_URL='<url_for_dynamodb_endpoint>' \
   -e NODE_ENV='<name_of_config_file>' \
   ceramic-integration-tests
 ```

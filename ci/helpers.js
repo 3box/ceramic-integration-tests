@@ -8,7 +8,7 @@ const getCommitHashes = async () => {
       `curl --aws-sigv4 "aws:amz:${process.env.AWS_REGION}:execute-api" \
         --user "${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}" \
         -X GET \
-        "${process.env.DYNAMODB_ENDPOINT_BASE_URL}name=ceramic"
+        "${process.env.INFRA_STATUS_ENDPOINT_BASE_URL}name=ceramic"
       `
     )
     const jsonCeramicData = JSON.parse(outCeramicData)
@@ -19,7 +19,7 @@ const getCommitHashes = async () => {
       `curl --aws-sigv4 "aws:amz:${process.env.AWS_REGION}:execute-api" \
         --user "${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}" \
         -X GET \
-        "${process.env.DYNAMODB_ENDPOINT_BASE_URL}name=cas"
+        "${process.env.INFRA_STATUS_ENDPOINT_BASE_URL}name=cas"
       `
     )
     const jsonCasData = JSON.parse(outCasData)
