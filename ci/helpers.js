@@ -26,12 +26,12 @@ const getCommitHashes = async () => {
     const casDeployTag = jsonCasData.deployTag
     const casIpfsDeployTag = jsonCasData.buildInfo.ipfs_sha_tag
 
-    const envUrls = `${process.env.CERAMIC_URLS}`.replace(/,/g,"\n")
+    const envUrls = `${process.env.CERAMIC_URLS}`.replace(/ /g,"\n")
     const ceramicRepository = 'https://github.com/ceramicnetwork/js-ceramic'
     const casRepository = 'https://github.com/ceramicnetwork/ceramic-anchor-service'
     const commitHashesDiscordNotification = `[js-ceramic (${ceramicDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${ceramicDeployTag}) <==> [ipfs-daemon (${ceramicIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${ceramicIpfsDeployTag})
                       [ceramic-anchor-service (${casDeployTag.substr(0, 12)})](${casRepository}/commit/${casDeployTag}) <==> [ipfs-daemon (${casIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${casIpfsDeployTag})
-                      \`\`\`\n ${envUrls}\`\`\` `
+                      \`\`\`\n${envUrls}\`\`\` `
     return commitHashesDiscordNotification
   } catch (err) {
     console.error(err);
