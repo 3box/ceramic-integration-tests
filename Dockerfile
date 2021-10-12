@@ -1,4 +1,4 @@
-FROM node:current-alpine as builder
+FROM node:14-alpine as builder
 
 COPY package*.json ./
 
@@ -8,7 +8,7 @@ RUN npm ci --ignore-scripts
 RUN npm rebuild bcrypto
 RUN npm rebuild loady
 
-FROM node:current-alpine as app
+FROM node:14-alpine as app
 
 WORKDIR /app
 
