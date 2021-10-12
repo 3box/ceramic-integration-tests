@@ -3,7 +3,7 @@ const { BaseReporter } = require('@jest/reporters')
 const child_process = require('child_process')
 
 const userName = 'jest-reporter'
-let g_taskArns, g_commitHashes
+let g_taskArns, g_commitHashes // g_ are global variables
 
 async function listArntasksAndCommitHashes() {
   g_taskArns = await listECSTasks()        // like g_taskArns = ['arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84']
