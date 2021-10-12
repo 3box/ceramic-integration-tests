@@ -1,4 +1,4 @@
-FROM node:current-alpine as builder
+FROM node:14.18.0-alpine3.14 as builder
 
 COPY package*.json ./
 
