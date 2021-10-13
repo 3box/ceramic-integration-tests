@@ -146,6 +146,7 @@ export async function restartCeramic(): Promise<void> {
     if (config.jest.services.ceramic.mode == "client") {
         throw new Error("Cannot restart ceramic node running in http client mode")
     }
+    console.log("Restarting Ceramic node")
     await ceramic.close()
     await delay(3000) // Give some time for things to fully shut down before restarting
 
@@ -154,4 +155,7 @@ export async function restartCeramic(): Promise<void> {
         console.error(error)
         throw error
     })
+
+    await delay(3000) // Give some time for things to fully start up before continuing
+    console.log("Ceramic node restarted")
 }

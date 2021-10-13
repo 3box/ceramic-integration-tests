@@ -35,6 +35,8 @@ describe('Ceramic state store tests', () => {
             return
         }
 
+        console.log("Starting test 'Unpinned doc state does not survive ceramic restart'")
+
         const initialContent = { foo: 'bar' }
         const doc = await TileDocument.create<any>(ceramic, initialContent, null, {anchor:false, publish:false})
         expect(doc.content).toEqual(initialContent)
@@ -43,6 +45,7 @@ describe('Ceramic state store tests', () => {
         expect(doc.content).toEqual(newContent)
 
         expect(await isPinned(ceramic, doc.id)).toBeFalsy()
+
         await restartCeramic()
 
         const loaded = await ceramic.loadStream<TileDocument>(doc.id)
@@ -55,6 +58,8 @@ describe('Ceramic state store tests', () => {
             console.warn("skipping test since 'ceramic' is in http-client mode")
             return
         }
+
+        console.log("Starting test 'Pinned doc state does survive ceramic restart'")
 
         const initialContent = { foo: 'bar' }
         const doc = await TileDocument.create<any>(ceramic, initialContent, null, {anchor:false, publish:false})
