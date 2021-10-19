@@ -1,30 +1,38 @@
 const https = require('https')
 const child_process = require('child_process')
 const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
+const AWS = require("aws-sdk")
+
 
 const getCommitHashes = async () => {
   try {
-    const outCeramicData = child_process.execSync( // aws-sigv4 signing added with/after curl-7.75.0
-      `curl --aws-sigv4 "aws:amz:${process.env.AWS_REGION}:execute-api" \
-        --user "${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}" \
-        -X GET \
-        "${process.env.INFRA_STATUS_ENDPOINT_BASE_URL}name=ceramic"
-      `
-    )
-    const jsonCeramicData = JSON.parse(outCeramicData)
-    const ceramicDeployTag = jsonCeramicData.deployTag
-    const ceramicIpfsDeployTag = jsonCeramicData.buildInfo.sha_tag
+    AWS.config.update({
+      region: process.env.AWS_REGION,
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    });
 
-    const outCasData = child_process.execSync( // aws-sigv4 signing added with/after curl-7.75.0
-      `curl --aws-sigv4 "aws:amz:${process.env.AWS_REGION}:execute-api" \
-        --user "${process.env.AWS_ACCESS_KEY_ID}:${process.env.AWS_SECRET_ACCESS_KEY}" \
-        -X GET \
-        "${process.env.INFRA_STATUS_ENDPOINT_BASE_URL}name=cas"
-      `
-    )
-    const jsonCasData = JSON.parse(outCasData)
-    const casDeployTag = jsonCasData.deployTag
-    const casIpfsDeployTag = jsonCasData.buildInfo.ipfs_sha_tag
+    const docClient = new AWS.DynamoDB.DocumentClient();
+
+    const ceramicParams = {
+      TableName: "ceramic-utils-dev", // TABLE_NAME
+      Key: {
+        key: "ceramic"
+      }
+    };
+    const ceramicData = await docClient.get(ceramicParams).promise()
+    const ceramicDeployTag = ceramicData.Item.deployTag
+    const ceramicIpfsDeployTag = ceramicData.Item.buildInfo.sha_tag
+
+    const casParams = {
+      TableName: "ceramic-utils-dev", // TABLE_NAME
+      Key: {
+        key: "cas"
+      }
+    };
+    const casData = await docClient.get(casParams).promise()
+    const casDeployTag = casData.Item.deployTag
+    const casIpfsDeployTag = casData.Item.buildInfo.ipfs_sha_tag
 
     const envUrls = `${process.env.CERAMIC_URLS}`.replace(/ /g,"\n")
     const ceramicRepository = 'https://github.com/ceramicnetwork/js-ceramic'

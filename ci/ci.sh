@@ -13,8 +13,10 @@ if [[ $NODE_ENV == "local_node-private" ]]; then
   $(node node_modules/@ceramicnetwork/ipfs-daemon/bin/ipfs-daemon) &
 fi
 
-echo "Sleeping for 60s"
-sleep 60 # Give time for services to finish starting up before starting tests
+if [[ $ECS_CONTAINER_METADATA_URI_V4 ]]; then
+  echo "Sleeping for 60s"
+  sleep 60 # Give time for services to finish starting up before starting tests
+fi
 
 npm run test:ci
 
