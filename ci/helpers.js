@@ -1,38 +1,38 @@
 const https = require('https')
 const child_process = require('child_process')
 const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
-const AWS = require("aws-sdk")
+
+// Lambda load the required clients and packages.
+const { LambdaClient, InvokeCommand } = require ("@aws-sdk/client-lambda" );
+//NOT_NEEDED// const { lambdaClient } = require ( "../libs/lambdaClient" );
 
 
-const getCommitHashes = async () => {
-  try {
-    AWS.config.update({
-      region: process.env.AWS_REGION,
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    });
+const getCommitHashes = async () => { // Based on Lambda SDK example https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/javascriptv3/example_code/lambda/lambda_create_function/src/LambdaApp/index.js
+  //MASKED// try {
 
-    const docClient = new AWS.DynamoDB.DocumentClient();
+    // a client can be shared by different commands.
+    const lmbdaClient = new LambdaClient({ region: process.env.AWS_REGION });
 
-    const ceramicParams = {
-      TableName: "ceramic-utils-dev", // TABLE_NAME
-      Key: {
-        key: "ceramic"
-      }
-    };
-    const ceramicData = await docClient.get(ceramicParams).promise()
-    const ceramicDeployTag = ceramicData.Item.deployTag
-    const ceramicIpfsDeployTag = ceramicData.Item.buildInfo.sha_tag
+    // Set the parmaeters.
+    const params={
+      // The name of the AWS Lambda function.
+      FunctionName: "ceramic-utils-dev-api-handler",
+      InvocationType: "RequestResponse",
+      LogType: "None"
+    }
 
-    const casParams = {
-      TableName: "ceramic-utils-dev", // TABLE_NAME
-      Key: {
-        key: "cas"
-      }
-    };
-    const casData = await docClient.get(casParams).promise()
-    const casDeployTag = casData.Item.deployTag
-    const casIpfsDeployTag = casData.Item.buildInfo.ipfs_sha_tag
+    const data = await lmbdaClient.send(new InvokeCommand(params));
+    console.log("!!!!!!!!!!!!!!!!!! lambdaClient data:=", JSON.stringify(data));
+    console.log("!!!!!!!!!!!!!!!!!! lambdaClient data.Payload:=", data.Payload);
+    //BAD// console.log("!!!!!!!!!!!!!!!!!! lambdaClient data.Payload:=", JSON.parse(data.toString()));
+
+    return "no defined"
+
+    /* MASKED 
+    const ceramicDeployTag = undefined
+    const ceramicIpfsDeployTag = undefined
+    const casDeployTag = undefined
+    const casIpfsDeployTag = undefined
 
     const envUrls = `${process.env.CERAMIC_URLS}`.replace(/ /g,"\n")
     const ceramicRepository = 'https://github.com/ceramicnetwork/js-ceramic'
@@ -41,9 +41,11 @@ const getCommitHashes = async () => {
                       [ceramic-anchor-service (${casDeployTag.substr(0, 12)})](${casRepository}/commit/${casDeployTag}) <==> [ipfs-daemon (${casIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${casIpfsDeployTag})
                       \`\`\`\n${envUrls}\`\`\` `
     return commitHashesDiscordNotification
-  } catch (err) {
-    console.error(err);
-  }
+    /* MASKED  */
+
+  //MASKED// } catch (err) {
+    //MASKED// console.error(err);
+  //MASKED// }
 }
 
 
