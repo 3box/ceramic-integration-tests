@@ -28,8 +28,8 @@
   },
   "dependencies": {
     "3id-did-provider": "^1.1.1",
+    "@aws-sdk/client-api-gateway": "^3.37.0",
     "@aws-sdk/client-ecs": "^3.8.1",
-    "@aws-sdk/client-lambda": "^3.37.0",
     "@babel/core": "^7.12.10",
     "@babel/plugin-proposal-decorators": "^7.12.1",
     "@babel/plugin-transform-modules-commonjs": "^7.12.1",
