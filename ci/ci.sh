@@ -9,7 +9,7 @@ fi
 if [[ $NODE_ENV == "local_node-private" ]]; then
   export IPFS_API_PORT=5011
   export CERAMIC_NETWORK='dev-unstable'
-  export DEBUG='bitswap*'
+  export DEBUG='ipfs*error'
   $(node node_modules/@ceramicnetwork/ipfs-daemon/bin/ipfs-daemon) &
 fi
 
