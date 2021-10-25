@@ -5,13 +5,13 @@ const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
 const { APIGatewayClient, TestInvokeMethodCommand } = require ("@aws-sdk/client-api-gateway")
 
 
-const getCommitHashes = async () => { // Based on Lambda SDK example https://github.com/awsdocs/aws-doc-sdk-examples/blob/main/javascriptv3/example_code/lambda/lambda_create_function/src/LambdaApp/index.js
+const getCommitHashes = async () => {
   try {
     const client = new APIGatewayClient({ region: process.env.AWS_REGION });
-    const ceramicCmd = new TestInvokeMethodCommand({restApiId: "", resourceId: "", httpMethod: "GET", pathWithQueryString: "v1.0/infra?name=ceramic"});
+    const ceramicCmd = new TestInvokeMethodCommand({restApiId: process.env.APIGATEWAY_RESTAPI_ID, resourceId: process.env.APIGATEWAY_RESOURCE_ID, httpMethod: "GET", pathWithQueryString: "v1.0/infra?name=ceramic"});
     const ceramicResp = await client.send(ceramicCmd);
     const ceramicJson = JSON.parse(ceramicResp.body)
-    const casCmd = new TestInvokeMethodCommand({restApiId: "", resourceId: "", httpMethod: "GET", pathWithQueryString: "v1.0/infra?name=cas"});
+    const casCmd = new TestInvokeMethodCommand({restApiId: process.env.APIGATEWAY_RESTAPI_ID, resourceId: process.env.APIGATEWAY_RESOURCE_ID, httpMethod: "GET", pathWithQueryString: "v1.0/infra?name=cas"});
     const casResp = await client.send(casCmd);
     const casJson = JSON.parse(casResp.body)
     const ceramicDeployTag = ceramicJson.deployTag
@@ -89,25 +89,29 @@ async function listECSTasks() {
  * @param {any} data POST data
  * @param {Number} retryDelayMs If -1, will not retry, otherwise the millisecond delay before 1 retry
  */
-function sendDiscordNotification(webhookUrl, data, retryDelayMs = -1) {
-  const options = {
-    method: 'POST',
-    headers: {
-      "Content-Type": "application/json"
+const sendDiscordNotification = async (webhookUrl, data, retryDelayMs = -1) => {
+  try {
+    const options = {
+      method: 'POST',
+      headers: {
+        "Content-Type": "application/json"
+      }
     }
+    const req = await https.request(webhookUrl, options, (res) => {
+      console.log(`Notification request status code: ${res.statusCode}`)
+      if (res.statusCode >= 500 && retryDelayMs > -1) {
+        console.log(`Retrying after ${retryDelayMs} milliseconds...`)
+        setTimeout(() => {
+          sendDiscordNotification(webhookUrl, data)
+        }, retryDelayMs)
+      }
+    })
+    req.on('error', console.error)
+    req.write(JSON.stringify(data))
+    req.end()
+  } catch (err) {
+    console.error(err);
   }
-  const req = https.request(webhookUrl, options, (res) => {
-    console.log(`Notification request status code: ${res.statusCode}`)
-    if (res.statusCode >= 500 && retryDelayMs > -1) {
-      console.log(`Retrying after ${retryDelayMs} milliseconds...`)
-      setTimeout(() => {
-        sendDiscordNotification(webhookUrl, data)
-      }, retryDelayMs)
-    }
-  })
-  req.on('error', console.error)
-  req.write(JSON.stringify(data))
-  req.end()
 }
 
 module.exports = {
