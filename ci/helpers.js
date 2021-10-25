@@ -1,7 +1,7 @@
 const https = require('https')
 const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
 
-// Lambda load the required clients and packages.
+// API gateway to Lambda to load the required clients and packages.
 const { APIGatewayClient, TestInvokeMethodCommand } = require ("@aws-sdk/client-api-gateway")
 
 
