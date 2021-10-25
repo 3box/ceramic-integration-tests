@@ -28,7 +28,7 @@ ENV AWS_REGION=${AWS_REGION}
 ENV AWS_ECS_CLUSTER=${AWS_ECS_CLUSTER}
 ENV AWS_ECS_FAMILY=${AWS_ECS_FAMILY}
 ENV CERAMIC_ECS_CLUSTERS="ceramic-dev ceramic-dev-ex"
-ENV CERAMIC_URLS="ceramic-dev.3boxlabs.com gateway-dev.ceramic.network ceramic-private-dev.3boxlabs.com"
+ENV CERAMIC_URLS="https://ceramic-dev.3boxlabs.com https://gateway-dev.ceramic.network https://ceramic-private-dev.3boxlabs.com"
 
 # Discord notifications about running ECS tasks
 ENV CLOUDWATCH_LOG_BASE_URL=${CLOUDWATCH_LOG_BASE_URL}
