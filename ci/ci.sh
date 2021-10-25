@@ -1,6 +1,7 @@
 #!/bin/sh
 export RUN_ID=$(node generate-id.js)
-echo "Run id: $RUN_ID"
+echo "INFO: Run id: $RUN_ID"
+echo "INFO: Sleep seconds set for services to start: ${SLEEP:=60}"  # defaults to 60 seconds
 
 if [[ $NODE_ENV == "local_client-public" ]]; then
   $(node node_modules/@ceramicnetwork/cli/bin/ceramic daemon --verbose --log-to-files --network dev-unstable --ethereum-rpc https://rinkeby.infura.io/v3/b6685df41e1647c4be0046dfa62a020b) &
@@ -13,8 +14,8 @@ if [[ $NODE_ENV == "local_node-private" ]]; then
   $(node node_modules/@ceramicnetwork/ipfs-daemon/bin/ipfs-daemon) &
 fi
 
-echo "Sleeping for 60s"
-sleep 60 # Give time for services to finish starting up before starting tests
+echo "INFO: Sleeping for ${SLEEP}s"
+sleep ${SLEEP} # Give time for services to finish starting up before starting tests
 
 npm run test:ci
 
