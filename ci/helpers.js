@@ -44,7 +44,7 @@ function generateDiscordCloudwatchLogUrls(taskArns) {
     let logUrlName
     const id = arn.match(arnRegex)
 
-    let taskArn = child_process.execSync('npm install node-jq && curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\'').toString()
+    let taskArn = child_process.execSync('curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\'').toString()
     console.log("INFO: generateDiscordCloudwatchLogUrls taskArn:=", taskArn)
     actualLogUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${taskArn}`
 
