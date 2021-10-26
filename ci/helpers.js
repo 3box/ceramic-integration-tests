@@ -33,29 +33,15 @@ const getCommitHashes = async () => {
 
 
 /**
- * Returns list of running ECS Cloudwatch log for running test task
- * @param {Array<string>} taskArns 
+ * Returns the running taskArn's CloudWatch log url as an array 
+ * @param no parameters
  * @returns {Array<string>}
  */
-function generateDiscordCloudwatchLogUrls(taskArns) {
-  const arnRegex = /\w+$/
-
-  const logUrls = taskArns.map((arn, index) => {
-    let logUrlName
-    const id = arn.match(arnRegex)
-
-    let taskArn = child_process.execSync('curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\'').toString()
-    console.log("INFO: generateDiscordCloudwatchLogUrls taskArn:=", taskArn)
-    actualLogUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${taskArn}`
-
-    if (id) {
-      logUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${id[0]}`
-    }
-
-    return `${logUrlName}\n`
-  })
-
-  return logUrls
+function generateDiscordCloudwatchLogUrl() {
+    const taskArn = child_process.execSync('curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\'').toString()
+    console.log("INFO: generateDiscordCloudwatchLogUrl taskArn:=", taskArn)
+    const actualLogUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${taskArn}`
+    return [`${actualLogUrlName}\n`]
 }
 
 
