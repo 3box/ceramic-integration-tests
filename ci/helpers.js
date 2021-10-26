@@ -107,7 +107,7 @@ const sendDiscordNotification = async (webhookUrl, data, retryDelayMs = -1) => {
 }
 
 module.exports = {
-  generateDiscordCloudwatchLogUrls,
+  generateDiscordCloudwatchLogUrl,
   listECSTasks,
   sendDiscordNotification,
   getCommitHashes

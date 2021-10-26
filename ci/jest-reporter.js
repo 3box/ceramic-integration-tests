@@ -1,4 +1,4 @@
-const { generateDiscordCloudwatchLogUrls, listECSTasks, sendDiscordNotification, getCommitHashes } = require('./helpers')
+const { generateDiscordCloudwatchLogUrl, listECSTasks, sendDiscordNotification, getCommitHashes } = require('./helpers')
 const { BaseReporter } = require('@jest/reporters')
 const child_process = require('child_process')
 
@@ -24,7 +24,7 @@ class MyCustomReporter extends BaseReporter {
       console.log("INFO: listECSTasks g_taskArns:=", g_taskArns)
       console.log("INFO: listECSTasks g_commitHashes:=", g_commitHashes)
       this.commitHashes = g_commitHashes
-      this.logUrls = generateDiscordCloudwatchLogUrls(g_taskArns)
+      this.logUrls = generateDiscordCloudwatchLogUrl()
       this.testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
       this.testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
 
