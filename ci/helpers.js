@@ -1,4 +1,5 @@
 const https = require('https')
+const child_process = require('child_process')
 const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
 
 // API gateway to Lambda to load the required clients and packages.
@@ -32,7 +33,7 @@ const getCommitHashes = async () => {
 
 
 /**
- * Returns list of running ECS Cloudwatch logs for running test tasks
+ * Returns list of running ECS Cloudwatch log for running test task
  * @param {Array<string>} taskArns 
  * @returns {Array<string>}
  */
@@ -42,7 +43,12 @@ function generateDiscordCloudwatchLogUrls(taskArns) {
   const logUrls = taskArns.map((arn, index) => {
     let logUrlName
     const id = arn.match(arnRegex)
-    if (id) {
+    if (process.env.ECS_CONTAINER_METADATA_URI_V4) {
+      let taskArn = child_process.execSync(
+        'npm install node-jq --save && curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\''
+      ).toString()
+      logUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${taskArn}`
+    } else {
       logUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${id[0]}`
     }
 
