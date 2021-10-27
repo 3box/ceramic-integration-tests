@@ -38,6 +38,8 @@ const getCommitHashes = async () => {
  * @returns {Array<string>}
  */
 function generateDiscordCloudwatchLogUrl() {
+    const nodeJqExists = child_process.execSync('ls /app/node_modules/node-jq/bin/jq').toString()
+    console.log("INFO: node jq:=",nodeJqExists)
     const taskArn = child_process.execSync('curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\'').toString()
     console.log("INFO: generateDiscordCloudwatchLogUrl taskArn:=", taskArn)
     const actualLogUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${taskArn}`

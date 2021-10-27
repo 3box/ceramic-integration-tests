@@ -7,7 +7,7 @@ RUN apk add --no-cache python3 make g++
 RUN npm ci --ignore-scripts
 RUN npm rebuild bcrypto
 RUN npm rebuild loady
-RUN npm install node-jq
+RUN npm rebuild node-jq
 
 FROM node:14-alpine as app
 
