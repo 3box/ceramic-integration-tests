@@ -1,4 +1,5 @@
 const https = require('https')
+const child_process = require('child_process')
 const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
 
 // API gateway to Lambda to load the required clients and packages.
@@ -32,24 +33,17 @@ const getCommitHashes = async () => {
 
 
 /**
- * Returns list of running ECS Cloudwatch logs for running test tasks
- * @param {Array<string>} taskArns 
+ * Returns the running taskArn's CloudWatch log url as an array 
+ * @param no parameters
  * @returns {Array<string>}
  */
-function generateDiscordCloudwatchLogUrls(taskArns) {
-  const arnRegex = /\w+$/
-
-  const logUrls = taskArns.map((arn, index) => {
-    let logUrlName
-    const id = arn.match(arnRegex)
-    if (id) {
-      logUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${id[0]}`
-    }
-
-    return `${logUrlName}\n`
-  })
-
-  return logUrls
+function generateDiscordCloudwatchLogUrl() {
+    const nodeJqExists = child_process.execSync('ls /app/node_modules/node-jq/bin/jq').toString()
+    console.log("INFO: node jq:=",nodeJqExists)
+    const taskArn = child_process.execSync('curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\'').toString()
+    console.log("INFO: generateDiscordCloudwatchLogUrl taskArn:=", taskArn)
+    const actualLogUrlName = `${process.env.CLOUDWATCH_LOG_BASE_URL}${taskArn}`
+    return [`${actualLogUrlName}\n`]
 }
 
 
@@ -115,7 +109,7 @@ const sendDiscordNotification = async (webhookUrl, data, retryDelayMs = -1) => {
 }
 
 module.exports = {
-  generateDiscordCloudwatchLogUrls,
+  generateDiscordCloudwatchLogUrl,
   listECSTasks,
   sendDiscordNotification,
   getCommitHashes
