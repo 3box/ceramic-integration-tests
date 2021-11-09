@@ -9,7 +9,6 @@ declare global {
     let ceramic: CeramicApi
     const ceramicClient: CeramicApi
     const ipfs: IpfsApi
-    const ipfs2: IpfsApi
 }
 
 export default class IntegrationTestEnvironment extends NodeEnvironment {
