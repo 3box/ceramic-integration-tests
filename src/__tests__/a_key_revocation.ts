@@ -47,6 +47,8 @@ afterEach(() => {
 
 test('key revocation', async () => {
     jest.setTimeout(1000 * 60 * 30) // 30 minutes
+    console.log("Starting test: key revocation")
+
     // 1. Setup initial keys
     const seedString = `first-seed-${Math.random()}`;
     const seed = sha256.hash(uint8arrays.fromString(seedString));
