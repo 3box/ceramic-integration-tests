@@ -13,6 +13,7 @@ declare global {
 
 export default class IntegrationTestEnvironment extends NodeEnvironment {
     async setup() {
+        console.log("Setting up integration test")
         await super.setup();
 
         try {
@@ -24,6 +25,8 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
     }
 
     async teardown() {
+        console.log("Tearing down integration test")
+
         // @ts-ignore
         await this.global.ceramic.close();
         this.global.ceramic = null
