@@ -9,7 +9,6 @@ declare global {
     let ceramic: CeramicApi
     const ceramicClient: CeramicApi
     const ipfs: IpfsApi
-    const ipfs2: IpfsApi
 }
 
 export default class IntegrationTestEnvironment extends NodeEnvironment {
@@ -33,6 +32,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
         await this.global.ceramicClient.close();
         this.global.ceramicClient = null
 
+        // @ts-ignore
         this.global.ipfs = null
 
         await delay(3000) // Give some time for things to fully shut down
