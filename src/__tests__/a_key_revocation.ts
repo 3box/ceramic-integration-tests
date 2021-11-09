@@ -45,7 +45,7 @@ afterEach(() => {
     ceramic.did = originalDid
 })
 
-test('key revocation', async () => {
+test('a key revocation', async () => {
     jest.setTimeout(1000 * 60 * 30) // 30 minutes
     console.log("Starting test: key revocation")
 
