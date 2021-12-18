@@ -46,7 +46,7 @@ afterEach(() => {
 })
 
 test('key revocation', async () => {
-    jest.setTimeout(1000 * 60 * 30) // 30 minutes
+    jest.setTimeout(1000 * 60 * 60) // 1 hour
     console.log("Starting test: key revocation")
 
     // 1. Setup initial keys
