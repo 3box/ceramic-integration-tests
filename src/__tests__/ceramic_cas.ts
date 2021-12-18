@@ -11,7 +11,7 @@ declare global {
 }
 
 describe('Ceramic<->CAS basic integration', () => {
-    jest.setTimeout(1000 * 60 * 30) // 30 minutes
+    jest.setTimeout(1000 * 60 * 60) // 1 hour
 
     test("basic crud is anchored properly, single update per anchor batch", async () => {
         // Test document creation

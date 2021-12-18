@@ -81,7 +81,7 @@ const updatesAreShared = async(ceramic1: CeramicApi, ceramic2: CeramicApi, ancho
 }
 
 describe('Ceramic<->Ceramic multi-node integration', () => {
-    jest.setTimeout(1000 * 60 * 30) // 30 minutes
+    jest.setTimeout(1000 * 60 * 60) // 1 hour
 
     test("create with one, load with the other", async () => {
         console.info("Running test 'create with one, load with the other'")
