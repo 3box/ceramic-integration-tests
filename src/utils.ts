@@ -25,7 +25,7 @@ import { filter, take } from 'rxjs/operators'
 const seed = randomBytes(32)
 
 // 15 minutes for anchors to happen and be noticed (including potential failures and retries)
-export const ANCHOR_TIMEOUT = 60 * 15
+export const ANCHOR_TIMEOUT = 60 * 30
 
 export async function delay(millseconds: number): Promise<void> {
     await new Promise<void>(resolve => setTimeout(() => resolve(), millseconds))
