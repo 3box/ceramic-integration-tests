@@ -118,4 +118,6 @@ test('key revocation', async () => {
     const okContent = { stage: 'Should work' }
     await tile.update(okContent)
     expect(tile.content).toEqual(okContent)
+
+    console.log('key revocation test complete!')
 })
