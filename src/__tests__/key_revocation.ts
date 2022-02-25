@@ -49,7 +49,7 @@ test('key revocation', async () => {
     jest.setTimeout(1000 * 60 * 60) // 1 hour
     console.log("Starting test: key revocation")
 
-    // 1. Setup initial keys
+    console.log('1. Setup initial keys')
     const seedString = `first-seed-${Math.random()}`;
     const seed = sha256.hash(uint8arrays.fromString(seedString));
     const keyDidResolver = KeyDidResolver.getResolver();
@@ -73,26 +73,33 @@ test('key revocation', async () => {
     const firstKid = await extractKid(ceramic.did);
     const firstSigner = threeIdProvider.keychain._keyring.getSigner();
 
-    // 2. Create tile
+    console.log('2. Create tile')
     const tile = await TileDocument.create(ceramic, {
         stage: "Signed by vanilla",
     });
+    console.log('2a. Update tile')
     await tile.update({ stage: "Signed second time" }, undefined, {
         anchor: true,
     });
+    console.log('2b. Wait for anchor')
     await waitForAnchor(tile);
 
-    // 3. Rotate key
+    console.log('3. Rotate key')
+    console.log('3a. Add new key')
     await threeIdProvider.keychain.add(
         "second",
         sha256.hash(uint8arrays.fromString(`second-seed-${Math.random()}`))
     );
+    console.log('3b. Remove old key')
     await threeIdProvider.keychain.remove("first");
+    console.log('3c. Commit changes')
     await threeIdProvider.keychain.commit();
+    console.log('3d. Load 3id Tile')
     const didTile = await ceramic.loadStream(did.id.replace(`did:3:`, ''))
+    console.log('3e. Anchor 3id Tile')
     await waitForAnchor(didTile)
 
-    // 3. Prepare signing with the old key
+    console.log('4. Prepare signing with the old key')
     const vanillaCreateJWS = ceramic.did.createJWS.bind(ceramic.did)
     ceramic.did.createJWS = async (payload, options) => {
         const compactJWS = await didJWT.createJWS(payload, firstSigner, {
@@ -101,12 +108,12 @@ test('key revocation', async () => {
         return toGeneralJWS(compactJWS);
     };
 
-    // 4. This should blow
+    console.log('5. Try to perform update with revoked key')
     await expect(tile.update({ stage: "Should blow" }, undefined, {
         anchor: true,
     })).rejects.toThrow(/signature authored with a revoked DID version/)
 
-    // 5. Current key should work though
+    console.log('6. Perform successful update with current key')
     ceramic.did.createJWS = vanillaCreateJWS
     const okContent = { stage: 'Should work' }
     await tile.update(okContent)
