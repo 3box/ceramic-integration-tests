@@ -3,10 +3,10 @@
     "services": {
       "ceramic": {
         "mode": "node",
-        "anchorServiceAPI": "https://cas-dev.3boxlabs.com",
+        "anchorServiceAPI": "https://cas-qa.3boxlabs.com",
         "ethereumRpc": "@@ETH_RPC_URL",
-        "s3StateStoreBucketName": "ceramic-dev-tests/node",
-        "network": "dev-unstable"
+        "s3StateStoreBucketName": "ceramic-qa-tests/node",
+        "network": "dev-qa"
       },
       "ipfs": {
         "mode": "client",
@@ -14,7 +14,7 @@
       },
       "ceramicClient": {
         "mode": "client",
-        "apiURL": "https://ceramic-private-dev.3boxlabs.com"
+        "apiURL": "https://ceramic-private-qa.3boxlabs.com"
       }
     }
   },
