@@ -6,7 +6,7 @@ on:
       tests:
         description: "Space separated list of tests to run. Runs all available by default."
         required: false
-        default: 'smoke'
+        default: 'e2e'
 
 name: Run Tests on ECS
 
@@ -17,9 +17,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - smoke_test_config: "private-public"
-          - smoke_test_config: "local_client-public"
-          - smoke_test_config: "local_node-private"
+          - e2e_test_config: "private-public"
+          - e2e_test_config: "local_client-public"
+          - e2e_test_config: "local_node-private"
 
     steps:
     - name: Checkout
@@ -32,13 +32,13 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: Run smoke tests
-      if: contains('smoke', github.event.inputs.tests)
+    - name: Run integration tests
+      if: contains('e2e', github.event.inputs.tests)
       run: |
         aws ecs run-task \
-          --cluster ceramic-dev-tests \
-          --task-definition ceramic-dev-tests-smoke_tests \
+          --cluster ceramic-qa-tests \
+          --task-definition ceramic-qa-tests-e2e_tests \
           --launch-type FARGATE \
           --network-configuration ${{ secrets.NETWORK_CONFIGURATION }} \
           --enable-execute-command \
-          --overrides '{ "containerOverrides": [{ "name": "smoke_tests", "environment": [{ "name": "NODE_ENV", "value": "${{ matrix.smoke_test_config }}" }, { "name": "AWS_ACCESS_KEY_ID", "value": "${{ secrets.S3_AWS_ACCESS_KEY_ID }}" }, { "name": "AWS_SECRET_ACCESS_KEY", "value": "${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}" }, { "name": "AWS_REGION", "value": "${{ secrets.S3_AWS_REGION }}" }, { "name": "ETH_RPC_URL", "value": "${{ secrets.ETH_RPC_URL }}" }] }] }'
+          --overrides '{ "containerOverrides": [{ "name": "e2e_tests", "environment": [{ "name": "NODE_ENV", "value": "${{ matrix.e2e_test_config }}" }, { "name": "AWS_ACCESS_KEY_ID", "value": "${{ secrets.S3_AWS_ACCESS_KEY_ID }}" }, { "name": "AWS_SECRET_ACCESS_KEY", "value": "${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}" }, { "name": "AWS_REGION", "value": "${{ secrets.S3_AWS_REGION }}" }, { "name": "ETH_RPC_URL", "value": "${{ secrets.ETH_RPC_URL }}" }] }] }'
