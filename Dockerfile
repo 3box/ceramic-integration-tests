@@ -28,8 +28,8 @@ ENV NODE_ENV="private-public"
 ENV AWS_REGION=${AWS_REGION}
 ENV AWS_ECS_CLUSTER=${AWS_ECS_CLUSTER}
 ENV AWS_ECS_FAMILY=${AWS_ECS_FAMILY}
-ENV CERAMIC_ECS_CLUSTERS="ceramic-dev ceramic-dev-ex"
-ENV CERAMIC_URLS="https://ceramic-dev.3boxlabs.com https://gateway-dev.ceramic.network https://ceramic-private-dev.3boxlabs.com"
+ENV CERAMIC_ECS_CLUSTERS="ceramic-qa ceramic-qa-ex"
+ENV CERAMIC_URLS="https://ceramic-qa.3boxlabs.com https://gateway-qa.ceramic.network https://ceramic-private-qa.3boxlabs.com"
 
 # Discord notifications about running ECS tasks
 ENV APIGATEWAY_RESOURCE_ID=${APIGATEWAY_RESOURCE_ID}
