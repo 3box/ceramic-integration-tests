@@ -30,7 +30,7 @@ jobs:
       id: build-image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ceramic-qa-tests-smoke_tests
+        ECR_REPOSITORY: ceramic-qa-tests-e2e_tests
         SHA_TAG: ${{ github.sha }}
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHA_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
