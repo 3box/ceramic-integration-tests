@@ -30,7 +30,7 @@ function main() {
                     env: {
                         ...process.env,
                         IPFS_API_PORT: service.port,
-                        CERAMIC_NETWORK: 'dev-unstable',
+                        CERAMIC_NETWORK: 'dev-qa',
                         DEBUG: 'bitswap*'
                     }
                 }
@@ -41,7 +41,7 @@ function main() {
                     --verbose \
                     --log-to-files \
                     --port ${service.port} \
-                    --network dev-unstable \
+                    --network dev-qa \
                     --ethereum-rpc ${service.ethereumRpc}
                 `
             )
