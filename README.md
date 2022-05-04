@@ -22,7 +22,7 @@ Tests against the two nodes (called 'private' and 'public') running in our infra
 `NODE_ENV=local_client-public npm run test`
 
 Tests integration between a local node and the 'public' node in our infra.
-Before running tests a ceramic node connected to the dev-qa network
+Before running tests a ceramic node connected to the dev-unstable network
 must be running on the same machine. The tests communicate to the local node via an http-client.
 
 #### local_node-private

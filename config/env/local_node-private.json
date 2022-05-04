@@ -6,7 +6,7 @@
         "anchorServiceAPI": "https://cas-qa.3boxlabs.com",
         "ethereumRpc": "@@ETH_RPC_URL",
         "s3StateStoreBucketName": "ceramic-qa-tests/node",
-        "network": "dev-qa"
+        "network": "dev-unstable"
       },
       "ipfs": {
         "mode": "client",
