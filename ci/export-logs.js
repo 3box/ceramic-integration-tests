@@ -31,7 +31,7 @@ function uploadToS3(file) {
     console.log('File Error', err);
   })
 
-  const uploadParams = { Bucket: 'ceramic-dev-tests', Key: '', Body: '' }
+  const uploadParams = { Bucket: 'ceramic-qa-tests', Key: '', Body: '' }
 
   uploadParams.Body = fileStream
   uploadParams.Key = path.basename(file)

@@ -2,8 +2,8 @@ const { generateDiscordCloudwatchLogUrl, listECSTasks, sendDiscordNotification, 
 
 const main = async () => {
   try {
-    const taskArns = await listECSTasks()        // like  taskArns =  [ 'arn:aws:ecs:*********:************:task/ceramic-dev-tests/2466935a544f47ec9a1c3d8add235c84' ]
-    const commitHashes = await getCommitHashes() // like  commitHashes = "ceramic-anchor-service (333fc9afb59a) <==> ipfs-daemon (6871b7dcd27d)\n"
+    const taskArns = await listECSTasks()
+    const commitHashes = await getCommitHashes() // e.g. "ceramic-anchor-service (333fc9afb59a) <==> go-ipfs-daemon (6871b7dcd27d)\n"
     console.log('INFO: listECSTasks taskArns:=', taskArns)
     let logUrls = generateDiscordCloudwatchLogUrl()
     if (logUrls.length < 1) {

@@ -10,7 +10,7 @@
       },
       "ceramicClient": {
         "mode": "client",
-        "apiURL": "https://ceramic-dev.3boxlabs.com"
+        "apiURL": "https://ceramic-qa.3boxlabs.com"
       }
     }
   },

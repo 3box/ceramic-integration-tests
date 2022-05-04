@@ -3,14 +3,14 @@
     "services": {
       "ceramic": {
         "mode": "client",
-        "apiURL": "https://ceramic-private-dev.3boxlabs.com"
+        "apiURL": "https://ceramic-private-qa.3boxlabs.com"
       },
       "ipfs": {
         "mode": "none"
       },
       "ceramicClient": {
         "mode": "client",
-        "apiURL": "https://ceramic-dev.3boxlabs.com"
+        "apiURL": "https://ceramic-qa.3boxlabs.com"
       }
     }
   },

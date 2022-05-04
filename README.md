@@ -54,9 +54,9 @@ docker run \
   -e AWS_ACCESS_KEY_ID='<only_if_using_s3_state_store>' \
   -e AWS_SECRET_ACCESS_KEY='<only_if_using_s3_state_store>' \
   -e AWS_REGION='<name_of_region>' \
-  -e AWS_ECS_CLUSTER='ceramic-dev-tests' \
-  -e AWS_ECS_FAMILY='ceramic-dev-tests-smoke_tests' \
-  -e CLOUDWATCH_LOG_BASE_URL='https://<AWS_REGION>.console.aws.amazon.com/cloudwatch/home?region=<AWS_REGION>#logsV2:log-groups/log-group/$252Fecs$252Fceramic-dev-tests/log-events/smoke_tests$252Fsmoke_tests$252F' \
+  -e AWS_ECS_CLUSTER='ceramic-qa-tests' \
+  -e AWS_ECS_FAMILY='ceramic-qa-tests-e2e_tests' \
+  -e CLOUDWATCH_LOG_BASE_URL='https://<AWS_REGION>.console.aws.amazon.com/cloudwatch/home?region=<AWS_REGION>#logsV2:log-groups/log-group/$252Fecs$252Fceramic-qa-tests/log-events/e2e_tests$252Fe2e_tests$252F' \
   -e DISCORD_WEBHOOK_URL_TEST_FAILURES='<url_for_failures>' \
   -e DISCORD_WEBHOOK_URL_TEST_RESULTS='<url_for_results>' \
   -e NODE_ENV='<name_of_config_file>' \
