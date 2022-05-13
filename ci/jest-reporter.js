@@ -1,4 +1,10 @@
-const { generateDiscordCloudwatchLogUrl, listECSTasks, sendDiscordNotification, getCommitHashes } = require('./helpers')
+const {
+  getThisTaskArn,
+  generateDiscordCloudwatchLogUrl,
+  listECSTasks,
+  sendDiscordNotification,
+  getCommitHashes
+} = require('./helpers')
 const { BaseReporter } = require('@jest/reporters')
 const child_process = require('child_process')
 
@@ -15,8 +21,8 @@ class MyCustomReporter extends BaseReporter {
     super(globalConfig, options)
     this._globalConfig = globalConfig
     this._options = options
-    this.runId = process.env.RUN_ID
-    this.logUrls = []
+    this.taskArn = getThisTaskArn()
+    this.logUrl = ''
   }
 
   onRunStart(results, options) {
@@ -24,11 +30,11 @@ class MyCustomReporter extends BaseReporter {
       console.log("INFO: onRunStart g_taskArns:=", g_taskArns)
       console.log("INFO: onRunStart g_commitHashes:=", g_commitHashes)
       this.commitHashes = g_commitHashes
-      this.logUrls = generateDiscordCloudwatchLogUrl()
+      this.logUrl = generateDiscordCloudwatchLogUrl(this.taskArn)
       this.testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
       this.testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
 
-      const message = buildDiscordStartMessage(results, this.runId, this.logUrls, this.commitHashes)
+      const message = buildDiscordStartMessage(results, this.taskArn, this.logUrl, this.commitHashes)
       const data = { embeds: message, username: userName }
 
       const retryDelayMs = 300000 // 300k ms = 5 mins
@@ -41,7 +47,7 @@ class MyCustomReporter extends BaseReporter {
   }
 
   onRunComplete(contexts, results) {
-    const message = buildDiscordSummaryMessage(results, this.runId, this.logUrls, this.commitHashes)
+    const message = buildDiscordSummaryMessage(results, this.taskArn, this.logUrl, this.commitHashes)
     const data = { embeds: message, username: userName }
 
     if (results.numFailedTestSuites > 0) {
@@ -66,7 +72,7 @@ class MyCustomReporter extends BaseReporter {
   }
 }
 
-function buildDiscordStartMessage(results, runId, logUrls, commitHashes) {
+function buildDiscordStartMessage(results, taskArn, logUrl, commitHashes) {
   let startedAt = results.startTime
   try {
     startedAt = (new Date(results.startTime)).toGMTString()
@@ -74,14 +80,16 @@ function buildDiscordStartMessage(results, runId, logUrls, commitHashes) {
     // pass
   }
 
-  if (logUrls.length < 1) {
-    logUrls = ["No log Urls found"]
+  if (logUrl == '') {
+    logUrl = 'No log URL found'
+  } else {
+    logUrl = `[Cloudwatch logs for task ${taskArn}](${logUrl})`
   }
 
   const discordEmbeds = [
     {
       title: 'Tests Started',
-      description: `Run Id: ${runId}`,
+      description: `Run Id: ${taskArn}`,
       thumbnail: {},
       fields: [
         {
@@ -98,7 +106,7 @@ function buildDiscordStartMessage(results, runId, logUrls, commitHashes) {
         },
         {
           name: 'Logs',
-          value: `${logUrls}`,
+          value: `${logUrl}`,
         },
       ],
     },
@@ -106,7 +114,7 @@ function buildDiscordStartMessage(results, runId, logUrls, commitHashes) {
   return discordEmbeds
 }
 
-function buildDiscordSummaryMessage(results, runId, logUrls, commitHashes) {
+function buildDiscordSummaryMessage(results, taskArn, logUrl, commitHashes) {
   let startedAt = results.startTime
   try {
     startedAt = (new Date(results.startTime)).toGMTString()
@@ -115,7 +123,7 @@ function buildDiscordSummaryMessage(results, runId, logUrls, commitHashes) {
   }
 
   let title = 'Tests Failed'
-  let description = `Run Id: ${runId}`
+  let description = `Run Id: ${taskArn}`
   let color = 16711712
   if (results.numFailedTestSuites < 1) {
     title = 'Tests Passed'
@@ -123,8 +131,10 @@ function buildDiscordSummaryMessage(results, runId, logUrls, commitHashes) {
   }
   const duration = Math.ceil((Date.now() - results.startTime) / (1000 * 60))
 
-  if (logUrls.length < 1) {
-    logUrls = ["No log Urls found"]
+  if (logUrl == '') {
+    logUrl = 'No log URL found'
+  } else {
+    logUrl = `[Cloudwatch logs for task ${taskArn}](${logUrl})`
   }
 
   const discordEmbeds = [
@@ -160,7 +170,7 @@ function buildDiscordSummaryMessage(results, runId, logUrls, commitHashes) {
         },
         {
           name: 'Logs',
-          value: `${logUrls}`,
+          value: `${logUrl}`,
         },
       ],
     },
