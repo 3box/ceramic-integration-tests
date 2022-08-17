@@ -1,8 +1,9 @@
 import { CeramicApi, IpfsApi } from '@ceramicnetwork/common';
 import { config } from 'node-config-ts';
 
-import NodeEnvironment from 'jest-environment-node'
-import {buildCeramic, buildIpfs, delay} from './utils';
+import { default as jestEnvironmentNode } from 'jest-environment-node';
+const NodeEnvironment = (jestEnvironmentNode as any).default;
+import {buildCeramic, buildIpfs, delay} from './utils.js';
 
 // Global services that are set up once and then available in all integration tests
 declare global {

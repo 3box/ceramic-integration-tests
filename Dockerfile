@@ -1,4 +1,4 @@
-FROM node:14-alpine as builder
+FROM node:16-alpine as builder
 
 COPY package*.json ./
 
@@ -9,7 +9,7 @@ RUN npm rebuild bcrypto
 RUN npm rebuild loady
 RUN npm rebuild node-jq
 
-FROM node:14-alpine as app
+FROM node:16-alpine as app
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN apk add --no-cache curl
 
 COPY --from=builder node_modules ./node_modules
 
-COPY package*.json jest.config.js babel.config.js tsconfig.json ci/* ./
+COPY package*.json jest.config.json babel.config.json tsconfig.json ci/* ./
 COPY config ./config
 COPY src ./src
 

@@ -1,7 +1,6 @@
-const AWS = require('aws-sdk')
-
-const fs = require('fs')
-const path = require('path')
+import * as AWS from 'aws-sdk';
+import * as fs from 'fs';
+import * as path from 'path';
 
 AWS.config.update({ 
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,

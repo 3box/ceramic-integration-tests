@@ -9,16 +9,15 @@ import {
     Stream,
 } from '@ceramicnetwork/common'
 import {S3StateStore} from '@ceramicnetwork/cli'
-import Ceramic, {CeramicConfig} from '@ceramicnetwork/core'
-import CeramicClient from '@ceramicnetwork/http-client'
+import {Ceramic, CeramicConfig} from '@ceramicnetwork/core'
+import {CeramicClient} from '@ceramicnetwork/http-client'
 
-import dagJose from 'dag-jose'
-import { convert } from 'blockcodec-to-ipld-format'
+import * as dagJose from 'dag-jose'
 import {randomBytes} from '@stablelib/random'
 import { Ed25519Provider } from 'key-did-provider-ed25519'
 import KeyDidResolver from 'key-did-resolver'
 import { DID } from 'dids'
-import ipfsClient from 'ipfs-http-client'
+import * as ipfsClient from 'ipfs-http-client'
 import {config} from 'node-config-ts'
 import { filter, take } from 'rxjs/operators'
 
@@ -86,10 +85,9 @@ export async function waitForAnchor(stream: any, timeoutSecs: number = ANCHOR_TI
 }
 
 export async function buildIpfs(configObj): Promise<any> {
-    const dagJoseFormat = convert(dagJose)
     if (configObj.mode == "client") {
         console.log(`Creating IPFS via http client, connected to ${configObj.apiURL}`)
-        return ipfsClient.create({ url: configObj.apiURL, ipld: { formats: [dagJoseFormat] } })
+        return ipfsClient.create({ url: configObj.apiURL, ipld: { codecs: [dagJose] } })
     } else if (configObj.mode == "node") {
         throw new Error("Creating in-process IPFS node is not currently supported")
     } else if (configObj.mode == "none") {

@@ -1,0 +1,15 @@
+{
+  "testEnvironment": "node",
+  "transformIgnorePatterns": ["/node_modules(?!/did-jwt)/"],
+  "resolver": "jest-resolver-enhanced",
+  "extensionsToTreatAsEsm": [".ts"],
+  "globals": {
+    "ts-jest": {
+      "useESM": true
+    }
+  },
+  "moduleNameMapper": {
+    "^(\\.{1,2}/.*)\\.js$": "$1"
+  },
+  "moduleFileExtensions": ["js", "json", "ts"]
+}

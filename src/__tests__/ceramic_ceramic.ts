@@ -4,7 +4,8 @@
 
 import { CeramicApi, StreamUtils } from "@ceramicnetwork/common"
 import { TileDocument } from "@ceramicnetwork/stream-tile";
-import { waitForAnchor, waitForCondition} from "../utils";
+import { waitForAnchor, waitForCondition} from "../utils.js";
+import { jest } from '@jest/globals';
 
 declare global {
     const ceramic: CeramicApi;

@@ -6,12 +6,12 @@ import {CeramicApi} from "@ceramicnetwork/common";
 import * as sha256 from "@stablelib/sha256";
 import * as uint8arrays from "uint8arrays";
 import KeyDidResolver from "key-did-resolver";
-import ThreeIdResolver from "@ceramicnetwork/3id-did-resolver";
+import * as ThreeIdResolver from "@ceramicnetwork/3id-did-resolver";
 import { Resolver } from "did-resolver";
 import {DID, GeneralJWS} from "dids";
-import ThreeIdProvider from "3id-did-provider";
+import {ThreeIdProvider} from '@3id/did-provider';
 import {TileDocument} from "@ceramicnetwork/stream-tile";
-import {waitForAnchor} from "../utils";
+import {waitForAnchor} from "../utils.js";
 import * as didJWT from "did-jwt";
 
 declare global {
@@ -46,7 +46,6 @@ afterEach(() => {
 })
 
 test('key revocation', async () => {
-    jest.setTimeout(1000 * 60 * 60) // 1 hour
     console.log("Starting test: key revocation")
 
     console.log('1. Setup initial keys')
@@ -71,7 +70,7 @@ test('key revocation', async () => {
     await did.authenticate();
     ceramic.did = did;
     const firstKid = await extractKid(ceramic.did);
-    const firstSigner = threeIdProvider.keychain._keyring.getSigner();
+    const firstSigner = threeIdProvider.keychain.keyring.getSigner();
 
     console.log('2. Create tile')
     const tile = await TileDocument.create(ceramic, {
@@ -120,4 +119,4 @@ test('key revocation', async () => {
     expect(tile.content).toEqual(okContent)
 
     console.log('key revocation test complete!')
-})
+}, 1000 * 60 * 60)

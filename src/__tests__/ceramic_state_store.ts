@@ -5,8 +5,9 @@
 import { CeramicApi } from "@ceramicnetwork/common";
 import { StreamID } from "@ceramicnetwork/streamid";
 import { TileDocument } from "@ceramicnetwork/stream-tile";
-import { delay, restartCeramic } from "../utils";
+import { delay, restartCeramic } from "../utils.js";
 import { config } from "node-config-ts";
+import { jest } from '@jest/globals';
 
 declare global {
     let ceramic: CeramicApi

@@ -1,4 +1,4 @@
-const { generateDiscordCloudwatchLogUrl, listECSTasks, sendDiscordNotification, getCommitHashes } = require('./helpers')
+import { generateDiscordCloudwatchLogUrl, listECSTasks, sendDiscordNotification, getCommitHashes } from './helpers.js';
 
 const main = async () => {
   try {
