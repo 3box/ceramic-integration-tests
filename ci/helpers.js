@@ -1,9 +1,9 @@
-const https = require('https')
-const child_process = require('child_process')
-const { ECSClient, ListTasksCommand } = require('@aws-sdk/client-ecs')
+import * as https from 'https';
+import * as childProcess from 'child_process';
+import { ECSClient, ListTasksCommand } from '@aws-sdk/client-ecs';
 
 // API gateway to Lambda to load the required clients and packages.
-const { APIGatewayClient, TestInvokeMethodCommand } = require ("@aws-sdk/client-api-gateway")
+import { APIGatewayClient, TestInvokeMethodCommand } from "@aws-sdk/client-api-gateway";
 
 
 const getCommitHashes = async () => {
@@ -36,7 +36,7 @@ const getCommitHashes = async () => {
  * @returns {string}
  */
 function getThisTaskArn() {
-  const taskArn = child_process.execSync('curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\'').toString()
+  const taskArn = childProcess.execSync('curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\'').toString()
   return taskArn
 }
 
@@ -112,7 +112,7 @@ const sendDiscordNotification = async (webhookUrl, data, retryDelayMs = -1) => {
   }
 }
 
-module.exports = {
+export {
   getThisTaskArn,
   generateDiscordCloudwatchLogUrl,
   listECSTasks,

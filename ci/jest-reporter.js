@@ -1,12 +1,12 @@
-const {
+import {
   getThisTaskArn,
   generateDiscordCloudwatchLogUrl,
   listECSTasks,
   sendDiscordNotification,
   getCommitHashes
-} = require('./helpers')
-const { BaseReporter } = require('@jest/reporters')
-const child_process = require('child_process')
+} from './helpers.js';
+import { BaseReporter } from '@jest/reporters';
+import * as childProcess from 'child_process';
 
 const userName = 'jest-reporter'
 let g_taskArns, g_commitHashes // g_ are global variables
@@ -16,7 +16,7 @@ async function listArntasksAndCommitHashes() {
   g_commitHashes = await getCommitHashes() // e.g. "ceramic-anchor-service (333fc9afb59a) <==> go-ipfs-daemon (6871b7dcd27d)\n"
 }
 
-class MyCustomReporter extends BaseReporter {
+export default class MyCustomReporter extends BaseReporter {
   constructor(globalConfig, options) {
     super(globalConfig, options)
     this._globalConfig = globalConfig
@@ -51,7 +51,7 @@ class MyCustomReporter extends BaseReporter {
     const data = { embeds: message, username: userName }
 
     if (results.numFailedTestSuites > 0) {
-      const outToFailuresChannel = child_process.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
+      const outToFailuresChannel = childProcess.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
         `curl -X POST \
           -H "Content-Type: application/json" \
           -d '${JSON.stringify(data)}' \
@@ -61,7 +61,7 @@ class MyCustomReporter extends BaseReporter {
       console.log(outToFailuresChannel.toString())
     }
 
-    const outToResultsChannel = child_process.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
+    const outToResultsChannel = childProcess.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
       `curl -X POST \
         -H "Content-Type: application/json" \
         -d '${JSON.stringify(data)}' \
@@ -178,4 +178,3 @@ function buildDiscordSummaryMessage(results, taskArn, logUrl, commitHashes) {
   return discordEmbeds
 }
 
-module.exports = MyCustomReporter
