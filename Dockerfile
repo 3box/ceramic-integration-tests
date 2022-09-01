@@ -1,14 +1,11 @@
 FROM node:16-alpine as builder
 
 COPY package*.json ./
+COPY config ./config
 
 RUN apk add --no-cache python3 make g++
 
-RUN npm ci --ignore-scripts
-
-ENV TARGET_ARCH="arm64"
-RUN npm run postinstall -prefix ./node_modules/go-ipfs
-
+RUN npm ci
 RUN npm rebuild bcrypto
 RUN npm rebuild loady
 RUN npm rebuild node-jq
@@ -22,7 +19,6 @@ RUN apk add --no-cache curl
 COPY --from=builder node_modules ./node_modules
 
 COPY package*.json jest.config.json babel.config.json tsconfig.json ci/* ./
-COPY config ./config
 COPY src ./src
 
 RUN npm run build
