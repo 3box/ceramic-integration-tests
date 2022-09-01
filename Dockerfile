@@ -6,7 +6,6 @@ RUN apk add --no-cache python3 make g++
 
 RUN npm ci --ignore-scripts
 RUN npm run postinstall -prefix ./node_modules/go-ipfs
-RUN npm run
 RUN npm rebuild bcrypto
 RUN npm rebuild loady
 RUN npm rebuild node-jq
