@@ -1,47 +1,47 @@
-import * as AWS from 'aws-sdk';
+import AWS from 'aws-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
 
-AWS.config.update({ 
+AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  region: process.env.AWS_REGION
-})
+  region: process.env.AWS_REGION,
+});
+const s3 = new AWS.S3({ apiVersion: '2006-03-01' });
 
-s3 = new AWS.S3({ apiVersion: '2006-03-01' })
-
-const directoryPath = path.join(__dirname, '../root/.ceramic/logs')
+const directoryPath = path.join(import.meta.url, '../root/.ceramic/logs');
 
 function main() {
   fs.readdir(directoryPath, (err, files) => {
     if (err) {
-      return console.log('Unable to scan directory: ' + err)
+      return console.log('Unable to scan directory: ' + err);
     }
-    files.forEach(function (file) {
-      uploadToS3(path.join(directoryPath, file))
-    })
-  })
+    files.forEach(function(file) {
+      uploadToS3(path.join(directoryPath, file));
+    });
+  });
 }
 
 function uploadToS3(file) {
-  const fileStream = fs.createReadStream(file)
+  const fileStream = fs.createReadStream(file);
 
   fileStream.on('error', (err) => {
     console.log('File Error', err);
-  })
+  });
 
-  const uploadParams = { Bucket: 'ceramic-qa-tests', Key: '', Body: '' }
+  const uploadParams = { Bucket: 'ceramic-qa-tests', Key: '', Body: '' };
 
-  uploadParams.Body = fileStream
-  uploadParams.Key = path.basename(file)
+  uploadParams.Body = fileStream;
+  uploadParams.Key = path.basename(file);
 
   s3.upload(uploadParams, (err, data) => {
     if (err) {
-      console.log("Error", err)
-    } if (data) {
-      console.log("Upload Success", data.Location)
+      console.log('Error', err);
     }
-  })
+    if (data) {
+      console.log('Upload Success', data.Location);
+    }
+  });
 }
 
-main()
+main();

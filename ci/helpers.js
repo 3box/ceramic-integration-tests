@@ -18,13 +18,13 @@ const getCommitHashes = async () => {
     const ceramicDeployTag = ceramicJson.deployTag
     const ceramicIpfsDeployTag = ceramicDeployTag
     const casDeployTag = casJson.deployTag
-    const casIpfsDeployTag = casJson.buildInfo.ipfs_sha_tag
+    const casIpfsDeployTag = casJson.buildInfo.sha_tag
 
     const envUrls = `${process.env.CERAMIC_URLS}`.replace(/ /g,"\n")
     const ceramicRepository = 'https://github.com/ceramicnetwork/js-ceramic'
     const casRepository = 'https://github.com/ceramicnetwork/ceramic-anchor-service'
-    return `[js-ceramic (${ceramicDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${ceramicDeployTag}) <==> [ipfs-daemon (${ceramicIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${ceramicIpfsDeployTag})
-                      [ceramic-anchor-service (${casDeployTag.substr(0, 12)})](${casRepository}/commit/${casDeployTag}) <==> [ipfs-daemon (${casIpfsDeployTag.substr(0, 12)})](${ceramicRepository}/commit/${casIpfsDeployTag})
+    return `[js-ceramic (${ceramicDeployTag.substring(0, 12)})](${ceramicRepository}/commit/${ceramicDeployTag}) <==> [ipfs-daemon (${ceramicIpfsDeployTag.substring(0, 12)})](${ceramicRepository}/commit/${ceramicIpfsDeployTag})
+                      [ceramic-anchor-service (${casDeployTag.substring(0, 12)})](${casRepository}/commit/${casDeployTag}) <==> [ipfs-daemon (${casIpfsDeployTag.substring(0, 12)})](${ceramicRepository}/commit/${casIpfsDeployTag})
                       \`\`\`\n${envUrls}\`\`\` `
   } catch (err) {
     console.error(err);
