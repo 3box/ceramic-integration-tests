@@ -1,19 +1,27 @@
-import { generateDiscordCloudwatchLogUrl, listECSTasks, sendDiscordNotification, getCommitHashes } from './helpers.js';
+import {
+  getThisTaskArn,
+  generateDiscordCloudwatchLogUrl,
+  getCommitHashes,
+  sendDiscordNotification
+} from './helpers.js';
 
 const main = async () => {
   try {
-    const taskArns = await listECSTasks()
+    const taskArn = getThisTaskArn()
+    console.log('INFO: taskArn:=', taskArn)
     const commitHashes = await getCommitHashes() // e.g. "ceramic-anchor-service (333fc9afb59a) <==> go-ipfs-daemon (6871b7dcd27d)\n"
-    console.log('INFO: listECSTasks taskArns:=', taskArns)
-    let logUrls = generateDiscordCloudwatchLogUrl()
-    if (logUrls.length < 1) {
-      logUrls = ["No log Urls found"]
+
+    let logUrl = generateDiscordCloudwatchLogUrl(taskArn)
+    if (logUrl == '') {
+      logUrl = 'No log URL found'
+    } else {
+      logUrl = `[Cloudwatch logs for task ${taskArn}](${logUrl})`
     }
 
     const message = [
       {
         title: 'Tests Exited',
-        description: `Run Id: ${process.env.RUN_ID}`,
+        description: `Run Id: ${taskArn}`,
         color: 16711712,
         fields: [
           {
@@ -26,7 +34,7 @@ const main = async () => {
           },
           {
             name: 'Logs',
-            value: `${logUrls}`,
+            value: `${logUrl}`,
           }
         ],
       },
