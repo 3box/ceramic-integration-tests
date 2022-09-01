@@ -40,13 +40,3 @@ ENV DISCORD_WEBHOOK_URL_TEST_FAILURES=${DISCORD_WEBHOOK_URL_TEST_FAILURES}
 ENV DISCORD_WEBHOOK_URL_TEST_RESULTS=${DISCORD_WEBHOOK_URL_TEST_RESULTS}
 
 CMD [ "./ci.sh" ]
-
-# FROM node:16-alpine as builder
-
-# COPY package*.json ./
-
-# RUN apk add --no-cache python3 make g++
-
-# RUN npm ci --ignore-scripts
-
-# CMD ["sleep", "100000"]
