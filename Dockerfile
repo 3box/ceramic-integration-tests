@@ -1,11 +1,11 @@
 FROM node:16-alpine as builder
 
 COPY package*.json ./
-COPY config ./config
 
 RUN apk add --no-cache python3 make g++
 
-RUN npm ci
+RUN npm ci --ignore-scripts
+RUN npm run postinstall -prefix ./node_modules/go-ipfs
 RUN npm rebuild bcrypto
 RUN npm rebuild loady
 RUN npm rebuild node-jq
@@ -19,6 +19,7 @@ RUN apk add --no-cache curl
 COPY --from=builder node_modules ./node_modules
 
 COPY package*.json jest.config.json babel.config.json tsconfig.json ci/* ./
+COPY config ./config
 COPY src ./src
 
 RUN npm run build
@@ -39,3 +40,13 @@ ENV DISCORD_WEBHOOK_URL_TEST_FAILURES=${DISCORD_WEBHOOK_URL_TEST_FAILURES}
 ENV DISCORD_WEBHOOK_URL_TEST_RESULTS=${DISCORD_WEBHOOK_URL_TEST_RESULTS}
 
 CMD [ "./ci.sh" ]
+
+# FROM node:16-alpine as builder
+
+# COPY package*.json ./
+
+# RUN apk add --no-cache python3 make g++
+
+# RUN npm ci --ignore-scripts
+
+# CMD ["sleep", "100000"]
