@@ -19,10 +19,10 @@ if [[ $NODE_ENV == "local_client-public" ]]; then
 fi
 
 if [[ $NODE_ENV == "local_node-private" ]]; then
-  export IPFS_API_PORT=5011
-  export CERAMIC_NETWORK='dev-unstable'
-  export DEBUG='ipfs*error'
+  # export DEBUG='ipfs*error' # not sure how to set this in ipfs binary
   $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs init)
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs pubsub sub dev-unstable)
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Addresses.API /ip4/127.0.0.1/tcp/5011)
   $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs daemon) &
 fi
 
