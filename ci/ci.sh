@@ -22,7 +22,7 @@ if [[ $NODE_ENV == "local_node-private" ]]; then
   export IPFS_API_PORT=5011
   export CERAMIC_NETWORK='dev-unstable'
   export DEBUG='ipfs*error'
-  $(node node_modules/@ceramicnetwork/ipfs-daemon/bin/ipfs-daemon) &
+  $(node node_modules/@ceramicnetwork/ipfs-daemon/bin/ipfs-daemon --enable-pubsub-experiment) &
 fi
 
 echo "INFO: Sleeping for ${SLEEP}s"
