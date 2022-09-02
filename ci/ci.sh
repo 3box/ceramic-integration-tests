@@ -8,9 +8,9 @@ echo "INFO: Sleep seconds set for services to start: ${SLEEP:=60}"  # defaults t
 echo "INFO: Environment: ***********"
 env
 echo "******************************"
-mkdir app/root
-mkdir app/root/.ceramic
-mkdir app/root/.ceramic/logs
+mkdir /app/root
+mkdir /app/root/.ceramic
+mkdir /app/root/.ceramic/logs
 
 # DEBUGGING END
 
@@ -22,7 +22,8 @@ if [[ $NODE_ENV == "local_node-private" ]]; then
   export IPFS_API_PORT=5011
   export CERAMIC_NETWORK='dev-unstable'
   export DEBUG='ipfs*error'
-  $(node node_modules/@ceramicnetwork/ipfs-daemon/bin/ipfs-daemon --enable-pubsub-experiment) &
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs init)
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs daemon) &
 fi
 
 echo "INFO: Sleeping for ${SLEEP}s"
