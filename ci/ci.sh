@@ -20,6 +20,14 @@ fi
 
 if [[ $NODE_ENV == "local_node-private" ]]; then
   # export DEBUG='ipfs*error' # not sure how to set this in ipfs binary
+
+# we probably need this
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Experimental.Libp2pStreamMounting true)
+
+# maybe we need these?
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Experimental.P2pHttpProxy true)
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Experimental.FilestoreEnabled true)
+
   $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs init)
   $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs pubsub sub dev-unstable)
   $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Addresses.API /ip4/127.0.0.1/tcp/5011)
