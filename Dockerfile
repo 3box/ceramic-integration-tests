@@ -17,6 +17,9 @@ RUN npm rebuild node-jq
 
 FROM node:16-alpine as app
 
+# todo is this necessary?
+ENV TARGET_ARCH="386"
+
 WORKDIR /app
 
 RUN apk add --no-cache curl
