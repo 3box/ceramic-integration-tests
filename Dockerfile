@@ -1,5 +1,3 @@
-# Run me with docker build -f Dockerfile.sleep .
-
 FROM node:16-alpine as builder
 
 COPY package*.json ./

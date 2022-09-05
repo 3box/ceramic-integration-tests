@@ -19,20 +19,22 @@ if [[ $NODE_ENV == "local_client-public" ]]; then
 fi
 
 if [[ $NODE_ENV == "local_node-private" ]]; then
-  # export DEBUG='ipfs*error' # not sure how to set this in ipfs binary
-
+  # init config and generate peer id 
   $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs init)
 
-# we probably need this
-  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Experimental.Libp2pStreamMounting true)
+  # config changes to match js-ceramic/ipfs-daemon
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config --json API.HTTPHeaders.Access-Control-Allow-Origin "[\"*\"]")
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config --json API.HTTPHeaders.Access-Control-Allow-Methods "[\"GET\", \"POST\"]")
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config --json API.HTTPHeaders.Access-Control-Allow-Headers "[\"Authorization\"]")
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config --json API.HTTPHeaders.Access-Control-Expose-Headers "[\"Location\"]")
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config --json API.HTTPHeaders.Access-Control-Allow-Credentials "[\"true\"]")
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/4011\", \"/ip4/0.0.0.0/tcp/4012/ws\"]")
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Addresses.API /ip4/0.0.0.0/tcp/5011)
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Routing.Type dhtclient)
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config --json Bootstrap "[]")
 
-# maybe we need these?
-  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Experimental.P2pHttpProxy true)
-  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Experimental.FilestoreEnabled true)
-
-  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs pubsub sub dev-unstable)
-  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Addresses.API /ip4/127.0.0.1/tcp/5011)
-  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs daemon) &
+  # start the daemon
+  $(node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs daemon --enable-pubsub-experiment) &
 fi
 
 echo "INFO: Sleeping for ${SLEEP}s"
