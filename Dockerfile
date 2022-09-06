@@ -10,7 +10,7 @@ RUN npm ci --ignore-scripts
 # ideally do something like
 # ENV TARGET_ARCH=if `uname -m` -eq "x86_64"; then echo "386"; else echo ""; fi
 ENV TARGET_ARCH="386"
-RUN npm run postinstall -prefix ./node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs
+RUN npm run postinstall -prefix ./node_modules/go-ipfs
 RUN npm rebuild bcrypto
 RUN npm rebuild loady
 RUN npm rebuild node-jq
