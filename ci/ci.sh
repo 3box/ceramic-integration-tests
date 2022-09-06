@@ -31,7 +31,6 @@ if [[ $NODE_ENV == "local_node-private" ]]; then
   node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config --json Addresses.Swarm "[\"/ip4/0.0.0.0/tcp/4011\", \"/ip4/0.0.0.0/tcp/4012/ws\"]"
   node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Addresses.API /ip4/0.0.0.0/tcp/5011
   node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config Routing.Type dhtclient
-  node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs config --json Bootstrap "[]"
 
   # start the daemon
   node_modules/@ceramicnetwork/ipfs-daemon/node_modules/go-ipfs/go-ipfs/ipfs daemon --enable-pubsub-experiment &
