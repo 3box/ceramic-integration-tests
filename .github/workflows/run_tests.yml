@@ -20,13 +20,6 @@ jobs:
   run_ecs_tasks:
     name: Run ECS Task
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - e2e_test_config: "private-public"
-          - e2e_test_config: "local_client-public"
-          - e2e_test_config: "local_node-private"
-
     steps:
     - name: Checkout
       uses: actions/checkout@v2
