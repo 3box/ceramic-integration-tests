@@ -1,6 +1,4 @@
 #!/bin/sh
-export RUN_ID=$(node generate-id.js)
-echo "INFO: Run id: $RUN_ID"
 echo "INFO: Sleep seconds set for services to start: ${SLEEP:=60}"  # defaults to 60 seconds
 
 if [[ $NODE_ENV == "local_client-public" ]]; then
