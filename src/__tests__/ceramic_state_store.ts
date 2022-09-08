@@ -30,7 +30,6 @@ describe('Ceramic state store tests', () => {
         await delay(2000)
     })
 
-
     test("Unpinned doc state does not survive ceramic restart", async () => {
         if (config.jest.services.ceramic.mode == "client") {
             console.warn("skipping test since 'ceramic' is in http-client mode")
@@ -71,7 +70,7 @@ describe('Ceramic state store tests', () => {
         await doc.update(newContent, null, {anchor:false, publish:false})
         expect(doc.content).toEqual(newContent)
 
-        expect(await isPinned(ceramic, doc.id)).toBeFalsy()
+        expect(await isPinned(ceramic, doc.id)).toBeTruthy()
 
         await restartCeramic()
 
@@ -81,6 +80,5 @@ describe('Ceramic state store tests', () => {
         expect(await isPinned(ceramic, doc.id)).toBeTruthy()
         await ceramic.pin.rm(doc.id)
         expect(await isPinned(ceramic, doc.id)).toBeFalsy()
-        console.log("Cleaned up pin: " + doc.id)
     })
 })
