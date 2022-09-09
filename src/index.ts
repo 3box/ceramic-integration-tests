@@ -20,8 +20,6 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
         try {
             await this.buildServicesFromConfig();
 
-            await this.cleanStateStoreIfPrivate(); 
-
         } catch (e) {
             console.error("Building services failed", e.toString())
             process.exit(1)
