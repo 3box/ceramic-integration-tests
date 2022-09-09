@@ -19,6 +19,15 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
 
         try {
             await this.buildServicesFromConfig();
+
+            // clean up pinstore
+            const pins = await this.global.ceramic.pin.ls()
+            console.log(pins)
+            for await (let pin_id of pins) {
+                console.log("Removing pin: " + pin_id)
+                await this.global.ceramic.pin.rm(pin_id)
+            }
+
         } catch (e) {
             console.error("Building services failed", e.toString())
             process.exit(1)
@@ -27,6 +36,15 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
 
     async teardown() {
         console.log("Tearing down integration test")
+
+        // @ts-ignore
+        // clean up pinstore
+        const pins = await this.global.ceramic.pin.ls()
+        console.log(pins)
+        for await (let pin_id of pins) {
+            console.log("Removing pin: " + pin_id)
+            await this.global.ceramic.pin.rm(pin_id)
+        }
 
         // @ts-ignore
         await this.global.ceramic.close();
