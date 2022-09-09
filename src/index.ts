@@ -99,4 +99,5 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
                 await this.global.ceramic.pin.rm(pin_id)
             }
         }
+    }
 }
