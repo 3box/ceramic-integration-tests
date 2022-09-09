@@ -19,7 +19,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
 
         try {
             await this.buildServicesFromConfig();
-
+            throw("Don't do that")
             // clean up pinstore
             const pins = await this.global.ceramic.pin.ls()
             console.log(pins)
