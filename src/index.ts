@@ -19,14 +19,8 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
 
         try {
             await this.buildServicesFromConfig();
-            throw("Don't do that")
-            // clean up pinstore
-            const pins = await this.global.ceramic.pin.ls()
-            console.log(pins)
-            for await (let pin_id of pins) {
-                console.log("Removing pin: " + pin_id)
-                await this.global.ceramic.pin.rm(pin_id)
-            }
+
+            await this.cleanStateStoreIfPrivate(); 
 
         } catch (e) {
             console.error("Building services failed", e.toString())
@@ -38,13 +32,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
         console.log("Tearing down integration test")
 
         // @ts-ignore
-        // clean up pinstore
-        const pins = await this.global.ceramic.pin.ls()
-        console.log(pins)
-        for await (let pin_id of pins) {
-            console.log("Removing pin: " + pin_id)
-            await this.global.ceramic.pin.rm(pin_id)
-        }
+        await this.cleanStateStoreIfPrivate();
 
         // @ts-ignore
         await this.global.ceramic.close();
@@ -81,4 +69,34 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
         this.global.ceramicClient = ceramicClient
         this.global.ipfs = ipfs
     }
+
+    private async cleanStateStoreIfPrivate() {
+        console.info(`checking on state store in environment ${process.env.NODE_ENV}`)
+        const bucket_name = config.jest.services.ceramic.s3StateStoreBucketName
+
+        if ( ! bucket_name ) {
+            console.info("Nothing to do")
+            return
+        }
+
+        const parts = bucket_name.split("/", 2)
+
+        if ( ! parts[0].includes('test')) {
+            console.info(`NOT tearing down state store bucket ${bucket_name} doesn't look like a test bucket`)
+            return
+        }
+ 
+        // clean up using ceramic node IF we are configured to use private node test bucket
+        if (process.env.NODE_ENV == 'local_node-private') {
+
+            console.info("This is the private node, cleaning up state store")
+
+            // clean up pinstore
+            const pins = await this.global.ceramic.pin.ls()
+            console.log(pins)
+            for await (let pin_id of pins) {
+                console.log("Removing pin: " + pin_id)
+                await this.global.ceramic.pin.rm(pin_id)
+            }
+        }
 }
