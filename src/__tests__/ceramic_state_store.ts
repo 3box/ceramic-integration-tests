@@ -30,7 +30,6 @@ describe('Ceramic state store tests', () => {
         await delay(2000)
     })
 
-
     test("Unpinned doc state does not survive ceramic restart", async () => {
         if (config.jest.services.ceramic.mode == "client") {
             console.warn("skipping test since 'ceramic' is in http-client mode")
@@ -40,7 +39,7 @@ describe('Ceramic state store tests', () => {
         console.log("Starting test 'Unpinned doc state does not survive ceramic restart'")
 
         const initialContent = { foo: 'bar' }
-        const doc = await TileDocument.create<any>(ceramic, initialContent, null, {anchor:false, publish:false})
+        const doc = await TileDocument.create<any>(ceramic, initialContent, null, {pin:false, anchor:false, publish:false})
         expect(doc.content).toEqual(initialContent)
         const newContent = { bar: 'baz'}
         await doc.update(newContent, null, {anchor:false, publish:false})
@@ -53,6 +52,7 @@ describe('Ceramic state store tests', () => {
         const loaded = await ceramic.loadStream<TileDocument>(doc.id)
         expect(loaded.content).not.toEqual(newContent)
         expect(loaded.content).toEqual(initialContent)
+        expect(await isPinned(ceramic, doc.id)).toBeFalsy()
     })
 
     test("Pinned doc state does survive ceramic restart", async () => {
@@ -70,7 +70,7 @@ describe('Ceramic state store tests', () => {
         await doc.update(newContent, null, {anchor:false, publish:false})
         expect(doc.content).toEqual(newContent)
 
-        await ceramic.pin.add(doc.id)
+        expect(await isPinned(ceramic, doc.id)).toBeTruthy()
 
         await restartCeramic()
 
@@ -80,6 +80,5 @@ describe('Ceramic state store tests', () => {
         expect(await isPinned(ceramic, doc.id)).toBeTruthy()
         await ceramic.pin.rm(doc.id)
         expect(await isPinned(ceramic, doc.id)).toBeFalsy()
-        console.log("Cleaned up pin: " + doc.id)
     })
 })
