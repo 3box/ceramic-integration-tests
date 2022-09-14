@@ -24,12 +24,22 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
             console.error("Building services failed", e.toString())
             process.exit(1)
         }
+
+        try {
+            // @ts-ignore
+            // in case the teardown failed ensure state store is cleaned out
+            await this.cleanStateStoreIfPrivate();
+        } catch (e) {
+            console.info("Error on cleaning state store", e.toString())
+            // this may not be fatal, do not die at this point
+        }
     }
 
     async teardown() {
         console.log("Tearing down integration test")
 
         // @ts-ignore
+        // clean out our state store when we have completed tests
         await this.cleanStateStoreIfPrivate();
 
         // @ts-ignore
