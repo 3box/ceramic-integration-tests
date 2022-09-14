@@ -91,10 +91,13 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
 
             // clean up pinstore
             const pins = await this.global.ceramic.pin.ls()
-            console.log(pins)
             for await (let pin_id of pins) {
-                console.log("Removing pin: " + pin_id)
-                await this.global.ceramic.pin.rm(pin_id)
+                try {
+                    await this.global.ceramic.pin.rm(pin_id)
+                } catch(err) {
+                    // just note and continue on cleanup errors, pins may have been removed
+                    console.info(`Error removing pin ${pin_id}: ${err.toString()}`) 
+                }
             }
         }
     }
