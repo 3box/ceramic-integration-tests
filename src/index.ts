@@ -27,8 +27,8 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
 
         try {
             // @ts-ignore
-            // in case the teardown failed ensure state store is cleaned out
-            await this.cleanStateStoreIfPrivate();
+            // clean out old state store for new local node, if this is a local test
+            await this.cleanStateStoreForLocalNode()
         } catch (e) {
             console.info("Error on cleaning state store", e.toString())
             // this may not be fatal, do not die at this point
@@ -37,10 +37,6 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
 
     async teardown() {
         console.log("Tearing down integration test")
-
-        // @ts-ignore
-        // clean out our state store when we have completed tests
-        await this.cleanStateStoreIfPrivate();
 
         // @ts-ignore
         await this.global.ceramic.close();
@@ -65,8 +61,6 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
             throw new Error("Mode 'node' isn't supported for 'ceramicClient'")
         }
 
-        console.info(`The ceramic configuration for this test is ${JSON.stringify(config.jest.services.ceramic)}`)
-
         const ipfs = await buildIpfs(config.jest.services.ipfs)
         const ceramic = await buildCeramic(config.jest.services.ceramic, ipfs)
         const ceramicClient = await buildCeramic(config.jest.services.ceramicClient)
@@ -78,17 +72,19 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
         this.global.ipfs = ipfs
     }
 
-    private async cleanStateStoreIfPrivate() {
-        console.info(`checking on state store in environment ${process.env.NODE_ENV}`)
-        const bucket_name = config.jest.services.ceramic.s3StateStoreBucketName
 
+    /**
+     * Clean out the state store used in previous tests on the local node
+     */
+    private async cleanStateStoreForLocalNode() {
+        console.info(`checking on state store in environment ${process.env.NODE_ENV}`)
+
+        // Perform sanity check and make sure we are not deleting important data
+        const bucket_name = config.jest.services.ceramic.s3StateStoreBucketName
         if ( ! bucket_name ) {
-            console.info("Nothing to do")
             return
         }
-
         const parts = bucket_name.split("/", 2)
-
         if ( ! parts[0].includes('test')) {
             console.info(`NOT tearing down state store bucket ${bucket_name} doesn't look like a test bucket`)
             return
@@ -97,7 +93,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
         // clean up using ceramic node IF we are configured to use private node test bucket
         if (process.env.NODE_ENV == 'local_node-private') {
 
-            console.info("This is the private node, cleaning up state store")
+            console.info("This is the local node, cleaning up state store")
 
             // clean up pinstore
             const pins = await this.global.ceramic.pin.ls()
