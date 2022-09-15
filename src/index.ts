@@ -97,7 +97,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
         // clean up using ceramic node IF we are configured to use private node test bucket
         if (process.env.NODE_ENV == 'local_node-private') {
 
-            console.info("This is the private node, cleaning up state store")
+            console.info("Connected to a local Ceramic node - cleaning up state store")
 
             // clean up pinstore
             const pins = await this.global.ceramic.pin.ls()
