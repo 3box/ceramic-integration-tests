@@ -94,7 +94,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
             return
         }
  
-        // clean up using ceramic node IF we are configured to use private node test bucket
+        // clean up state store if we are connected to a local in-process ceramic node
         if (process.env.NODE_ENV == 'local_node-private') {
 
             console.info("Connected to a local Ceramic node - cleaning up state store")
