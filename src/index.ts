@@ -19,9 +19,19 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
 
         try {
             await this.buildServicesFromConfig();
+
         } catch (e) {
             console.error("Building services failed", e.toString())
             process.exit(1)
+        }
+
+        try {
+            // @ts-ignore
+            // clean out old state store for new local node, if this is a local test
+            await this.cleanStateStoreForLocalNode()
+        } catch (e) {
+            console.info("Error on cleaning state store", e.toString())
+            // this may not be fatal, do not die at this point
         }
     }
 
@@ -60,5 +70,41 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
         this.global.ceramic = ceramic
         this.global.ceramicClient = ceramicClient
         this.global.ipfs = ipfs
+    }
+
+
+    /**
+     * Clean out the state store used in previous tests on the local node
+     */
+    private async cleanStateStoreForLocalNode() {
+        console.info(`checking on state store in environment ${process.env.NODE_ENV}`)
+
+        // Perform sanity check and make sure we are not deleting important data
+        const bucket_name = config.jest.services.ceramic.s3StateStoreBucketName
+        if ( ! bucket_name ) {
+            return
+        }
+        const parts = bucket_name.split("/", 2)
+        if ( ! parts[0].includes('test')) {
+            console.info(`NOT tearing down state store bucket ${bucket_name} doesn't look like a test bucket`)
+            return
+        }
+ 
+        // clean up state store if we are connected to a local in-process ceramic node
+        if (process.env.NODE_ENV == 'local_node-private') {
+
+            console.info("Connected to a local Ceramic node - cleaning up state store")
+
+            // clean up pinstore
+            const pins = await this.global.ceramic.pin.ls()
+            for await (let pin_id of pins) {
+                try {
+                    await this.global.ceramic.pin.rm(pin_id)
+                } catch(err) {
+                    // just note and continue on cleanup errors, pins may have been removed
+                    console.info(`Error removing pin ${pin_id}: ${err.toString()}`) 
+                }
+            }
+        }
     }
 }

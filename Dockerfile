@@ -5,6 +5,12 @@ COPY package*.json ./
 RUN apk add --no-cache python3 make g++
 
 RUN npm ci --ignore-scripts
+
+# Hardcode the target arch for now
+# ideally do something like
+# ENV TARGET_ARCH=if `uname -m` -eq "x86_64"; then echo "386"; else echo ""; fi
+ENV TARGET_ARCH="386"
+RUN npm run postinstall -prefix ./node_modules/go-ipfs
 RUN npm rebuild bcrypto
 RUN npm rebuild loady
 RUN npm rebuild node-jq
