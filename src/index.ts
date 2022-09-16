@@ -25,18 +25,20 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
             process.exit(1)
         }
 
+    }
+
+    async teardown() {
+        console.log("Tearing down integration test")
+
         try {
             // @ts-ignore
-            // clean out old state store for new local node, if this is a local test
+            // clean out state store for new local node
+            // Note this requires the ceramic node, which will not start if state store is not clean
             await this.cleanStateStoreForLocalNode()
         } catch (e) {
             console.info("Error on cleaning state store", e.toString())
             // this may not be fatal, do not die at this point
         }
-    }
-
-    async teardown() {
-        console.log("Tearing down integration test")
 
         // @ts-ignore
         await this.global.ceramic.close();
