@@ -1,4 +1,4 @@
-import { uniqueNamesGenerator, adjectives, animals, colors } from 'unique-names-generator';
+import { uniqueNamesGenerator, adjectives, animals, colors } from 'unique-names-generator'
 
 function main() {
   const runId = uniqueNamesGenerator({
