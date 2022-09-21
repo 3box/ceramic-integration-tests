@@ -5,7 +5,7 @@ on:
 
 env:
   # Dagger
-  DAGGER_PLAN: cue.mod/pkg/github.com/3box/pipeline-tools/ci/tests.cue
+  DAGGER_PLAN: cue.mod/pkg/github.com/3box/pipeline-tools/ci/plans/tests.cue
   DAGGER_LOG_FORMAT: "plain"
   PIPELINE_TOOLS_VER: "0.2.1"
 
