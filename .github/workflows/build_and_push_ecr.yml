@@ -1,37 +1,36 @@
+name: Build and Push to ECR
+
 on:
   push:
     branches:
       - main
   workflow_dispatch:
 
-name: Build and Push to ECR
+env:
+  # Dagger
+  DAGGER_PLAN: cue.mod/pkg/github.com/3box/pipeline-tools/ci/e2e.cue
+  DAGGER_LOG_FORMAT: "plain"
+  PIPELINE_TOOLS_VER: "0.2.1"
 
 jobs:
   run:
     name: Build and Push to ECR
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout
+    -
+      name: Checkout
       uses: actions/checkout@v2
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+    -
+      name: Install Dagger
+      uses: dagger/dagger-for-github@v3
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
-
-    - name: Build, tag, and push image to Amazon ECR
-      id: build-image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ceramic-qa-tests-e2e_tests
-        SHA_TAG: ${{ github.sha }}
+        install-only: true
+    -
+      name: Setup Dagger
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHA_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY --all-tags
+        dagger project init
+        dagger project update
+        dagger project update "github.com/3box/pipeline-tools@v${{ env.PIPELINE_TOOLS_VER }}"
+    -
+      name: Push Docker image
+      run: dagger do push -w "actions:push:\"${{ env.AWS_REGION }}\":\"${{ env.SHA }}\":\"${{ env.SHA_TAG }}\":_" -p ${{ env.DAGGER_PLAN }}
