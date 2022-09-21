@@ -39,32 +39,25 @@ Since the 'ceramic_state_store' test tests integration with S3, you also need to
 environment variables for the S3 bucket configuration and access keys in order to run the
 tests in the `local_node-private` configuration.
 
-## Docker
+### Docker Compose
 
-Tests can be run with Docker with the following commands:
-
+Create a `.env` file with the requisite environment variables filled in:
 ```
-docker build . -t ceramic-integration-tests
-```
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=
+CLOUDWATCH_LOG_BASE_URL=
+DISCORD_WEBHOOK_URL_TEST_FAILURES=
+DISCORD_WEBHOOK_URL_TEST_RESULTS=
 
+# `ceramic-utils-lambda` API Gateway IDs to fetch deployed commit hashes 
+APIGATEWAY_RESOURCE_ID=
+APIGATEWAY_RESTAPI_ID=
 ```
-docker run \
-  -e APIGATEWAY_RESOURCE_ID='<apigateway_resource_id_for_dynamodb_endpoint>' \
-  -e APIGATEWAY_RESTAPI_ID='<apigateway_restapi_id_for_dynamodb_endpoint>' \
-  -e AWS_ACCESS_KEY_ID='<only_if_using_s3_state_store>' \
-  -e AWS_SECRET_ACCESS_KEY='<only_if_using_s3_state_store>' \
-  -e AWS_REGION='<name_of_region>' \
-  -e AWS_ECS_CLUSTER='ceramic-qa-tests' \
-  -e AWS_ECS_FAMILY='ceramic-qa-tests-e2e_tests' \
-  -e CLOUDWATCH_LOG_BASE_URL='https://<AWS_REGION>.console.aws.amazon.com/cloudwatch/home?region=<AWS_REGION>#logsV2:log-groups/log-group/$252Fecs$252Fceramic-qa-tests/log-events/e2e_tests$252Fe2e_tests$252F' \
-  -e DISCORD_WEBHOOK_URL_TEST_FAILURES='<url_for_failures>' \
-  -e DISCORD_WEBHOOK_URL_TEST_RESULTS='<url_for_results>' \
-  -e NODE_ENV='<name_of_config_file>' \
-  ceramic-integration-tests
+Run the tests using the following commands:
 ```
-
-Please note: the above docker build and run commands can be placed into your copy of the local ./my_docker_run.sh file which is actually a symlink to the parent directory outside the repo, so your secrets do not get checked into the repo by accident, so   
-Step 1. Copy the above docker commands into the currently empty placeholder local ./my_docker_run.sh file.   
-Step 2. Replace the -e environment fields with your values   
-Step 3. Now your ready to run ./my_docker_run.sh   
-
+docker-compose build --force-rm --no-cache
+docker-compose up [suite] --detach
+docker-compose logs -f
+```
+`suite` can be one of `private-public`, `local_client-public`, or `local_node-private`, or it can be left empty to run all the test suites.
