@@ -2,17 +2,12 @@ on:
   schedule:
   - cron: "0 0/8 * * *" # Every 8 hours
   workflow_dispatch:
-    inputs:
-      tests:
-        description: "Space separated list of tests to run. Runs all available by default."
-        required: false
-        default: 'e2e'
 
 env:
   # Dagger
-  DAGGER_PLAN: cue.mod/pkg/github.com/3box/pipeline-tools/ci/tests.cue
+  DAGGER_PLAN: cue.mod/pkg/github.com/3box/pipeline-tools/ci/plans/tests.cue
   DAGGER_LOG_FORMAT: "plain"
-  PIPELINE_TOOLS_VER: "0.1.5"
+  PIPELINE_TOOLS_VER: "0.2.0"
 
 name: Run Tests on ECS
 
@@ -21,29 +16,20 @@ jobs:
     name: Run ECS Task
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
+    -
+      name: Checkout
       uses: actions/checkout@v2
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-
     -
       name: Install Dagger
       uses: dagger/dagger-for-github@v3
       with:
         install-only: true
-
     -
       name: Setup Dagger
       run: |
         dagger project init
         dagger project update
         dagger project update "github.com/3box/pipeline-tools@v${{ env.PIPELINE_TOOLS_VER }}"
-
-    - name: Run integration tests
-      if: contains('e2e', github.event.inputs.tests)
+    -
+      name: Run integration tests
       run: dagger do -l error test -w "actions:test:\"${{ secrets.AWS_REGION }}\":qa:test_e2e:_" -p ${{ env.DAGGER_PLAN }}
