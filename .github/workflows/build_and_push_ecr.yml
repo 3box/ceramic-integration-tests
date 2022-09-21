@@ -11,6 +11,8 @@ env:
   DAGGER_PLAN: cue.mod/pkg/github.com/3box/pipeline-tools/ci/plans/e2e.cue
   DAGGER_LOG_FORMAT: "plain"
   PIPELINE_TOOLS_VER: "0.2.1"
+  # Miscellaneous
+  SHA: ${{ github.sha }}
 
 jobs:
   run:
@@ -20,6 +22,11 @@ jobs:
     -
       name: Checkout
       uses: actions/checkout@v2
+    -
+      name: Set sha tag
+      run: |
+        SHA_TAG=$(echo ${{ env.SHA }} | head -c 12)
+        echo "SHA_TAG=$SHA_TAG" >> $GITHUB_ENV
     -
       name: Install Dagger
       uses: dagger/dagger-for-github@v3
