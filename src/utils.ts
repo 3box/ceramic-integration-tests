@@ -114,8 +114,14 @@ export async function buildCeramic (configObj, ipfs?: IpfsApi): Promise<CeramicA
         }
         const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
         if (configObj.s3StateStoreBucketName) {
-            const s3StateStore = new S3StateStore(configObj.s3StateStoreBucketName)
+            // PLAT-984: Append timestamp to bucket name so that a new bucket is created for each test instance. Cleanup
+            // of old buckets can happen via an S3 lifecycle rule.
+            // Using millisecond precision so that even test runs initiated around the same time will practically never
+            // conflict.
+            const bucketName = configObj.s3StateStoreBucketName + "_" + new Date().getTime()
+            const s3StateStore = new S3StateStore(bucketName)
             modules.pinStoreFactory.setStateStore(s3StateStore)
+            console.log("Using test bucket:", bucketName);
         }
         ceramic = new Ceramic(modules, params)
         await ceramic._init(true, true)
