@@ -21,7 +21,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
             await this.buildServicesFromConfig();
 
         } catch (e) {
-            console.error("Building services failed", e.toString())
+            console.error("Building services failed", e)
             process.exit(1)
         }
 
@@ -35,7 +35,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
             // @ts-ignore
             await this.cleanStateStoreForLocalNode()
         } catch (e) {
-            console.info("Error on cleaning state store", e.toString())
+            console.info("Error on cleaning state store", e)
             // continue teardown even if error 
         }
         
@@ -103,7 +103,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
                     await this.global.ceramic.pin.rm(pin_id)
                 } catch(err) {
                     // just note and continue on cleanup errors, pins may have been removed
-                    console.info(`Error removing pin ${pin_id}: ${err.toString()}`) 
+                    console.info(`Error removing pin ${pin_id}: ${err}`)
                 }
             }
         }

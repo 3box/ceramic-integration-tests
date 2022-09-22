@@ -29,10 +29,12 @@ function uploadToS3(file) {
     console.log('File Error', err);
   });
 
-  const uploadParams = { Bucket: 'ceramic-qa-tests', Key: '', Body: '' };
-
-  uploadParams.Body = fileStream;
-  uploadParams.Key = path.basename(file);
+  const prefix = process.env.S3_DIRECTORY_NAME ? `${process.env.S3_DIRECTORY_NAME}/` : ''
+  const uploadParams = {
+    Bucket: 'ceramic-qa-tests',
+    Key: `${prefix}${path.basename(file)}`,
+    Body: fileStream
+  };
 
   s3.upload(uploadParams, (err, data) => {
     if (err) {
