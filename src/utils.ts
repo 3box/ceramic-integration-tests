@@ -21,6 +21,8 @@ import * as ipfsClient from 'ipfs-http-client'
 import { config } from 'node-config-ts'
 import { filter, take } from 'rxjs/operators'
 
+const S3_DIRECTORY_NAME = process.env.S3_DIRECTORY_NAME ? `/${process.env.S3_DIRECTORY_NAME}` : ''
+
 const seed = randomBytes(32)
 
 // 15 minutes for anchors to happen and be noticed (including potential failures and retries)
@@ -141,7 +143,8 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
     }
     const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
     if (configObj.s3StateStoreBucketName) {
-      const s3StateStore = new S3StateStore(configObj.s3StateStoreBucketName)
+      const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
+      const s3StateStore = new S3StateStore(bucketName)
       modules.pinStoreFactory.setStateStore(s3StateStore)
     }
     ceramic = new Ceramic(modules, params)

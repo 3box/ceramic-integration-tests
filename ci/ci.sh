@@ -3,6 +3,8 @@ export RUN_ID=$(node generate-id.js)
 echo "INFO: Run id: $RUN_ID"
 echo "INFO: Sleep seconds set for services to start: ${SLEEP:=60}"  # defaults to 60 seconds
 
+export S3_DIRECTORY_NAME=$(date +%s)
+
 if [[ $NODE_ENV == "local_client-public" ]]; then
   $(node node_modules/@ceramicnetwork/cli/bin/ceramic daemon --verbose --log-to-files --network dev-unstable --anchor-service-api https://cas-qa.3boxlabs.com --ethereum-rpc https://goerli.infura.io/v3/b6685df41e1647c4be0046dfa62a020b) &
 fi
