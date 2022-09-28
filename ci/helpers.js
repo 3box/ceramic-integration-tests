@@ -1,33 +1,54 @@
-import * as https from 'https';
-import * as childProcess from 'child_process';
-import { ECSClient, ListTasksCommand } from '@aws-sdk/client-ecs';
+import * as https from 'https'
+import * as childProcess from 'child_process'
+import { ECSClient, ListTasksCommand } from '@aws-sdk/client-ecs'
 
 // API gateway to Lambda to load the required clients and packages.
-import { APIGatewayClient, TestInvokeMethodCommand } from "@aws-sdk/client-api-gateway";
-
+import { APIGatewayClient, TestInvokeMethodCommand } from '@aws-sdk/client-api-gateway'
 
 const getCommitHashes = async () => {
   try {
-    const client = new APIGatewayClient({ region: process.env.AWS_REGION });
-    const ceramicCmd = new TestInvokeMethodCommand({restApiId: process.env.APIGATEWAY_RESTAPI_ID, resourceId: process.env.APIGATEWAY_RESOURCE_ID, httpMethod: "GET", pathWithQueryString: "v1.0/infra?name=ceramic"});
-    const ceramicResp = await client.send(ceramicCmd);
+    const client = new APIGatewayClient({ region: process.env.AWS_REGION })
+    const ceramicCmd = new TestInvokeMethodCommand({
+      restApiId: process.env.APIGATEWAY_RESTAPI_ID,
+      resourceId: process.env.APIGATEWAY_RESOURCE_ID,
+      httpMethod: 'GET',
+      pathWithQueryString: 'v1.0/infra?name=ceramic'
+    })
+    const ceramicResp = await client.send(ceramicCmd)
     const ceramicJson = JSON.parse(ceramicResp.body)
-    const casCmd = new TestInvokeMethodCommand({restApiId: process.env.APIGATEWAY_RESTAPI_ID, resourceId: process.env.APIGATEWAY_RESOURCE_ID, httpMethod: "GET", pathWithQueryString: "v1.0/infra?name=cas"});
-    const casResp = await client.send(casCmd);
+    const casCmd = new TestInvokeMethodCommand({
+      restApiId: process.env.APIGATEWAY_RESTAPI_ID,
+      resourceId: process.env.APIGATEWAY_RESOURCE_ID,
+      httpMethod: 'GET',
+      pathWithQueryString: 'v1.0/infra?name=cas'
+    })
+    const casResp = await client.send(casCmd)
     const casJson = JSON.parse(casResp.body)
     const ceramicDeployTag = ceramicJson.deployTag
     const ceramicIpfsDeployTag = ceramicDeployTag
     const casDeployTag = casJson.deployTag
     const casIpfsDeployTag = casJson.buildInfo.sha_tag
 
-    const envUrls = `${process.env.CERAMIC_URLS}`.replace(/ /g,"\n")
+    const envUrls = `${process.env.CERAMIC_URLS}`.replace(/ /g, '\n')
     const ceramicRepository = 'https://github.com/ceramicnetwork/js-ceramic'
     const casRepository = 'https://github.com/ceramicnetwork/ceramic-anchor-service'
-    return `[js-ceramic (${ceramicDeployTag.substring(0, 12)})](${ceramicRepository}/commit/${ceramicDeployTag}) <==> [ipfs-daemon (${ceramicIpfsDeployTag.substring(0, 12)})](${ceramicRepository}/commit/${ceramicIpfsDeployTag})
-                      [ceramic-anchor-service (${casDeployTag.substring(0, 12)})](${casRepository}/commit/${casDeployTag}) <==> [ipfs-daemon (${casIpfsDeployTag.substring(0, 12)})](${ceramicRepository}/commit/${casIpfsDeployTag})
+    return `[js-ceramic (${ceramicDeployTag.substring(
+      0,
+      12
+    )})](${ceramicRepository}/commit/${ceramicDeployTag}) <==> [ipfs-daemon (${ceramicIpfsDeployTag.substring(
+      0,
+      12
+    )})](${ceramicRepository}/commit/${ceramicIpfsDeployTag})
+                      [ceramic-anchor-service (${casDeployTag.substring(
+                        0,
+                        12
+                      )})](${casRepository}/commit/${casDeployTag}) <==> [ipfs-daemon (${casIpfsDeployTag.substring(
+      0,
+      12
+    )})](${ceramicRepository}/commit/${casIpfsDeployTag})
                       \`\`\`\n${envUrls}\`\`\` `
   } catch (err) {
-    console.error(err);
+    console.error(err)
   }
 }
 
@@ -36,7 +57,11 @@ const getCommitHashes = async () => {
  * @returns {string}
  */
 function getThisTaskArn() {
-  const taskArn = childProcess.execSync('curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\'').toString()
+  const taskArn = childProcess
+    .execSync(
+      'curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\''
+    )
+    .toString()
   return taskArn
 }
 
@@ -80,7 +105,6 @@ async function listECSTasks() {
   }
 }
 
-
 /**
  * Sends a POST to the discord webhookUrl
  * @param {string} webhookUrl Discord webhook url
@@ -92,10 +116,10 @@ const sendDiscordNotification = async (webhookUrl, data, retryDelayMs = -1) => {
     const options = {
       method: 'POST',
       headers: {
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json'
       }
     }
-    const req = await https.request(webhookUrl, options, (res) => {
+    const req = await https.request(webhookUrl, options, res => {
       console.log(`Notification request status code: ${res.statusCode}`)
       if (res.statusCode >= 500 && retryDelayMs > -1) {
         console.log(`Retrying after ${retryDelayMs} milliseconds...`)
@@ -108,7 +132,7 @@ const sendDiscordNotification = async (webhookUrl, data, retryDelayMs = -1) => {
     req.write(JSON.stringify(data))
     req.end()
   } catch (err) {
-    console.error(err);
+    console.error(err)
   }
 }
 

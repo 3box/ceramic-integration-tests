@@ -2,83 +2,90 @@
  * @jest-environment ./build/index.js
  */
 
-import { CeramicApi } from "@ceramicnetwork/common";
-import { StreamID } from "@ceramicnetwork/streamid";
-import { TileDocument } from "@ceramicnetwork/stream-tile";
-import { delay, restartCeramic } from "../utils.js";
-import { config } from "node-config-ts";
-import { jest } from '@jest/globals';
+import { CeramicApi } from '@ceramicnetwork/common'
+import { StreamID } from '@ceramicnetwork/streamid'
+import { TileDocument } from '@ceramicnetwork/stream-tile'
+import { delay, restartCeramic } from '../utils.js'
+import { config } from 'node-config-ts'
+import { jest } from '@jest/globals'
 
 declare global {
-    let ceramic: CeramicApi
+  let ceramic: CeramicApi
 }
 
-const isPinned = async (ceramic: CeramicApi, streamId: StreamID): Promise<Boolean> => {
-    const pinnedStreamsIterator = await ceramic.pin.ls(streamId)
-    const pinnedStreamIds = []
-    for await (const id of pinnedStreamsIterator) {
-        pinnedStreamIds.push(id)
-    }
-    return pinnedStreamIds.includes(streamId.toString())
+const isPinned = async (ceramic: CeramicApi, streamId: StreamID): Promise<boolean> => {
+  const pinnedStreamsIterator = await ceramic.pin.ls(streamId)
+  const pinnedStreamIds = []
+  for await (const id of pinnedStreamsIterator) {
+    pinnedStreamIds.push(id)
+  }
+  return pinnedStreamIds.includes(streamId.toString())
 }
 
 describe('Ceramic state store tests', () => {
-    jest.setTimeout(1000 * 60 * 5) // 5 minutes
+  jest.setTimeout(1000 * 60 * 5) // 5 minutes
 
-    beforeAll(async () => {
-        // Wait for previous test to fully finish cleaning up before restarting the Ceramic node
-        await delay(2000)
+  beforeAll(async () => {
+    // Wait for previous test to fully finish cleaning up before restarting the Ceramic node
+    await delay(2000)
+  })
+
+  test('Unpinned doc state does not survive ceramic restart', async () => {
+    if (config.jest.services.ceramic.mode == 'client') {
+      console.warn("skipping test since 'ceramic' is in http-client mode")
+      return
+    }
+
+    console.log("Starting test 'Unpinned doc state does not survive ceramic restart'")
+
+    const initialContent = { foo: 'bar' }
+    const doc = await TileDocument.create<any>(ceramic, initialContent, null, {
+      pin: false,
+      anchor: false,
+      publish: false
     })
+    expect(doc.content).toEqual(initialContent)
+    const newContent = { bar: 'baz' }
+    await doc.update(newContent, null, { anchor: false, publish: false })
+    expect(doc.content).toEqual(newContent)
 
-    test("Unpinned doc state does not survive ceramic restart", async () => {
-        if (config.jest.services.ceramic.mode == "client") {
-            console.warn("skipping test since 'ceramic' is in http-client mode")
-            return
-        }
+    expect(await isPinned(ceramic, doc.id)).toBeFalsy()
 
-        console.log("Starting test 'Unpinned doc state does not survive ceramic restart'")
+    await restartCeramic()
 
-        const initialContent = { foo: 'bar' }
-        const doc = await TileDocument.create<any>(ceramic, initialContent, null, {pin:false, anchor:false, publish:false})
-        expect(doc.content).toEqual(initialContent)
-        const newContent = { bar: 'baz'}
-        await doc.update(newContent, null, {anchor:false, publish:false})
-        expect(doc.content).toEqual(newContent)
+    const loaded = await ceramic.loadStream<TileDocument>(doc.id)
+    expect(loaded.content).not.toEqual(newContent)
+    expect(loaded.content).toEqual(initialContent)
+    expect(await isPinned(ceramic, doc.id)).toBeFalsy()
+  })
 
-        expect(await isPinned(ceramic, doc.id)).toBeFalsy()
+  test('Pinned doc state does survive ceramic restart', async () => {
+    if (config.jest.services.ceramic.mode == 'client') {
+      console.warn("skipping test since 'ceramic' is in http-client mode")
+      return
+    }
 
-        await restartCeramic()
+    console.log("Starting test 'Pinned doc state does survive ceramic restart'")
 
-        const loaded = await ceramic.loadStream<TileDocument>(doc.id)
-        expect(loaded.content).not.toEqual(newContent)
-        expect(loaded.content).toEqual(initialContent)
-        expect(await isPinned(ceramic, doc.id)).toBeFalsy()
+    const initialContent = { foo: 'bar' }
+    const doc = await TileDocument.create<any>(ceramic, initialContent, null, {
+      anchor: false,
+      publish: false
     })
+    expect(doc.content).toEqual(initialContent)
+    const newContent = { bar: 'baz' }
+    await doc.update(newContent, null, { anchor: false, publish: false })
+    expect(doc.content).toEqual(newContent)
 
-    test("Pinned doc state does survive ceramic restart", async () => {
-        if (config.jest.services.ceramic.mode == "client") {
-            console.warn("skipping test since 'ceramic' is in http-client mode")
-            return
-        }
+    expect(await isPinned(ceramic, doc.id)).toBeTruthy()
 
-        console.log("Starting test 'Pinned doc state does survive ceramic restart'")
+    await restartCeramic()
 
-        const initialContent = { foo: 'bar' }
-        const doc = await TileDocument.create<any>(ceramic, initialContent, null, {anchor:false, publish:false})
-        expect(doc.content).toEqual(initialContent)
-        const newContent = { bar: 'baz'}
-        await doc.update(newContent, null, {anchor:false, publish:false})
-        expect(doc.content).toEqual(newContent)
+    const loaded = await ceramic.loadStream<TileDocument>(doc.id)
+    expect(loaded.content).toEqual(newContent)
 
-        expect(await isPinned(ceramic, doc.id)).toBeTruthy()
-
-        await restartCeramic()
-
-        const loaded = await ceramic.loadStream<TileDocument>(doc.id)
-        expect(loaded.content).toEqual(newContent)
-
-        expect(await isPinned(ceramic, doc.id)).toBeTruthy()
-        await ceramic.pin.rm(doc.id)
-        expect(await isPinned(ceramic, doc.id)).toBeFalsy()
-    })
+    expect(await isPinned(ceramic, doc.id)).toBeTruthy()
+    await ceramic.pin.rm(doc.id)
+    expect(await isPinned(ceramic, doc.id)).toBeFalsy()
+  })
 })

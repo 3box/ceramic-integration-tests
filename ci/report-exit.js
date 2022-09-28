@@ -1,4 +1,9 @@
-import { generateDiscordCloudwatchLogUrl, listECSTasks, sendDiscordNotification, getCommitHashes } from './helpers.js';
+import {
+  generateDiscordCloudwatchLogUrl,
+  listECSTasks,
+  sendDiscordNotification,
+  getCommitHashes
+} from './helpers.js'
 
 const main = async () => {
   try {
@@ -7,7 +12,7 @@ const main = async () => {
     console.log('INFO: listECSTasks taskArns:=', taskArns)
     let logUrls = generateDiscordCloudwatchLogUrl()
     if (logUrls.length < 1) {
-      logUrls = ["No log Urls found"]
+      logUrls = ['No log Urls found']
     }
 
     const message = [
@@ -18,7 +23,7 @@ const main = async () => {
         fields: [
           {
             name: 'Configuration',
-            value: `${process.env.NODE_ENV}`,
+            value: `${process.env.NODE_ENV}`
           },
           {
             name: 'Commit hashes',
@@ -26,10 +31,10 @@ const main = async () => {
           },
           {
             name: 'Logs',
-            value: `${logUrls}`,
+            value: `${logUrls}`
           }
-        ],
-      },
+        ]
+      }
     ]
     const data = { embeds: message, username: 'jest-reporter' }
     const testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES

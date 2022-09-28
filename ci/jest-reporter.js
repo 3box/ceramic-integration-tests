@@ -4,9 +4,9 @@ import {
   listECSTasks,
   sendDiscordNotification,
   getCommitHashes
-} from './helpers.js';
-import { BaseReporter } from '@jest/reporters';
-import * as childProcess from 'child_process';
+} from './helpers.js'
+import { BaseReporter } from '@jest/reporters'
+import * as childProcess from 'child_process'
 
 const userName = 'jest-reporter'
 let g_taskArns, g_commitHashes // g_ are global variables
@@ -26,32 +26,44 @@ export default class MyCustomReporter extends BaseReporter {
   }
 
   onRunStart(results, options) {
-    listArntasksAndCommitHashes().then(() => {
-      console.log("INFO: onRunStart g_taskArns:=", g_taskArns)
-      console.log("INFO: onRunStart g_commitHashes:=", g_commitHashes)
-      this.commitHashes = g_commitHashes
-      this.logUrl = generateDiscordCloudwatchLogUrl(this.taskArn)
-      this.testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
-      this.testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
+    listArntasksAndCommitHashes()
+      .then(() => {
+        console.log('INFO: onRunStart g_taskArns:=', g_taskArns)
+        console.log('INFO: onRunStart g_commitHashes:=', g_commitHashes)
+        this.commitHashes = g_commitHashes
+        this.logUrl = generateDiscordCloudwatchLogUrl(this.taskArn)
+        this.testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
+        this.testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
 
-      const message = buildDiscordStartMessage(results, this.taskArn, this.logUrl, this.commitHashes)
-      const data = { embeds: message, username: userName }
+        const message = buildDiscordStartMessage(
+          results,
+          this.taskArn,
+          this.logUrl,
+          this.commitHashes
+        )
+        const data = { embeds: message, username: userName }
 
-      const retryDelayMs = 300000 // 300k ms = 5 mins
-      sendDiscordNotification(this.testResultsUrl, data, retryDelayMs)
-    })
-      .catch((error) => {
+        const retryDelayMs = 300000 // 300k ms = 5 mins
+        sendDiscordNotification(this.testResultsUrl, data, retryDelayMs)
+      })
+      .catch(error => {
         console.error(error)
         process.exit(1)
       })
   }
 
   onRunComplete(contexts, results) {
-    const message = buildDiscordSummaryMessage(results, this.taskArn, this.logUrl, this.commitHashes)
+    const message = buildDiscordSummaryMessage(
+      results,
+      this.taskArn,
+      this.logUrl,
+      this.commitHashes
+    )
     const data = { embeds: message, username: userName }
 
     if (results.numFailedTestSuites > 0) {
-      const outToFailuresChannel = childProcess.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
+      const outToFailuresChannel = childProcess.execSync(
+        /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
         `curl -X POST \
           -H "Content-Type: application/json" \
           -d '${JSON.stringify(data)}' \
@@ -61,7 +73,8 @@ export default class MyCustomReporter extends BaseReporter {
       console.log(outToFailuresChannel.toString())
     }
 
-    const outToResultsChannel = childProcess.execSync(     /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
+    const outToResultsChannel = childProcess.execSync(
+      /* In future need to fix why sendDiscordNotification() used here for the second time like in onRunStart does not work here */
       `curl -X POST \
         -H "Content-Type: application/json" \
         -d '${JSON.stringify(data)}' \
@@ -75,7 +88,7 @@ export default class MyCustomReporter extends BaseReporter {
 function buildDiscordStartMessage(results, taskArn, logUrl, commitHashes) {
   let startedAt = results.startTime
   try {
-    startedAt = (new Date(results.startTime)).toGMTString()
+    startedAt = new Date(results.startTime).toGMTString()
   } catch {
     // pass
   }
@@ -106,10 +119,10 @@ function buildDiscordStartMessage(results, taskArn, logUrl, commitHashes) {
         },
         {
           name: 'Logs',
-          value: `${logUrl}`,
-        },
-      ],
-    },
+          value: `${logUrl}`
+        }
+      ]
+    }
   ]
   return discordEmbeds
 }
@@ -117,7 +130,7 @@ function buildDiscordStartMessage(results, taskArn, logUrl, commitHashes) {
 function buildDiscordSummaryMessage(results, taskArn, logUrl, commitHashes) {
   let startedAt = results.startTime
   try {
-    startedAt = (new Date(results.startTime)).toGMTString()
+    startedAt = new Date(results.startTime).toGMTString()
   } catch {
     // pass
   }
@@ -146,7 +159,7 @@ function buildDiscordSummaryMessage(results, taskArn, logUrl, commitHashes) {
       fields: [
         {
           name: 'Configuration',
-          value: process.env.NODE_ENV,
+          value: process.env.NODE_ENV
         },
         {
           name: 'Started at',
@@ -158,11 +171,11 @@ function buildDiscordSummaryMessage(results, taskArn, logUrl, commitHashes) {
         },
         {
           name: 'Suites',
-          value: `Passed: ${results.numPassedTestSuites}, Failed: ${results.numFailedTestSuites}, Total: ${results.numTotalTestSuites}`,
+          value: `Passed: ${results.numPassedTestSuites}, Failed: ${results.numFailedTestSuites}, Total: ${results.numTotalTestSuites}`
         },
         {
           name: 'Tests',
-          value: `Passed: ${results.numPassedTests}, Failed: ${results.numFailedTests}, Total: ${results.numTotalTests}`,
+          value: `Passed: ${results.numPassedTests}, Failed: ${results.numFailedTests}, Total: ${results.numTotalTests}`
         },
         {
           name: 'Commit hashes',
@@ -170,11 +183,10 @@ function buildDiscordSummaryMessage(results, taskArn, logUrl, commitHashes) {
         },
         {
           name: 'Logs',
-          value: `${logUrl}`,
-        },
-      ],
-    },
+          value: `${logUrl}`
+        }
+      ]
+    }
   ]
   return discordEmbeds
 }
-
