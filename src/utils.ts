@@ -20,10 +20,25 @@ import { DID } from 'dids'
 import * as ipfsClient from 'ipfs-http-client'
 import { config } from 'node-config-ts'
 import { filter, take } from 'rxjs/operators'
+import { StreamID } from '@ceramicnetwork/streamid'
+import { Model } from '@ceramicnetwork/stream-model'
+import tmp from 'tmp-promise'
 
 const S3_DIRECTORY_NAME = process.env.S3_DIRECTORY_NAME ? `/${process.env.S3_DIRECTORY_NAME}` : ''
 
 const seed = randomBytes(32)
+
+export async function createDid(seed?: Uint8Array): Promise<DID> {
+  if (!seed) {
+    seed = randomBytes(32)
+  }
+  const provider = new Ed25519Provider(seed)
+  const resolver = KeyDidResolver.getResolver()
+  const did = new DID({ provider, resolver })
+  await did.authenticate()
+
+  return did
+}
 
 // 15 minutes for anchors to happen and be noticed (including potential failures and retries)
 export const ANCHOR_TIMEOUT = 60 * 30
@@ -127,19 +142,32 @@ export async function buildIpfs(configObj): Promise<any> {
 }
 
 export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicApi> {
-  let ceramic
   if (configObj.mode == 'client') {
     console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
-    ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
+
+    const ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
+    const did = await createDid(seed)
+    ceramic.did = did
+
     console.log(`Ceramic client connected successfully to ${configObj.apiURL}`)
+    return ceramic
   } else if (configObj.mode == 'node') {
     console.log('Creating ceramic local node')
+
+    process.env.CERAMIC_ENABLE_EXPERIMENTAL_COMPOSE_DB = 'true'
     const loggerProvider = new LoggerProvider({ logLevel: LogLevel.debug })
+    const indexingDirectory = await tmp.dir({ unsafeCleanup: true })
+
     const ceramicConfig: CeramicConfig = {
       networkName: configObj.network,
       ethereumRpcUrl: configObj.ethereumRpc,
       anchorServiceUrl: configObj.anchorServiceAPI,
-      loggerProvider
+      loggerProvider,
+      indexing: {
+        db: `sqlite://${indexingDirectory.path}/ceramic.sqlite`,
+        models: [Model.MODEL],
+        allowQueriesBeforeHistoricalSync: true
+      }
     }
     const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
     if (configObj.s3StateStoreBucketName) {
@@ -147,22 +175,21 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
       const s3StateStore = new S3StateStore(bucketName)
       modules.pinStoreFactory.setStateStore(s3StateStore)
     }
-    ceramic = new Ceramic(modules, params)
-    await ceramic._init(true, true)
+
+    const ceramic = new Ceramic(modules, params)
+    await ceramic._init(true)
+    const did = await createDid(seed)
+    ceramic.did = did
+
+    await ceramic.index.indexModels(config.jest.models.map(modelId => StreamID.fromString(modelId)))
+
     console.log(`Ceramic local node started successfully`)
+    return ceramic
   } else if (configObj.mode == 'none') {
     return null
-  } else {
-    throw new Error(`Ceramic mode "${configObj.mode}" not supported`)
   }
 
-  const provider = new Ed25519Provider(seed)
-  const resolver = KeyDidResolver.getResolver()
-  const did = new DID({ provider, resolver })
-  await ceramic.setDID(did)
-  await did.authenticate()
-
-  return ceramic
+  throw new Error(`Ceramic mode "${configObj.mode}" not supported`)
 }
 
 /**

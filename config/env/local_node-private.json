@@ -3,6 +3,7 @@
     "services": {
       "ceramic": {
         "mode": "node",
+        "indexingEnabled": true,
         "anchorServiceAPI": "https://cas-qa.3boxlabs.com",
         "ethereumRpc": "@@ETH_RPC_URL",
         "s3StateStoreBucketName": "ceramic-qa-tests/node",
@@ -14,6 +15,7 @@
       },
       "ceramicClient": {
         "mode": "client",
+        "indexingEnabled": true,
         "apiURL": "https://ceramic-private-qa.3boxlabs.com"
       }
     }

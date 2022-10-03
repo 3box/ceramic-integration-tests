@@ -3,6 +3,7 @@
     "services": {
       "ceramic": {
         "mode": "client",
+        "indexingEnabled": true,
         "apiURL": "https://ceramic-private-qa.3boxlabs.com"
       },
       "ipfs": {
@@ -10,6 +11,7 @@
       },
       "ceramicClient": {
         "mode": "client",
+        "indexingEnabled": false,
         "apiURL": "https://ceramic-qa.3boxlabs.com"
       }
     }
