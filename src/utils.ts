@@ -13,7 +13,7 @@ import { Ceramic, CeramicConfig } from '@ceramicnetwork/core'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 
 import * as dagJose from 'dag-jose'
-import { randomBytes } from '@stablelib/random'
+import { randomString } from '@stablelib/random'
 import { Ed25519Provider } from 'key-did-provider-ed25519'
 import KeyDidResolver from 'key-did-resolver'
 import { DID } from 'dids'
@@ -23,16 +23,19 @@ import { filter, take } from 'rxjs/operators'
 import { StreamID } from '@ceramicnetwork/streamid'
 import { Model } from '@ceramicnetwork/stream-model'
 import tmp from 'tmp-promise'
+import * as sha256 from '@stablelib/sha256'
+import * as uint8arrays from 'uint8arrays'
 
 const S3_DIRECTORY_NAME = process.env.S3_DIRECTORY_NAME ? `/${process.env.S3_DIRECTORY_NAME}` : ''
 
-const seed = randomBytes(32)
+const seed = randomString(32)
 
-export async function createDid(seed?: Uint8Array): Promise<DID> {
+export async function createDid(seed?: string): Promise<DID> {
   if (!seed) {
-    seed = randomBytes(32)
+    seed = randomString(32)
   }
-  const provider = new Ed25519Provider(seed)
+  const digest = sha256.hash(uint8arrays.fromString(seed))
+  const provider = new Ed25519Provider(digest)
   const resolver = KeyDidResolver.getResolver()
   const did = new DID({ provider, resolver })
   await did.authenticate()
@@ -142,10 +145,22 @@ export async function buildIpfs(configObj): Promise<any> {
 }
 
 export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicApi> {
+  const modelsToIndex = [
+    Model.MODEL,
+    ...config.jest.models.map(modelId => StreamID.fromString(modelId))
+  ]
+
   if (configObj.mode == 'client') {
     console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
 
     const ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
+
+    if (configObj.adminSeed) {
+      const adminDid = await createDid(configObj.adminSeed)
+      ceramic.did = adminDid
+      await ceramic.admin.startIndexingModels(modelsToIndex)
+    }
+
     const did = await createDid(seed)
     ceramic.did = did
 
@@ -165,7 +180,6 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
       loggerProvider,
       indexing: {
         db: `sqlite://${indexingDirectory.path}/ceramic.sqlite`,
-        models: [Model.MODEL],
         allowQueriesBeforeHistoricalSync: true
       }
     }
@@ -177,11 +191,10 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
     }
 
     const ceramic = new Ceramic(modules, params)
-    await ceramic._init(true)
     const did = await createDid(seed)
     ceramic.did = did
-
-    await ceramic.index.indexModels(config.jest.models.map(modelId => StreamID.fromString(modelId)))
+    await ceramic._init(true)
+    await ceramic.index.indexModels(modelsToIndex)
 
     console.log(`Ceramic local node started successfully`)
     return ceramic

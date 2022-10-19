@@ -10,6 +10,9 @@ import { createDid } from '../utils.js'
 import { DID } from 'dids'
 
 const TEST_MODEL = StreamID.fromString(config.jest.models[0])
+const DATA1 = { data: 333 }
+const DATA2 = { data: 444 }
+const DATA3 = { data: 555 }
 
 declare global {
   const ceramic: CeramicApi
@@ -40,12 +43,8 @@ describe('indexing', () => {
     jest.setTimeout(1000 * 60)
     const originalDid = ceramic.did as DID
 
-    const singleNodeTestCases: any[] = []
+    const singleNodeTestCases: any[] = [['ceramic', ceramic]]
     const twoNodesTestCases: any[] = []
-
-    if (config.jest.services.ceramic.indexingEnabled) {
-      singleNodeTestCases.push(['ceramic', ceramic])
-    }
 
     if (config.jest.services.ceramicClient.indexingEnabled) {
       singleNodeTestCases.push(['ceramicClient', ceramicClient])
@@ -70,12 +69,14 @@ describe('indexing', () => {
         async (_, ceramicInstance: CeramicApi) => {
           const doc1 = await ModelInstanceDocument.create(
             ceramicInstance,
-            { data: Math.floor(Math.random() * 1000) },
+            DATA1,
             { model: TEST_MODEL },
             { anchor: false }
           )
 
-          await TestUtils.delay(5 * 1000)
+          await expect(
+            ceramicInstance.index.count({ model: TEST_MODEL.toString() })
+          ).resolves.toBeGreaterThanOrEqual(1)
 
           const resultsAfterCreate = await ceramicInstance.index
             .query({ model: TEST_MODEL, last: 10 })
@@ -89,15 +90,19 @@ describe('indexing', () => {
             StreamUtils.serializeState(doc1.state)
           )
 
-          await doc1.replace({ data: Math.floor(Math.random() * 1000) }, { anchor: false })
+          await doc1.replace(DATA2, { anchor: false })
           const doc2 = await ModelInstanceDocument.create(
             ceramicInstance,
-            { data: Math.floor(Math.random() * 1000) },
+            DATA3,
             { model: TEST_MODEL },
             { anchor: false }
           )
 
           await TestUtils.delay(5 * 1000)
+
+          await expect(
+            ceramicInstance.index.count({ model: TEST_MODEL.toString() })
+          ).resolves.toBeGreaterThanOrEqual(2)
 
           const resultsAfterReplace = await ceramicInstance.index
             .query({ model: TEST_MODEL, last: 10 })
@@ -128,7 +133,7 @@ describe('indexing', () => {
 
           const doc1 = await ModelInstanceDocument.create(
             ceramicInstance,
-            { data: Math.floor(Math.random() * 1000) },
+            DATA1,
             { model: TEST_MODEL, controller: did1.id },
             { anchor: false }
           )
@@ -136,7 +141,7 @@ describe('indexing', () => {
           ceramicInstance.did = did2
           const doc2 = await ModelInstanceDocument.create(
             ceramicInstance,
-            { data: Math.floor(Math.random() * 1000) },
+            DATA2,
             { model: TEST_MODEL, controller: did2.id },
             { anchor: false }
           )
@@ -159,6 +164,10 @@ describe('indexing', () => {
           expect(StreamUtils.serializeState(lastDid1Doc.state)).toEqual(
             StreamUtils.serializeState(doc1.state)
           )
+          did1Results.forEach(doc => {
+            expect(doc.id.toString()).not.toEqual(doc2.id.toString())
+          })
+
           const did2Results = await ceramicInstance.index
             .query({ model: TEST_MODEL, last: 10, account: did2.id })
             .then(resultObj => extractDocuments(ceramicInstance, resultObj))
@@ -167,7 +176,6 @@ describe('indexing', () => {
                 `There was a problem retrieving the MID for model ${TEST_MODEL}: ${err}`
               )
             })
-
           expect(did2Results.length).toBeGreaterThanOrEqual(1)
           const lastDid2Doc = did2Results.at(-1) as ModelInstanceDocument
           expect(lastDid2Doc.id.toString()).toEqual(doc2.id.toString())
@@ -175,6 +183,9 @@ describe('indexing', () => {
           expect(StreamUtils.serializeState(lastDid2Doc.state)).toEqual(
             StreamUtils.serializeState(doc2.state)
           )
+          did2Results.forEach(doc => {
+            expect(doc.id.toString()).not.toEqual(doc1.id.toString())
+          })
         }
       )
     }
@@ -185,7 +196,7 @@ describe('indexing', () => {
         async (_, ceramic1: CeramicApi, ceramic2: CeramicApi) => {
           const doc = await ModelInstanceDocument.create(
             ceramic1,
-            { data: Math.floor(Math.random() * 1000) },
+            DATA1,
             { model: TEST_MODEL },
             { anchor: false, publish: false }
           )
@@ -209,6 +220,9 @@ describe('indexing', () => {
           // Indexed streams should always get pinned, regardless of the 'pin' flag
           await expect(TestUtils.isPinned(ceramic2, doc.id)).toBeTruthy()
 
+          await expect(
+            ceramic2.index.count({ model: TEST_MODEL.toString() })
+          ).resolves.toBeGreaterThan(1)
           const resultsAfterLoad = await ceramic2.index
             .query({ model: TEST_MODEL, last: 10 })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
@@ -221,7 +235,7 @@ describe('indexing', () => {
             StreamUtils.serializeState(doc.state)
           )
 
-          await doc.replace({ data: Math.floor(Math.random() * 1000) }, { anchor: false })
+          await doc.replace(DATA2, { anchor: false })
 
           await TestUtils.delay(5 * 1000)
 
@@ -247,7 +261,7 @@ describe('indexing', () => {
 
           const doc1 = await ModelInstanceDocument.create(
             ceramic1,
-            { data: Math.floor(Math.random() * 1000) },
+            DATA1,
             { model: TEST_MODEL, controller: did1.id },
             { anchor: false }
           )
@@ -255,7 +269,7 @@ describe('indexing', () => {
           ceramic1.did = did2
           const doc2 = await ModelInstanceDocument.create(
             ceramic1,
-            { data: Math.floor(Math.random() * 1000) },
+            DATA2,
             { model: TEST_MODEL, controller: did2.id },
             { anchor: false }
           )

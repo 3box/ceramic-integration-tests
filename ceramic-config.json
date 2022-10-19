@@ -4,7 +4,10 @@
     "ethereum-rpc-url": "https://goerli.infura.io/v3/b6685df41e1647c4be0046dfa62a020b"
   },
   "http-api": {
-    "cors-allowed-origins": [".*"]
+    "cors-allowed-origins": [".*"],
+    "admin-dids": [
+      "did:key:z6MktFJhcCcqN477CeXGknSPK4RXirT9gd85vA7RFumFKdit#z6MktFJhcCcqN477CeXGknSPK4RXirT9gd85vA7RFumFKdit"
+    ]
   },
   "ipfs": {
     "mode": "bundled"
@@ -23,14 +26,9 @@
   "node": {},
   "state-store": {
     "mode": "fs",
-    "local-directory": "/Users/stephaniehuynh/.ceramic/statestore/"
+    "local-directory": "~/.ceramic/statestore/"
   },
   "indexing": {
-    "db": "sqlite:///Users/stephaniehuynh/.ceramic/indexing.sqlite",
-    "allow-queries-before-historical-sync": true,
-    "models": [
-      "kh4q0ozorrgaq2mezktnrmdwleo1d",
-      "kjzl6hvfrbw6c8c48hg1u62lhnc95g4ntslc861i5feo7tev0fyh9mvsbjtw374"
-    ]
+    "allow-queries-before-historical-sync": true
   }
 }

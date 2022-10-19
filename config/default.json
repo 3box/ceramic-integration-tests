@@ -8,7 +8,8 @@
         "anchorServiceAPI": "http://thisisaurl:1234",
         "ethereumRpc": "http://thisisaurl:1234",
         "s3StateStoreBucketName": "<bucketname>",
-        "network": "dev-unstable"
+        "network": "dev-unstable",
+        "adminSeed": ""
       },
       "ceramicClient": {
         "mode": "none",

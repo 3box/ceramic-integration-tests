@@ -4,7 +4,8 @@
       "ceramic": {
         "mode": "client",
         "indexingEnabled": true,
-        "apiURL": "http://localhost:7007"
+        "apiURL": "http://localhost:7007",
+        "adminSeed": "adminSeed"
       },
       "ipfs": {
         "mode": "none"
