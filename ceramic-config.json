@@ -1,0 +1,34 @@
+{
+  "anchor": {
+    "anchor-service-url": "https://cas-qa.3boxlabs.com",
+    "ethereum-rpc-url": "https://goerli.infura.io/v3/b6685df41e1647c4be0046dfa62a020b"
+  },
+  "http-api": {
+    "cors-allowed-origins": [".*"],
+    "admin-dids": [
+      "did:key:z6MktFJhcCcqN477CeXGknSPK4RXirT9gd85vA7RFumFKdit#z6MktFJhcCcqN477CeXGknSPK4RXirT9gd85vA7RFumFKdit"
+    ]
+  },
+  "ipfs": {
+    "mode": "bundled"
+  },
+  "logger": {
+    "log-level": 0,
+    "log-to-files": true
+  },
+  "metrics": {
+    "metrics-exporter-enabled": false,
+    "metrics-port": 9090
+  },
+  "network": {
+    "name": "dev-unstable"
+  },
+  "node": {},
+  "state-store": {
+    "mode": "fs",
+    "local-directory": "~/.ceramic/statestore/"
+  },
+  "indexing": {
+    "allow-queries-before-historical-sync": true
+  }
+}

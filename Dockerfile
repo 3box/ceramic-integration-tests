@@ -23,7 +23,7 @@ RUN apk add --no-cache curl
 
 COPY --from=builder node_modules ./node_modules
 
-COPY package*.json jest.config.json babel.config.json tsconfig.json ci/* ./
+COPY package*.json ceramic-config.json jest.config.json babel.config.json tsconfig.json ci/* ./
 COPY config ./config
 COPY src ./src
 
@@ -36,6 +36,7 @@ ENV AWS_ECS_CLUSTER=${AWS_ECS_CLUSTER}
 ENV AWS_ECS_FAMILY=${AWS_ECS_FAMILY}
 ENV CERAMIC_ECS_CLUSTERS="ceramic-qa ceramic-qa-ex"
 ENV CERAMIC_URLS="https://ceramic-qa.3boxlabs.com https://gateway-qa.ceramic.network https://ceramic-private-qa.3boxlabs.com"
+ENV CERAMIC_ENABLE_EXPERIMENTAL_COMPOSE_DB="true"
 
 # Discord notifications about running ECS tasks
 ENV APIGATEWAY_RESOURCE_ID=${APIGATEWAY_RESOURCE_ID}

@@ -3,13 +3,16 @@
     "services": {
       "ceramic": {
         "mode": "client",
-        "apiURL": "http://localhost:7007"
+        "indexingEnabled": true,
+        "apiURL": "http://localhost:7007",
+        "adminSeed": "adminSeed"
       },
       "ipfs": {
         "mode": "none"
       },
       "ceramicClient": {
         "mode": "client",
+        "indexingEnabled": false,
         "apiURL": "https://ceramic-qa.3boxlabs.com"
       }
     }
