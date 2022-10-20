@@ -83,8 +83,8 @@ describe('indexing', () => {
             .then(resultObj => extractDocuments(ceramicInstance, resultObj))
           expect(resultsAfterCreate.length).toBeGreaterThanOrEqual(1)
 
-          // We cannot expect that the most recent MIDs will the MIDs created by this test
-          // This is because this model may be used in other places to created MIDs
+          // We cannot expect that the most recent MIDs will be the MIDs created by this test
+          // This is because this model may be used in other places while this test is running
           const retrievedCreatedDoc1 = resultsAfterCreate.find(
             doc => doc.id.toString() === doc1.id.toString()
           ) as ModelInstanceDocument
@@ -166,8 +166,8 @@ describe('indexing', () => {
             })
 
           expect(did1Results.length).toBeGreaterThanOrEqual(1)
-          // We can expect that the most recent MID will the MID created by this test
-          // This is because the DID used in these tests is unique for every run
+          // We can expect that the most recent MID will be the MID created by this test
+          // This is because the DID used is unique
           const lastDid1Doc = did1Results.at(-1) as ModelInstanceDocument
           expect(lastDid1Doc.id.toString()).toEqual(doc1.id.toString())
           expect(lastDid1Doc.content).toEqual(doc1.content)
@@ -219,10 +219,10 @@ describe('indexing', () => {
             .then(resultObj => extractDocuments(ceramic2, resultObj))
 
           if (resultsAfterCreate.length > 0) {
-            const latestRetrievedDocAfterCreate = resultsAfterCreate.find(
+            const retrievedDocAfterCreate = resultsAfterCreate.find(
               result => result.id.toString() === doc.id.toString()
             ) as ModelInstanceDocument
-            expect(latestRetrievedDocAfterCreate).toBeUndefined
+            expect(retrievedDocAfterCreate).toBeUndefined
           }
 
           // Explicitly loading the stream on ceramic2 should add it to the index.
@@ -240,12 +240,12 @@ describe('indexing', () => {
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           expect(resultsAfterLoad.length).toBeGreaterThanOrEqual(1)
 
-          const latestRetrievedDocAfterLoad = resultsAfterLoad.find(
+          const retrievedDocAfterLoad = resultsAfterLoad.find(
             result => result.id.toString() === doc.id.toString()
           ) as ModelInstanceDocument
-          expect(latestRetrievedDocAfterLoad).not.toBeUndefined
-          expect(latestRetrievedDocAfterLoad.content).toEqual(doc.content)
-          expect(StreamUtils.serializeState(latestRetrievedDocAfterLoad.state)).toEqual(
+          expect(retrievedDocAfterLoad).not.toBeUndefined
+          expect(retrievedDocAfterLoad.content).toEqual(doc.content)
+          expect(StreamUtils.serializeState(retrievedDocAfterLoad.state)).toEqual(
             StreamUtils.serializeState(doc.state)
           )
 
@@ -258,12 +258,12 @@ describe('indexing', () => {
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           expect(resultsAfterReplace.length).toBeGreaterThanOrEqual(1)
 
-          const latestRetrievedDocAfterReplace = resultsAfterReplace.find(
+          const retrievedDocAfterReplace = resultsAfterReplace.find(
             result => result.id.toString() === doc.id.toString()
           ) as ModelInstanceDocument
-          expect(latestRetrievedDocAfterReplace).not.toBeUndefined
-          expect(latestRetrievedDocAfterReplace.content).toEqual(doc.content)
-          expect(StreamUtils.serializeState(latestRetrievedDocAfterReplace.state)).toEqual(
+          expect(retrievedDocAfterReplace).not.toBeUndefined
+          expect(retrievedDocAfterReplace.content).toEqual(doc.content)
+          expect(StreamUtils.serializeState(retrievedDocAfterReplace.state)).toEqual(
             StreamUtils.serializeState(doc.state)
           )
         }
