@@ -14,6 +14,7 @@ RUN npm run postinstall -prefix ./node_modules/go-ipfs
 RUN npm rebuild bcrypto
 RUN npm rebuild loady
 RUN npm rebuild node-jq
+RUN npm rebuild sqlite3
 
 FROM node:16-alpine as app
 
