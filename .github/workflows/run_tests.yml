@@ -1,6 +1,6 @@
 on:
-  schedule:
-  - cron: "0 0/8 * * *" # Every 8 hours
+#  schedule:
+#  - cron: "0 0/8 * * *" # Every 8 hours
   workflow_dispatch:
 
 env:
