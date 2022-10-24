@@ -79,12 +79,16 @@ describe('indexing', () => {
           ).resolves.toBeGreaterThanOrEqual(1)
 
           const resultsAfterCreate = await ceramicInstance.index
-            .query({ model: TEST_MODEL, last: 10 })
+            .query({ model: TEST_MODEL, last: 100 })
             .then(resultObj => extractDocuments(ceramicInstance, resultObj))
           expect(resultsAfterCreate.length).toBeGreaterThanOrEqual(1)
 
-          const retrievedCreatedDoc1 = resultsAfterCreate.at(-1) as ModelInstanceDocument
-          expect(retrievedCreatedDoc1.id.toString()).toEqual(doc1.id.toString())
+          // We cannot expect that the most recent MIDs will be the MIDs created by this test
+          // This is because this model may be used in other places while this test is running
+          const retrievedCreatedDoc1 = resultsAfterCreate.find(
+            doc => doc.id.toString() === doc1.id.toString()
+          ) as ModelInstanceDocument
+          expect(retrievedCreatedDoc1).not.toBeUndefined
           expect(retrievedCreatedDoc1.content).toEqual(doc1.content)
           expect(StreamUtils.serializeState(retrievedCreatedDoc1.state)).toEqual(
             StreamUtils.serializeState(doc1.state)
@@ -105,19 +109,23 @@ describe('indexing', () => {
           ).resolves.toBeGreaterThanOrEqual(2)
 
           const resultsAfterReplace = await ceramicInstance.index
-            .query({ model: TEST_MODEL, last: 10 })
+            .query({ model: TEST_MODEL, last: 100 })
             .then(resultObj => extractDocuments(ceramicInstance, resultObj))
           expect(resultsAfterReplace.length).toBeGreaterThanOrEqual(2)
 
-          const retrievedReplacedDoc1 = resultsAfterReplace.at(-2) as ModelInstanceDocument
-          expect(retrievedReplacedDoc1.id.toString()).toEqual(doc1.id.toString())
+          const retrievedReplacedDoc1 = resultsAfterReplace.find(
+            doc => doc.id.toString() === doc1.id.toString()
+          ) as ModelInstanceDocument
+          expect(retrievedReplacedDoc1).not.toBeUndefined
           expect(retrievedReplacedDoc1.content).toEqual(doc1.content)
           expect(StreamUtils.serializeState(retrievedReplacedDoc1.state)).toEqual(
             StreamUtils.serializeState(doc1.state)
           )
 
-          const retrievedDoc2 = resultsAfterReplace.at(-1) as ModelInstanceDocument
-          expect(retrievedDoc2.id.toString()).toEqual(doc2.id.toString())
+          const retrievedDoc2 = resultsAfterReplace.find(
+            doc => doc.id.toString() === doc2.id.toString()
+          ) as ModelInstanceDocument
+          expect(retrievedDoc2).not.toBeUndefined
           expect(retrievedDoc2.content).toEqual(doc2.content)
           expect(StreamUtils.serializeState(retrievedDoc2.state)).toEqual(
             StreamUtils.serializeState(doc2.state)
@@ -149,7 +157,7 @@ describe('indexing', () => {
           await TestUtils.delay(5 * 1000)
 
           const did1Results = await ceramicInstance.index
-            .query({ model: TEST_MODEL, last: 10, account: did1.id })
+            .query({ model: TEST_MODEL, last: 100, account: did1.id })
             .then(resultObj => extractDocuments(ceramicInstance, resultObj))
             .catch(err => {
               throw new Error(
@@ -158,6 +166,8 @@ describe('indexing', () => {
             })
 
           expect(did1Results.length).toBeGreaterThanOrEqual(1)
+          // We can expect that the most recent MID will be the MID created by this test
+          // This is because the DID used is unique
           const lastDid1Doc = did1Results.at(-1) as ModelInstanceDocument
           expect(lastDid1Doc.id.toString()).toEqual(doc1.id.toString())
           expect(lastDid1Doc.content).toEqual(doc1.content)
@@ -169,7 +179,7 @@ describe('indexing', () => {
           })
 
           const did2Results = await ceramicInstance.index
-            .query({ model: TEST_MODEL, last: 10, account: did2.id })
+            .query({ model: TEST_MODEL, last: 100, account: did2.id })
             .then(resultObj => extractDocuments(ceramicInstance, resultObj))
             .catch(err => {
               throw new Error(
@@ -205,12 +215,14 @@ describe('indexing', () => {
 
           // Since ceramic1 didn't publish the commit, ceramic2 won't know about it.
           const resultsAfterCreate = await ceramic2.index
-            .query({ model: TEST_MODEL, last: 10 })
+            .query({ model: TEST_MODEL, last: 100 })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
 
           if (resultsAfterCreate.length > 0) {
-            const latestRetrievedDocAfterCreate = resultsAfterCreate.at(-1) as ModelInstanceDocument
-            expect(latestRetrievedDocAfterCreate.id.toString()).not.toEqual(doc.id.toString())
+            const retrievedDocAfterCreate = resultsAfterCreate.find(
+              result => result.id.toString() === doc.id.toString()
+            ) as ModelInstanceDocument
+            expect(retrievedDocAfterCreate).toBeUndefined
           }
 
           // Explicitly loading the stream on ceramic2 should add it to the index.
@@ -224,14 +236,16 @@ describe('indexing', () => {
             ceramic2.index.count({ model: TEST_MODEL.toString() })
           ).resolves.toBeGreaterThan(1)
           const resultsAfterLoad = await ceramic2.index
-            .query({ model: TEST_MODEL, last: 10 })
+            .query({ model: TEST_MODEL, last: 100 })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           expect(resultsAfterLoad.length).toBeGreaterThanOrEqual(1)
 
-          const latestRetrievedDocAfterLoad = resultsAfterLoad.at(-1) as ModelInstanceDocument
-          expect(latestRetrievedDocAfterLoad.id.toString()).toEqual(doc.id.toString())
-          expect(latestRetrievedDocAfterLoad.content).toEqual(doc.content)
-          expect(StreamUtils.serializeState(latestRetrievedDocAfterLoad.state)).toEqual(
+          const retrievedDocAfterLoad = resultsAfterLoad.find(
+            result => result.id.toString() === doc.id.toString()
+          ) as ModelInstanceDocument
+          expect(retrievedDocAfterLoad).not.toBeUndefined
+          expect(retrievedDocAfterLoad.content).toEqual(doc.content)
+          expect(StreamUtils.serializeState(retrievedDocAfterLoad.state)).toEqual(
             StreamUtils.serializeState(doc.state)
           )
 
@@ -240,14 +254,16 @@ describe('indexing', () => {
           await TestUtils.delay(5 * 1000)
 
           const resultsAfterReplace = await ceramic2.index
-            .query({ model: TEST_MODEL, last: 10 })
+            .query({ model: TEST_MODEL, last: 100 })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           expect(resultsAfterReplace.length).toBeGreaterThanOrEqual(1)
 
-          const latestRetrievedDocAfterReplace = resultsAfterReplace.at(-1) as ModelInstanceDocument
-          expect(latestRetrievedDocAfterReplace.id.toString()).toEqual(doc.id.toString())
-          expect(latestRetrievedDocAfterReplace.content).toEqual(doc.content)
-          expect(StreamUtils.serializeState(latestRetrievedDocAfterReplace.state)).toEqual(
+          const retrievedDocAfterReplace = resultsAfterReplace.find(
+            result => result.id.toString() === doc.id.toString()
+          ) as ModelInstanceDocument
+          expect(retrievedDocAfterReplace).not.toBeUndefined
+          expect(retrievedDocAfterReplace.content).toEqual(doc.content)
+          expect(StreamUtils.serializeState(retrievedDocAfterReplace.state)).toEqual(
             StreamUtils.serializeState(doc.state)
           )
         }
@@ -277,7 +293,7 @@ describe('indexing', () => {
           await TestUtils.delay(5 * 1000)
 
           const did1Results = await ceramic2.index
-            .query({ model: TEST_MODEL, last: 10, account: did1.id })
+            .query({ model: TEST_MODEL, last: 100, account: did1.id })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           expect(did1Results.length).toBeGreaterThanOrEqual(1)
 
@@ -289,7 +305,7 @@ describe('indexing', () => {
           )
 
           const did2Results = await ceramic2.index
-            .query({ model: TEST_MODEL, last: 10, account: did2.id })
+            .query({ model: TEST_MODEL, last: 100, account: did2.id })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           expect(did2Results.length).toBeGreaterThanOrEqual(1)
 
