@@ -186,7 +186,7 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
     const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
     if (configObj.s3StateStoreBucketName) {
       const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
-      const s3StateStore = new S3StateStore(bucketName)
+      const s3StateStore = new S3StateStore(bucketName, loggerProvider.getDiagnosticsLogger())
       modules.pinStoreFactory.setStateStore(s3StateStore)
     }
 
