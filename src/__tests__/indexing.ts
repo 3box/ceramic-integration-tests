@@ -211,7 +211,7 @@ describe('indexing', () => {
             { anchor: false, publish: false }
           )
 
-          await TestUtils.delay(5 * 1000)
+          await TestUtils.delay(10 * 1000)
 
           // Since ceramic1 didn't publish the commit, ceramic2 won't know about it.
           const resultsAfterCreate = await ceramic2.index
@@ -251,7 +251,7 @@ describe('indexing', () => {
 
           await doc.replace(DATA2, { anchor: false })
 
-          await TestUtils.delay(5 * 1000)
+          await TestUtils.delay(10 * 1000)
 
           const resultsAfterReplace = await ceramic2.index
             .query({ model: TEST_MODEL, last: 100 })
@@ -290,7 +290,7 @@ describe('indexing', () => {
             { anchor: false }
           )
 
-          await TestUtils.delay(5 * 1000)
+          await TestUtils.delay(10 * 1000)
 
           const did1Results = await ceramic2.index
             .query({ model: TEST_MODEL, last: 100, account: did1.id })
