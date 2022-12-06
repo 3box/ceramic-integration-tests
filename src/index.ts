@@ -27,6 +27,8 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
 
   async teardown() {
     console.log('Tearing down integration test')
+    
+    await delay(5000) // Give some time for tests to fully finish
 
     // @ts-ignore
     await this.global.ceramic.close()
@@ -39,7 +41,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
     // @ts-ignore
     this.global.ipfs = null
 
-    await delay(3000) // Give some time for things to fully shut down
+    await delay(5000) // Give some time for things to fully shut down
 
     await super.teardown()
   }
@@ -55,7 +57,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
     const ceramic = await buildCeramic(config.jest.services.ceramic, ipfs)
     const ceramicClient = await buildCeramic(config.jest.services.ceramicClient)
 
-    await delay(3000) // Give some time for things to fully start up before continuing
+    await delay(5000) // Give some time for things to fully start up before continuing
 
     this.global.ceramic = ceramic
     this.global.ceramicClient = ceramicClient
