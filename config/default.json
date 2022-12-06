@@ -1,9 +1,5 @@
 {
   "jest": {
-    "models": [
-      "kjzl6hvfrbw6c8c48hg1u62lhnc95g4ntslc861i5feo7tev0fyh9mvsbjtw374",
-      "kjzl6hvfrbw6caehsyrulrx0o9b58y0rr23q5u1ivi5ivgbvonzbinq3sptu7cq"
-    ],
     "services": {
       "ceramic": {
         "mode": "none",

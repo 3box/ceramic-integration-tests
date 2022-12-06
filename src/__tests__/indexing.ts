@@ -7,13 +7,16 @@ import { ModelInstanceDocument } from '@ceramicnetwork/stream-model-instance'
 import { StreamID } from '@ceramicnetwork/streamid'
 import { config } from 'node-config-ts'
 import { createDid } from '../utils.js'
+import { DID } from "dids";
+import fs from 'fs-extra'
+import { Composite } from "@composedb/devtools"
+import {EncodedCompositeDefinition, RuntimeCompositeDefinition} from '@composedb/types'
+const { readJSON  } = fs
 
-const TEST_MODEL = StreamID.fromString(config.jest.models[0])
 const DATA1 = { data: 333 }
 const DATA2 = { data: 444 }
 const DATA3 = { data: 555 }
 
-const TEST_MODEL_WITH_RELATION = StreamID.fromString(config.jest.models[1])
 
 declare global {
   const ceramic: CeramicApi
@@ -40,6 +43,23 @@ const extractDocuments = (
 }
 
 describe('indexing', () => {
+  let composite: Composite
+  let runtimeDefinition: RuntimeCompositeDefinition
+  const simpleModelStreamId = StreamID.fromString('kjzl6hvfrbw6c786bg9d8sxlzepwgcwteftcxbzhhjwbdpi8qrxa4utp0xcefll')
+  const modelWithRelationStreamId = StreamID.fromString('kjzl6hvfrbw6c7fmdony5cg8jkg8gxm5sn8amimfpq0yud7twszi3pwcds4wfij')
+
+  beforeAll(async () => {
+    const definition = await readJSON(`${process.cwd()}/src/__mocks__/encoded.composite.json`) as EncodedCompositeDefinition
+    composite = await Composite.fromJSON({ ceramic: ceramic, definition })
+    runtimeDefinition = await composite.toRuntime()
+
+  })
+
+  test('Mocks are correct', () => {
+    expect(runtimeDefinition).not.toBeNull()
+    expect(composite.modelIDs.sort()).toEqual([simpleModelStreamId, modelWithRelationStreamId].sort())
+  })
+
   describe('Using existing model', () => {
     jest.setTimeout(1000 * 60)
     const originalDid = ceramic.did as DID
@@ -80,16 +100,16 @@ describe('indexing', () => {
         const doc1 = await ModelInstanceDocument.create(
           ceramicInstance,
           DATA1,
-          { model: TEST_MODEL },
+          { model: simpleModelStreamId },
           { anchor: false }
         )
 
         await expect(
-          ceramicInstance.index.count({ model: TEST_MODEL.toString() })
+          ceramicInstance.index.count({ model: simpleModelStreamId })
         ).resolves.toBeGreaterThanOrEqual(1)
 
         const resultsAfterCreate = await ceramicInstance.index
-          .query({ model: TEST_MODEL, last: 100 })
+          .query({ model: simpleModelStreamId, last: 100 })
           .then(resultObj => extractDocuments(ceramicInstance, resultObj))
         expect(resultsAfterCreate.length).toBeGreaterThanOrEqual(1)
 
@@ -108,18 +128,18 @@ describe('indexing', () => {
         const doc2 = await ModelInstanceDocument.create(
           ceramicInstance,
           DATA3,
-          { model: TEST_MODEL },
+          { model: simpleModelStreamId },
           { anchor: false }
         )
 
         await TestUtils.delay(5 * 1000)
 
         await expect(
-          ceramicInstance.index.count({ model: TEST_MODEL.toString() })
+          ceramicInstance.index.count({ model: simpleModelStreamId })
         ).resolves.toBeGreaterThanOrEqual(2)
 
         const resultsAfterReplace = await ceramicInstance.index
-          .query({ model: TEST_MODEL, last: 100 })
+          .query({ model: simpleModelStreamId, last: 100 })
           .then(resultObj => extractDocuments(ceramicInstance, resultObj))
         expect(resultsAfterReplace.length).toBeGreaterThanOrEqual(2)
 
@@ -150,7 +170,7 @@ describe('indexing', () => {
           const doc = await ModelInstanceDocument.create(
             ceramic1,
             DATA1,
-            { model: TEST_MODEL },
+            { model: simpleModelStreamId },
             { anchor: false, publish: false }
           )
 
@@ -158,7 +178,7 @@ describe('indexing', () => {
 
           // Since ceramic1 didn't publish the commit, ceramic2 won't know about it.
           const resultsAfterCreate = await ceramic2.index
-            .query({ model: TEST_MODEL, last: 100 })
+            .query({ model: simpleModelStreamId, last: 100 })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
 
           if (resultsAfterCreate.length > 0) {
@@ -176,10 +196,10 @@ describe('indexing', () => {
           await expect(TestUtils.isPinned(ceramic2, doc.id)).toBeTruthy()
 
           await expect(
-            ceramic2.index.count({ model: TEST_MODEL.toString() })
+            ceramic2.index.count({ model: simpleModelStreamId })
           ).resolves.toBeGreaterThan(1)
           const resultsAfterLoad = await ceramic2.index
-            .query({ model: TEST_MODEL, last: 100 })
+            .query({ model: simpleModelStreamId, last: 100 })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           expect(resultsAfterLoad.length).toBeGreaterThanOrEqual(1)
 
@@ -199,7 +219,7 @@ describe('indexing', () => {
           await TestUtils.delay(5 * 1000)
 
           const resultsAfterReplace = await ceramic2.index
-            .query({ model: TEST_MODEL, last: 100 })
+            .query({ model: simpleModelStreamId, last: 100 })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           expect(resultsAfterReplace.length).toBeGreaterThanOrEqual(1)
 
@@ -215,71 +235,72 @@ describe('indexing', () => {
       )
     }
 
+    test.each(allTestCases)(
+      'Can filter by DID -- %s',
+      async (_, ceramic1, ceramic2 = ceramic1) => {
+        const did1 = originalDid
+        const did2 = await createDid()
+
+        const doc1 = await ModelInstanceDocument.create(
+          ceramic1,
+          DATA1,
+          { model: simpleModelStreamId, controller: did1.id },
+          { anchor: false }
+        )
+
+        ceramic1.did = did2
+        const doc2 = await ModelInstanceDocument.create(
+          ceramic1,
+          DATA2,
+          { model: simpleModelStreamId, controller: did2.id },
+          { anchor: false }
+        )
+
+        await TestUtils.delay(5 * 1000)
+
+        const did1Results = await ceramic2.index
+          .query({ model: simpleModelStreamId, last: 100, account: did1.id })
+          .then(resultObj => extractDocuments(ceramic2, resultObj))
+        expect(did1Results.length).toBeGreaterThanOrEqual(1)
+
+        // We can expect that the most recent MID will be the MID created by this test
+        // This is because the DID used is unique and we are filtering by this DID
+        const lastDid1Doc = did1Results.at(-1) as ModelInstanceDocument
+        expect(lastDid1Doc.id.toString()).toEqual(doc1.id.toString())
+        expect(lastDid1Doc.content).toEqual(doc1.content)
+        expect(StreamUtils.serializeState(lastDid1Doc.state)).toEqual(
+          StreamUtils.serializeState(doc1.state)
+        )
+        did1Results.forEach(doc => {
+          expect(doc.id.toString()).not.toEqual(doc2.id.toString())
+        })
+
+        const did2Results = await ceramic2.index
+          .query({ model: simpleModelStreamId, last: 100, account: did2.id })
+          .then(resultObj => extractDocuments(ceramic2, resultObj))
+        expect(did2Results.length).toBeGreaterThanOrEqual(1)
+        const lastDid2Doc = did2Results.at(-1) as ModelInstanceDocument
+        expect(lastDid2Doc.id.toString()).toEqual(doc2.id.toString())
+        expect(lastDid2Doc.content).toEqual(doc2.content)
+        expect(StreamUtils.serializeState(lastDid2Doc.state)).toEqual(
+          StreamUtils.serializeState(doc2.state)
+        )
+        did2Results.forEach(doc => {
+          expect(doc.id.toString()).not.toEqual(doc1.id.toString())
+        })
+      }
+    )
+
     describe('filtering', () => {
-      test.each(allTestCases)(
-        'Can filter by DID -- %s',
-        async (_, ceramic1, ceramic2 = ceramic1) => {
-          const did1 = originalDid
-          const did2 = await createDid()
 
-          const doc1 = await ModelInstanceDocument.create(
-            ceramic1,
-            DATA1,
-            { model: TEST_MODEL, controller: did1.id },
-            { anchor: false }
-          )
-
-          ceramic1.did = did2
-          const doc2 = await ModelInstanceDocument.create(
-            ceramic1,
-            DATA2,
-            { model: TEST_MODEL, controller: did2.id },
-            { anchor: false }
-          )
-
-          await TestUtils.delay(5 * 1000)
-
-          const did1Results = await ceramic2.index
-            .query({ model: TEST_MODEL, last: 100, account: did1.id })
-            .then(resultObj => extractDocuments(ceramic2, resultObj))
-          expect(did1Results.length).toBeGreaterThanOrEqual(1)
-
-          // We can expect that the most recent MID will be the MID created by this test
-          // This is because the DID used is unique and we are filtering by this DID
-          const lastDid1Doc = did1Results.at(-1) as ModelInstanceDocument
-          expect(lastDid1Doc.id.toString()).toEqual(doc1.id.toString())
-          expect(lastDid1Doc.content).toEqual(doc1.content)
-          expect(StreamUtils.serializeState(lastDid1Doc.state)).toEqual(
-            StreamUtils.serializeState(doc1.state)
-          )
-          did1Results.forEach(doc => {
-            expect(doc.id.toString()).not.toEqual(doc2.id.toString())
-          })
-
-          const did2Results = await ceramic2.index
-            .query({ model: TEST_MODEL, last: 100, account: did2.id })
-            .then(resultObj => extractDocuments(ceramic2, resultObj))
-          expect(did2Results.length).toBeGreaterThanOrEqual(1)
-          const lastDid2Doc = did2Results.at(-1) as ModelInstanceDocument
-          expect(lastDid2Doc.id.toString()).toEqual(doc2.id.toString())
-          expect(lastDid2Doc.content).toEqual(doc2.content)
-          expect(StreamUtils.serializeState(lastDid2Doc.state)).toEqual(
-            StreamUtils.serializeState(doc2.state)
-          )
-          did2Results.forEach(doc => {
-            expect(doc.id.toString()).not.toEqual(doc1.id.toString())
-          })
-        }
-      )
-
-      test.each(allTestCases)(
+      test.each(allTestCases)( // this is the one
         'Can filter by relation -- %s',
         async (_, ceramic1, ceramic2 = ceramic1) => {
           const referencedDoc0 = await ModelInstanceDocument.create(
             ceramic1,
             DATA1,
             {
-              model: TEST_MODEL
+              model: simpleModelStreamId
             },
             { anchor: false }
           )
@@ -287,27 +308,27 @@ describe('indexing', () => {
             ceramic1,
             DATA2,
             {
-              model: TEST_MODEL
+              model: simpleModelStreamId
             },
             { anchor: false }
           )
 
           const doc0 = await ModelInstanceDocument.create(
             ceramic1,
-            { linkedDoc: referencedDoc0.id.toString() },
-            { model: TEST_MODEL_WITH_RELATION },
+            { linkedDocID: referencedDoc0.id.toString() },
+            { model: modelWithRelationStreamId },
             { anchor: false }
           )
           const doc1 = await ModelInstanceDocument.create(
             ceramic1,
-            { linkedDoc: referencedDoc1.id.toString() },
-            { model: TEST_MODEL_WITH_RELATION },
+            { linkedDocID: referencedDoc1.id.toString() },
+            { model: modelWithRelationStreamId },
             { anchor: false }
           )
           const doc2 = await ModelInstanceDocument.create(
             ceramic1,
-            { linkedDoc: referencedDoc1.id.toString() },
-            { model: TEST_MODEL_WITH_RELATION },
+            { linkedDocID: referencedDoc1.id.toString() },
+            { model: modelWithRelationStreamId },
             { anchor: false }
           )
 
@@ -315,15 +336,15 @@ describe('indexing', () => {
 
           await expect(
             ceramic2.index.count({
-              model: TEST_MODEL_WITH_RELATION,
-              filter: { linkedDoc: referencedDoc0.id.toString() }
+              model: modelWithRelationStreamId,
+              filter: { linkedDocID: referencedDoc0.id.toString() }
             })
           ).resolves.toEqual(1)
           const referencedDoc0Results = await ceramic2.index
             .query({
-              model: TEST_MODEL_WITH_RELATION,
+              model: modelWithRelationStreamId,
               last: 100,
-              filter: { linkedDoc: referencedDoc0.id.toString() }
+              filter: { linkedDocID: referencedDoc0.id.toString() }
             })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           // We can expect that MIDs found will be the MID created by this test even though the model may be used by other tests
@@ -337,15 +358,15 @@ describe('indexing', () => {
 
           await expect(
             ceramic2.index.count({
-              model: TEST_MODEL_WITH_RELATION,
-              filter: { linkedDoc: referencedDoc1.id.toString() }
+              model: modelWithRelationStreamId,
+              filter: { linkedDocID: referencedDoc1.id.toString() }
             })
           ).resolves.toEqual(2)
           const referencedDoc1Results = await ceramic2.index
             .query({
-              model: TEST_MODEL_WITH_RELATION,
+              model: modelWithRelationStreamId,
               last: 100,
-              filter: { linkedDoc: referencedDoc1.id.toString() }
+              filter: { linkedDocID: referencedDoc1.id.toString() }
             })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           expect(referencedDoc1Results.length).toEqual(2)
@@ -363,21 +384,21 @@ describe('indexing', () => {
       )
 
       test.each(allTestCases)(
-        'Can filter by relation and did -- %s',
+        'Can filter by relation and did -- %s', // this one too
         async (_, ceramic1, ceramic2 = ceramic1) => {
           const referencedDoc = await ModelInstanceDocument.create(
             ceramic1,
             DATA1,
             {
-              model: TEST_MODEL
+              model: simpleModelStreamId
             },
             { anchor: false }
           )
 
           const originalDidDoc = await ModelInstanceDocument.create(
             ceramic1,
-            { linkedDoc: referencedDoc.id.toString() },
-            { model: TEST_MODEL_WITH_RELATION },
+            { linkedDocID: referencedDoc.id.toString() },
+            { model: modelWithRelationStreamId },
             { anchor: false }
           )
 
@@ -385,8 +406,8 @@ describe('indexing', () => {
           ceramic1.did = otherDid
           await ModelInstanceDocument.create(
             ceramic1,
-            { linkedDoc: referencedDoc.id.toString() },
-            { model: TEST_MODEL_WITH_RELATION },
+            { linkedDocID: referencedDoc.id.toString() },
+            { model: modelWithRelationStreamId },
             { anchor: false }
           )
 
@@ -394,15 +415,15 @@ describe('indexing', () => {
 
           await expect(
             ceramic2.index.count({
-              model: TEST_MODEL_WITH_RELATION,
-              filter: { linkedDoc: referencedDoc.id.toString() }
+              model: modelWithRelationStreamId,
+              filter: { linkedDocID: referencedDoc.id.toString() }
             })
           ).resolves.toEqual(2)
           const allReferencedDocResults = await ceramic2.index
             .query({
-              model: TEST_MODEL_WITH_RELATION,
+              model: modelWithRelationStreamId,
               last: 100,
-              filter: { linkedDoc: referencedDoc.id.toString() }
+              filter: { linkedDocID: referencedDoc.id.toString() }
             })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           // We can expect that MIDs found will be the MID created by this test even though the model may be used by other tests
@@ -411,17 +432,17 @@ describe('indexing', () => {
 
           await expect(
             ceramic2.index.count({
-              model: TEST_MODEL_WITH_RELATION,
+              model: modelWithRelationStreamId,
               account: originalDid.id.toString(),
-              filter: { linkedDoc: referencedDoc.id.toString() }
+              filter: { linkedDocID: referencedDoc.id.toString() }
             })
           ).resolves.toEqual(1)
           const referencedDocsWithDidResults = await ceramic2.index
             .query({
-              model: TEST_MODEL_WITH_RELATION,
+              model: modelWithRelationStreamId,
               account: originalDid.id.toString(),
               last: 100,
-              filter: { linkedDoc: referencedDoc.id.toString() }
+              filter: { linkedDocID: referencedDoc.id.toString() }
             })
             .then(resultObj => extractDocuments(ceramic2, resultObj))
           expect(referencedDocsWithDidResults.length).toEqual(1)
