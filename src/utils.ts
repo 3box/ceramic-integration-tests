@@ -25,6 +25,9 @@ import { Model } from '@ceramicnetwork/stream-model'
 import tmp from 'tmp-promise'
 import * as sha256 from '@stablelib/sha256'
 import * as uint8arrays from 'uint8arrays'
+import fs from 'fs-extra'
+const { readJSON } = fs
+import { EncodedCompositeDefinition } from '@composedb/types'
 
 const S3_DIRECTORY_NAME = process.env.S3_DIRECTORY_NAME ? `/${process.env.S3_DIRECTORY_NAME}` : ''
 
@@ -145,10 +148,13 @@ export async function buildIpfs(configObj): Promise<any> {
 }
 
 export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicApi> {
-  const modelsToIndex = [
-    Model.MODEL,
-    ...config.jest.models.map(modelId => StreamID.fromString(modelId))
-  ]
+  const definition = (await readJSON(
+    `${process.cwd()}/src/__mocks__/encoded.composite.json`
+  )) as EncodedCompositeDefinition
+
+  const modelsToIndex = Object.keys(definition.models).map(streamId =>
+    StreamID.fromString(streamId)
+  )
 
   if (configObj.mode == 'client') {
     console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
@@ -184,11 +190,12 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
       }
     }
     const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
-    if (configObj.s3StateStoreBucketName) {
-      const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
-      const s3StateStore = new S3StateStore(bucketName)
-      modules.pinStoreFactory.setStateStore(s3StateStore)
-    }
+    // TODO: UNCOMMENT
+    // if (configObj.s3StateStoreBucketName) {
+    //   const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
+    //   const s3StateStore = new S3StateStore(bucketName)
+    //   modules.pinStoreFactory.setStateStore(s3StateStore)
+    // }
 
     const ceramic = new Ceramic(modules, params)
     const did = await createDid(seed)
