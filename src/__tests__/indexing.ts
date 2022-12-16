@@ -40,7 +40,7 @@ const extractDocuments = (
 
 describe('indexing', () => {
   describe('Using existing model', () => {
-    jest.setTimeout(1000 * 60)
+    jest.setTimeout(1000 * 120)
     const originalDid = ceramic.did as DID
 
     const singleNodeTestCases: any[] = [['ceramic', ceramic]]
@@ -66,12 +66,17 @@ describe('indexing', () => {
     if (singleNodeTestCases.length > 0) {
       test.each(singleNodeTestCases)(
         'Can create and query on same node -- %s',
-        async (_, ceramicInstance: CeramicApi) => {
+        async (testType, ceramicInstance: CeramicApi) => {
+          console.log(`START: Can create and query on same node -- ${testType}`)
           const doc1 = await ModelInstanceDocument.create(
             ceramicInstance,
             DATA1,
             { model: TEST_MODEL },
             { anchor: false }
+          )
+
+          console.log(
+            `created doc1: streamId -- ${doc1.id.toString()}, tip - ${doc1.tip.toString()} `
           )
 
           await expect(
@@ -95,11 +100,20 @@ describe('indexing', () => {
           )
 
           await doc1.replace(DATA2, { anchor: false })
+
+          console.log(
+            `replaced doc1: streamId -- ${doc1.id.toString()}, tip - ${doc1.tip.toString()} `
+          )
+
           const doc2 = await ModelInstanceDocument.create(
             ceramicInstance,
             DATA3,
             { model: TEST_MODEL },
             { anchor: false }
+          )
+
+          console.log(
+            `created doc2: streamId -- ${doc2.id.toString()}, tip - ${doc2.tip.toString()} `
           )
 
           await TestUtils.delay(5 * 1000)
@@ -130,6 +144,8 @@ describe('indexing', () => {
           expect(StreamUtils.serializeState(retrievedDoc2.state)).toEqual(
             StreamUtils.serializeState(doc2.state)
           )
+
+          console.log(`END: Can create and query on same node -- ${testType}`)
         }
       )
 
