@@ -178,6 +178,8 @@ describe('indexing', () => {
             .then(resultObj => extractDocuments(ceramicInstance, resultObj))
 
           expect(did1Results.length).toBeGreaterThanOrEqual(1)
+          // We cannot expect that the most recent MID will be the MID created by this test
+          // This is because we may receive and process pubsub messages for docs created by ceramicClient
           const retrievedDoc1 = did1Results.find(
             doc => doc.id.toString() === doc1.id.toString()
           ) as ModelInstanceDocument
@@ -297,7 +299,7 @@ describe('indexing', () => {
           expect(did1Results.length).toBeGreaterThanOrEqual(1)
 
           // We cannot expect that the most recent MID will be the MID created by this test
-          // This is because we receive and process pubsub messages for docs created by at inconsistent times
+          // This is because we may receive and process pubsub messages for docs created by ceramicClient
           const retrievedDid1Doc = did1Results.find(
             doc => doc.id.toString() === doc1.id.toString()
           ) as ModelInstanceDocument
