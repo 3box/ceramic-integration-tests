@@ -46,9 +46,9 @@ describe('indexing', () => {
     const singleNodeTestCases: any[] = [['ceramic', ceramic]]
     const twoNodesTestCases: any[] = []
 
-    if (config.jest.services.ceramicClient.indexingEnabled) {
-      singleNodeTestCases.push(['ceramicClient', ceramicClient])
-    }
+    // if (config.jest.services.ceramicClient.indexingEnabled) {
+    //   singleNodeTestCases.push(['ceramicClient', ceramicClient])
+    // }
 
     if (
       config.jest.services.ceramic.indexingEnabled &&
@@ -58,16 +58,20 @@ describe('indexing', () => {
       twoNodesTestCases.push(['creating: ceramicClient, loading: ceramic', ceramicClient, ceramic])
     }
 
+    beforeEach(() => {
+      console.log(`START: ${expect.getState().currentTestName}`)
+    })
+
     afterEach(() => {
       ceramic.did = originalDid
       ceramicClient.did = originalDid
+      console.log(`END: ${expect.getState().currentTestName}`)
     })
 
     if (singleNodeTestCases.length > 0) {
       test.each(singleNodeTestCases)(
         'Can create and query on same node -- %s',
-        async (testType, ceramicInstance: CeramicApi) => {
-          console.log(`START: Can create and query on same node -- ${testType}`)
+        async (_, ceramicInstance: CeramicApi) => {
           const doc1 = await ModelInstanceDocument.create(
             ceramicInstance,
             DATA1,
@@ -144,8 +148,6 @@ describe('indexing', () => {
           expect(StreamUtils.serializeState(retrievedDoc2.state)).toEqual(
             StreamUtils.serializeState(doc2.state)
           )
-
-          console.log(`END: Can create and query on same node -- ${testType}`)
         }
       )
 
