@@ -46,9 +46,9 @@ describe('indexing', () => {
     const singleNodeTestCases: any[] = [['ceramic', ceramic]]
     const twoNodesTestCases: any[] = []
 
-    // if (config.jest.services.ceramicClient.indexingEnabled) {
-    //   singleNodeTestCases.push(['ceramicClient', ceramicClient])
-    // }
+    if (config.jest.services.ceramicClient.indexingEnabled) {
+      singleNodeTestCases.push(['ceramicClient', ceramicClient])
+    }
 
     if (
       config.jest.services.ceramic.indexingEnabled &&
