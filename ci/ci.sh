@@ -11,6 +11,7 @@ if [[ $NODE_ENV == "local_client-public" ]]; then
 fi
 
 if [[ $NODE_ENV == "local_node-private" ]]; then
+  export DEBUG="knex:*"
   # init config and generate peer id 
   node_modules/go-ipfs/go-ipfs/ipfs init
 

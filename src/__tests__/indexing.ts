@@ -40,7 +40,7 @@ const extractDocuments = (
 
 describe('indexing', () => {
   describe('Using existing model', () => {
-    jest.setTimeout(1000 * 60)
+    jest.setTimeout(1000 * 120)
     const originalDid = ceramic.did as DID
 
     const singleNodeTestCases: any[] = [['ceramic', ceramic]]
@@ -58,9 +58,14 @@ describe('indexing', () => {
       twoNodesTestCases.push(['creating: ceramicClient, loading: ceramic', ceramicClient, ceramic])
     }
 
+    beforeEach(() => {
+      console.log(`START: ${expect.getState().currentTestName}`)
+    })
+
     afterEach(() => {
       ceramic.did = originalDid
       ceramicClient.did = originalDid
+      console.log(`END: ${expect.getState().currentTestName}`)
     })
 
     if (singleNodeTestCases.length > 0) {
@@ -72,6 +77,10 @@ describe('indexing', () => {
             DATA1,
             { model: TEST_MODEL },
             { anchor: false }
+          )
+
+          console.log(
+            `created doc1: streamId -- ${doc1.id.toString()}, tip - ${doc1.tip.toString()} `
           )
 
           await expect(
@@ -95,11 +104,20 @@ describe('indexing', () => {
           )
 
           await doc1.replace(DATA2, { anchor: false })
+
+          console.log(
+            `replaced doc1: streamId -- ${doc1.id.toString()}, tip - ${doc1.tip.toString()} `
+          )
+
           const doc2 = await ModelInstanceDocument.create(
             ceramicInstance,
             DATA3,
             { model: TEST_MODEL },
             { anchor: false }
+          )
+
+          console.log(
+            `created doc2: streamId -- ${doc2.id.toString()}, tip - ${doc2.tip.toString()} `
           )
 
           await TestUtils.delay(5 * 1000)
