@@ -329,7 +329,8 @@ describe('indexing', () => {
           expect(did1Results.length).toBeGreaterThanOrEqual(1)
 
           // We cannot expect that the most recent MID will be the MID created by this test
-          // This is because we may receive and process pubsub messages for docs created by ceramicClient
+          // This is because we may receive and process pubsub messages for docs created in previous tests
+          // ex. docs created by the ceramicClient in the previous test, may be received by ceramic in this test
           const retrievedDid1Doc = did1Results.find(
             doc => doc.id.toString() === doc1.id.toString()
           ) as ModelInstanceDocument
