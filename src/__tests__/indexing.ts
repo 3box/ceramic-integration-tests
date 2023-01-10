@@ -87,7 +87,7 @@ const waitForMidsToBeIndexed = async (
 
 describe('indexing', () => {
   describe('Using existing model', () => {
-    jest.setTimeout(1000 * 60)
+    jest.setTimeout(1000 * 90) // 1 and a half minutes per test
     const originalDid = ceramic.did as DID
 
     const singleNodeTestCases: any[] = [['ceramic', ceramic]]
@@ -114,6 +114,8 @@ describe('indexing', () => {
       test.each(singleNodeTestCases)(
         'Can create and query on same node -- %s',
         async (_, ceramicInstance: CeramicApi) => {
+          console.info("running test: Can create and query on same node")
+
           const doc1 = await ModelInstanceDocument.create(
             ceramicInstance,
             DATA1,
@@ -172,12 +174,16 @@ describe('indexing', () => {
           expect(StreamUtils.serializeState(retrievedDoc2.state)).toEqual(
             StreamUtils.serializeState(doc2.state)
           )
+
+          console.info("completed test: Can create and query on same node")
         }
       )
 
       test.each(singleNodeTestCases)(
         'Can filter by DID -- %s',
         async (_, ceramicInstance: CeramicApi) => {
+          console.info("running test: Can filter by DID")
+
           const did1 = originalDid
           const did2 = await createDid()
 
@@ -229,6 +235,8 @@ describe('indexing', () => {
           did2Results.forEach(doc => {
             expect(doc.id.toString()).not.toEqual(doc1.id.toString())
           })
+
+          console.info("Completed test: Can filter by DID")
         }
       )
     }
@@ -237,6 +245,8 @@ describe('indexing', () => {
       test.each(twoNodesTestCases)(
         'Can create and query across nodes -- %s',
         async (_, ceramic1: CeramicApi, ceramic2: CeramicApi) => {
+          console.info("running test: Can create and query across nodes")
+
           const doc = await ModelInstanceDocument.create(
             ceramic1,
             DATA1,
@@ -297,12 +307,16 @@ describe('indexing', () => {
           expect(StreamUtils.serializeState(retrievedDocAfterReplace.state)).toEqual(
             StreamUtils.serializeState(doc.state)
           )
+
+          console.info("completed test: Can create and query across nodes")
         }
       )
 
       test.each(twoNodesTestCases)(
         'Can filter by DID across nodes -- %s',
         async (_, ceramic1, ceramic2) => {
+          console.info("running test: Can filter by DID across nodes")
+
           const did1 = originalDid
           const did2 = await createDid()
 
@@ -352,6 +366,8 @@ describe('indexing', () => {
           expect(StreamUtils.serializeState(retrievedDid2Doc.state)).toEqual(
             StreamUtils.serializeState(doc2.state)
           )
+
+          console.info("running test: Can filter by DID across nodes")
         }
       )
     }
