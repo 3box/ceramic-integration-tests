@@ -367,7 +367,7 @@ describe('indexing', () => {
             StreamUtils.serializeState(doc2.state)
           )
 
-          console.info("running test: Can filter by DID across nodes")
+          console.info("completed test: Can filter by DID across nodes")
         }
       )
     }
