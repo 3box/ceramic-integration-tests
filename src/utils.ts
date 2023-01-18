@@ -43,7 +43,7 @@ export async function createDid(seed?: string): Promise<DID> {
   return did
 }
 
-// 15 minutes for anchors to happen and be noticed (including potential failures and retries)
+// 30 minutes for anchors to happen and be noticed (including potential failures and retries)
 export const ANCHOR_TIMEOUT = 60 * 30
 
 export async function delay(millseconds: number): Promise<void> {
