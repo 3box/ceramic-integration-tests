@@ -8,7 +8,7 @@ import {
   StreamState,
   Stream
 } from '@ceramicnetwork/common'
-import { S3StateStore } from '@ceramicnetwork/cli'
+import { S3Store } from '@ceramicnetwork/cli'
 import { Ceramic, CeramicConfig } from '@ceramicnetwork/core'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 
@@ -184,15 +184,16 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
       }
     }
     const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
-    if (configObj.s3StateStoreBucketName) {
-      const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
-      const s3StateStore = new S3StateStore(bucketName, loggerProvider.getDiagnosticsLogger())
-      modules.pinStoreFactory.setStateStore(s3StateStore)
-    }
-
     const ceramic = new Ceramic(modules, params)
     const did = await createDid(seed)
     ceramic.did = did
+    if (configObj.s3StateStoreBucketName) {
+      const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
+      const s3Store = new S3Store(bucketName, null, configObj.network)
+      await ceramic.repository.injectKeyValueStore(s3Store)
+    }
+
+
     await ceramic._init(true)
     await ceramic.index.indexModels(modelsToIndex)
 
