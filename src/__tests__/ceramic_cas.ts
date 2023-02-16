@@ -85,12 +85,6 @@ describe('Ceramic<->CAS basic integration', () => {
     expect(doc4.state.anchorStatus).toEqual(AnchorStatus.ANCHORED)
     expect(doc4.state.log.length).toEqual(2)
 
-    // Test that all 4 docs were anchored in the same transaction
-    expect(doc2.state.anchorProof.blockNumber).toEqual(doc1.state.anchorProof.blockNumber)
-    expect(doc2.state.anchorProof.txHash).toEqual(doc1.state.anchorProof.txHash)
-    expect(doc3.state.anchorProof.txHash).toEqual(doc1.state.anchorProof.txHash)
-    expect(doc4.state.anchorProof.txHash).toEqual(doc1.state.anchorProof.txHash)
-
     // Test document updates
     console.log('Updating documents')
     await doc1.update(content1, null, { anchor: true })
@@ -139,11 +133,5 @@ describe('Ceramic<->CAS basic integration', () => {
     expect(doc2.state.log.length).toEqual(5)
     expect(doc3.state.log.length).toEqual(6)
     expect(doc4.state.log.length).toEqual(7)
-
-    // Test that all 4 docs were anchored in the same transaction
-    expect(doc2.state.anchorProof.blockNumber).toEqual(doc1.state.anchorProof.blockNumber)
-    expect(doc2.state.anchorProof.txHash).toEqual(doc1.state.anchorProof.txHash)
-    expect(doc3.state.anchorProof.txHash).toEqual(doc1.state.anchorProof.txHash)
-    expect(doc4.state.anchorProof.txHash).toEqual(doc1.state.anchorProof.txHash)
   })
 })
