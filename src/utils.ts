@@ -28,7 +28,15 @@ import * as uint8arrays from 'uint8arrays'
 
 const S3_DIRECTORY_NAME = process.env.S3_DIRECTORY_NAME ? `/${process.env.S3_DIRECTORY_NAME}` : ''
 
-const seed = randomString(32)
+const seed = process.env.CERAMIC_NODE_PRIVATE_SEED_URL ? parseSeedUrl(process.env.CERAMIC_NODE_PRIVATE_SEED_URL) : randomString(32)
+
+function parseSeedUrl(seedUrl: string): string {
+  const url = new URL(seedUrl)
+  if (url.protocol != 'inplace:' || url.pathname != 'ed25519') {
+    throw Error('Unsupported url format for seed. Must be `inplace:ed25519#seed`.')
+  }
+  return url.hash.slice(1)
+}
 
 export async function createDid(seed?: string): Promise<DID> {
   if (!seed) {
@@ -177,10 +185,12 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
       networkName: configObj.network,
       ethereumRpcUrl: configObj.ethereumRpc,
       anchorServiceUrl: configObj.anchorServiceAPI,
+      anchorServiceAuthMethod: 'did',
       loggerProvider,
       indexing: {
         db: `sqlite://${indexingDirectory.path}/ceramic.sqlite`,
-        allowQueriesBeforeHistoricalSync: true
+        allowQueriesBeforeHistoricalSync: true,
+        disableComposedb: false,
       }
     }
     const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
