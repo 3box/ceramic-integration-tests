@@ -7,7 +7,13 @@ export S3_DIRECTORY_NAME=$(date +%s)
 
 if [[ $NODE_ENV == "local_client-public" ]]; then
   export CERAMIC_INDEXING_DB_URI="sqlite://${HOME}/.ceramic/indexing.sqlite"
-  $(node node_modules/@ceramicnetwork/cli/bin/ceramic daemon --verbose --log-to-files --network dev-unstable --anchor-service-api https://cas-qa.3boxlabs.com --ethereum-rpc https://goerli.infura.io/v3/b6685df41e1647c4be0046dfa62a020b --config ./ceramic-config.json) &
+  node node_modules/@ceramicnetwork/cli/bin/ceramic daemon \
+      --verbose \
+      --log-to-files \
+      --network dev-unstable \
+      --anchor-service-api https://cas-qa.3boxlabs.com \
+      --ethereum-rpc https://goerli.infura.io/v3/b6685df41e1647c4be0046dfa62a020b \
+      --config ./ceramic-config.json &
 fi
 
 if [[ $NODE_ENV == "local_node-private" ]]; then
