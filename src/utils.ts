@@ -12,7 +12,6 @@ import { S3Store } from '@ceramicnetwork/cli'
 import { Ceramic, CeramicConfig } from '@ceramicnetwork/core'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 
-import * as dagJose from 'dag-jose'
 import { randomString } from '@stablelib/random'
 import { Ed25519Provider } from 'key-did-provider-ed25519'
 import KeyDidResolver from 'key-did-resolver'
@@ -143,7 +142,7 @@ export async function waitForAnchor(
 export async function buildIpfs(configObj): Promise<any> {
   if (configObj.mode == 'client') {
     console.log(`Creating IPFS via http client, connected to ${configObj.apiURL}`)
-    return ipfsClient.create({ url: configObj.apiURL, ipld: { codecs: [dagJose] } })
+    return ipfsClient.create({ url: configObj.apiURL })
   } else if (configObj.mode == 'node') {
     throw new Error('Creating in-process IPFS node is not currently supported')
   } else if (configObj.mode == 'none') {
