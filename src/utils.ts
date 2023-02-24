@@ -198,8 +198,10 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
     const did = await createDid(seed)
     ceramic.did = did
     if (configObj.s3StateStoreBucketName) {
-      const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
-      const s3Store = new S3Store(configObj.network, bucketName)
+      // Use a unique bucket path for each test
+      const now = new Date().getUTCMilliseconds()
+      const bucketNameWithPath = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}/${now}`
+      const s3Store = new S3Store(configObj.network, bucketNameWithPath)
       await ceramic.repository.injectKeyValueStore(s3Store)
     }
 
