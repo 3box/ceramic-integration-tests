@@ -1,7 +1,8 @@
 {
   "anchor": {
     "anchor-service-url": "https://cas-qa.3boxlabs.com",
-    "ethereum-rpc-url": "https://goerli.infura.io/v3/b6685df41e1647c4be0046dfa62a020b"
+    "ethereum-rpc-url": "https://goerli.infura.io/v3/b6685df41e1647c4be0046dfa62a020b",
+    "auth-method": "did"
   },
   "http-api": {
     "cors-allowed-origins": [".*"],
