@@ -14,7 +14,7 @@ declare global {
 }
 
 const isPinned = async (ceramic: CeramicApi, streamId: StreamID): Promise<boolean> => {
-  const pinnedStreamsIterator = await ceramic.pin.ls(streamId)
+  const pinnedStreamsIterator = await ceramic.admin.pin.ls(streamId)
   const pinnedStreamIds = []
   for await (const id of pinnedStreamsIterator) {
     pinnedStreamIds.push(id)
@@ -85,7 +85,7 @@ describe('Ceramic state store tests', () => {
     expect(loaded.content).toEqual(newContent)
 
     expect(await isPinned(ceramic, doc.id)).toBeTruthy()
-    await ceramic.pin.rm(doc.id)
+    await ceramic.admin.pin.rm(doc.id)
     expect(await isPinned(ceramic, doc.id)).toBeFalsy()
   })
 })
