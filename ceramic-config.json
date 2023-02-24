@@ -24,7 +24,9 @@
   "network": {
     "name": "dev-unstable"
   },
-  "node": {},
+  "node": {
+    "private-seed-url": "inplace:ed25519#bypasswithenvvar"
+  },
   "state-store": {
     "mode": "fs",
     "local-directory": "~/.ceramic/statestore/"
