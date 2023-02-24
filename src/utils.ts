@@ -200,7 +200,7 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
     ceramic.did = did
     if (configObj.s3StateStoreBucketName) {
       const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
-      const s3Store = new S3Store(bucketName, null, configObj.network)
+      const s3Store = new S3Store(configObj.network, bucketName)
       await ceramic.repository.injectKeyValueStore(s3Store)
     }
 
