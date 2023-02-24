@@ -47,6 +47,7 @@ export async function createDid(seed?: string): Promise<DID> {
   const resolver = KeyDidResolver.getResolver()
   const did = new DID({ provider, resolver })
   await did.authenticate()
+  console.log('Authenticated did', did.id)
 
   return did
 }
