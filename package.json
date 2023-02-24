@@ -65,7 +65,7 @@
     "key-did-resolver": "^3.0.0",
     "kubo-rpc-client": "^3.0.1",
     "node-config-ts": "^3.1.0",
-    "node-jq": "^2.3.3",
+    "node-jq": "^2.3.5",
     "rxjs": "^7.8.0",
     "tmp-promise": "^3.0.3",
     "ts-jest": "^28.0.8",
