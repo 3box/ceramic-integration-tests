@@ -21,13 +21,13 @@ declare global {
 }
 
 const extractStreamStates = (page: Page<StreamState | null>): Array<StreamState> => {
-  if (page.edges.find(edge => edge.node === null)) {
-    throw new Error(
+  if (page.edges.some(edge => edge.node === null)) {
+    console.warn(
       'null stream state found. This may indicate a problem with data persistence of your state store, which can result in data loss.'
     )
   }
 
-  return page.edges.map(edge => edge.node) as Array<StreamState>
+  return page.edges.filter(edge => Boolean(edge.node)).map(edge => edge.node) as Array<StreamState>
 }
 
 const extractDocuments = (
@@ -114,7 +114,7 @@ describe('indexing', () => {
       test.each(singleNodeTestCases)(
         'Can create and query on same node -- %s',
         async (_, ceramicInstance: CeramicApi) => {
-          console.info("running test: Can create and query on same node")
+          console.info('running test: Can create and query on same node')
 
           const doc1 = await ModelInstanceDocument.create(
             ceramicInstance,
@@ -175,14 +175,14 @@ describe('indexing', () => {
             StreamUtils.serializeState(doc2.state)
           )
 
-          console.info("completed test: Can create and query on same node")
+          console.info('completed test: Can create and query on same node')
         }
       )
 
       test.each(singleNodeTestCases)(
         'Can filter by DID -- %s',
         async (_, ceramicInstance: CeramicApi) => {
-          console.info("running test: Can filter by DID")
+          console.info('running test: Can filter by DID')
 
           const did1 = originalDid
           const did2 = await createDid()
@@ -236,7 +236,7 @@ describe('indexing', () => {
             expect(doc.id.toString()).not.toEqual(doc1.id.toString())
           })
 
-          console.info("Completed test: Can filter by DID")
+          console.info('Completed test: Can filter by DID')
         }
       )
     }
@@ -245,7 +245,7 @@ describe('indexing', () => {
       test.each(twoNodesTestCases)(
         'Can create and query across nodes -- %s',
         async (_, ceramic1: CeramicApi, ceramic2: CeramicApi) => {
-          console.info("running test: Can create and query across nodes")
+          console.info('running test: Can create and query across nodes')
 
           const doc = await ModelInstanceDocument.create(
             ceramic1,
@@ -308,14 +308,14 @@ describe('indexing', () => {
             StreamUtils.serializeState(doc.state)
           )
 
-          console.info("completed test: Can create and query across nodes")
+          console.info('completed test: Can create and query across nodes')
         }
       )
 
       test.each(twoNodesTestCases)(
         'Can filter by DID across nodes -- %s',
         async (_, ceramic1, ceramic2) => {
-          console.info("running test: Can filter by DID across nodes")
+          console.info('running test: Can filter by DID across nodes')
 
           const did1 = originalDid
           const did2 = await createDid()
@@ -367,7 +367,7 @@ describe('indexing', () => {
             StreamUtils.serializeState(doc2.state)
           )
 
-          console.info("completed test: Can filter by DID across nodes")
+          console.info('completed test: Can filter by DID across nodes')
         }
       )
     }
