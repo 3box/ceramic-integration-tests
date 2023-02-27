@@ -21,13 +21,7 @@ declare global {
 }
 
 const extractStreamStates = (page: Page<StreamState | null>): Array<StreamState> => {
-  if (page.edges.find(edge => edge.node === null)) {
-    throw new Error(
-      'null stream state found. This may indicate a problem with data persistence of your state store, which can result in data loss.'
-    )
-  }
-
-  return page.edges.map(edge => edge.node) as Array<StreamState>
+  return page.edges.filter(edge => Boolean(edge.node)).map(edge => edge.node) as Array<StreamState>
 }
 
 const extractDocuments = (
