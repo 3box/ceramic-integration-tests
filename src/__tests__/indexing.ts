@@ -54,19 +54,9 @@ const waitForMidsToBeIndexed = async (
       ),
       // checks if the results contains all the docs we are interested in
       filter(results => {
-        for (const doc of docs) {
-          const foundDoc = results.find(
-            resultDoc =>
-              resultDoc.id.toString() === doc.id.toString() &&
-              resultDoc.content.data === doc.content.data
-          )
-
-          if (!foundDoc) {
-            return false
-          }
-        }
-
-        return true
+        return docs.every(doc => results.find(
+          resultDoc => resultDoc.id.toString() === doc.id.toString() && resultDoc.content.data === doc.content.data
+        ))
       }),
       // timeout after 30 second
       timeout({
@@ -75,8 +65,8 @@ const waitForMidsToBeIndexed = async (
           throwError(
             () =>
               new Error(
-                `Timeout waiting for ${docs.map(doc => doc.id.toString)} at tips ${docs.map(
-                  doc => doc.tip.toString
+                `Timeout waiting for ${docs.map(doc => doc.id.toString())} at tips ${docs.map(
+                  doc => doc.tip.toString()
                 )} to be indexed`
               )
           )
@@ -327,6 +317,8 @@ describe('indexing', () => {
             { anchor: false }
           )
 
+          console.log('created doc1', doc1.id.toString())
+
           ceramic1.did = did2
           const doc2 = await ModelInstanceDocument.create(
             ceramic1,
@@ -334,6 +326,8 @@ describe('indexing', () => {
             { model: TEST_MODEL, controller: did2.id },
             { anchor: false }
           )
+
+          console.log('created doc2', doc2.id.toString())
 
           await waitForMidsToBeIndexed(ceramic2, [doc1, doc2])
 
