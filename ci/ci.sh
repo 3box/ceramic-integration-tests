@@ -37,8 +37,17 @@ fi
 echo "INFO: Sleeping for ${SLEEP}s"
 sleep ${SLEEP} # Give time for services to finish starting up before starting tests
 
-npm run test:ci
+if [ "$REPORT_STATUS" = true ]; then
+  npm run test:ci
+else
+  npm run test
+fi
 
 exit_code=$?;
-node export-logs.js
-if [[ $exit_code != 0 ]]; then node report-exit.js; fi
+if [ "$EXPORT_LOGS" = true  ]; then
+  node export-logs.js
+fi
+
+if [ $exit_code != 0 ] && [ "$REPORT_STATUS" = true]; then
+  node report-exit.js; 
+fi
