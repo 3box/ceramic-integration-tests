@@ -1,0 +1,30 @@
+{
+  "docker": {
+    "use": true
+  },
+  "jest": {
+    "services": {
+      "ceramic": {
+        "mode": "node",
+        "indexingEnabled": false,
+        "anchorServiceAPI": "@@ANCHOR_API_URL",
+        "ethereumRpc": "@@ETH_RPC_URL",
+        "s3StateStoreBucketName": "",
+        "network": "local",
+        "pubsubTopic": "@@PUBSUB_TOPIC"
+      },
+      "ipfs": {
+        "mode": "client",
+        "apiURL": "@@IPFS_URL"
+      },
+      "ceramicClient": {
+        "mode": "client",
+        "indexingEnabled": false,
+        "apiURL": "@@REMOTE_CERAMIC_URL"
+      }
+    }
+  },
+  "serviceLauncher": {
+    "services": []
+  }
+}
