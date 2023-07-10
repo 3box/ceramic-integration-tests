@@ -24,10 +24,13 @@ import { Model } from '@ceramicnetwork/stream-model'
 import tmp from 'tmp-promise'
 import * as sha256 from '@stablelib/sha256'
 import * as uint8arrays from 'uint8arrays'
+import AWS from 'aws-sdk'
 
 const S3_DIRECTORY_NAME = process.env.S3_DIRECTORY_NAME ? `/${process.env.S3_DIRECTORY_NAME}` : ''
 
-const seed = process.env.CERAMIC_NODE_PRIVATE_SEED_URL ? parseSeedUrl(process.env.CERAMIC_NODE_PRIVATE_SEED_URL) : randomString(32)
+const seed = process.env.CERAMIC_NODE_PRIVATE_SEED_URL
+  ? parseSeedUrl(process.env.CERAMIC_NODE_PRIVATE_SEED_URL)
+  : randomString(32)
 
 function parseSeedUrl(seedUrl: string): string {
   const url = new URL(seedUrl)
@@ -190,19 +193,24 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
       indexing: {
         db: `sqlite://${indexingDirectory.path}/ceramic.sqlite`,
         allowQueriesBeforeHistoricalSync: true,
-        disableComposedb: false,
-      }
+        disableComposedb: false
+      },
+      pubsubTopic: configObj.pubsubTopic || undefined
     }
     const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
     const ceramic = new Ceramic(modules, params)
     const did = await createDid(seed)
     ceramic.did = did
     if (configObj.s3StateStoreBucketName) {
+      // if we are using localstack to test this we need to use path style as localstack does no support this
+      // will not affect tests not using localstack as they do not use a custom e3 endpoint
+      AWS.config.update({
+        s3ForcePathStyle: true
+      })
       const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
-      const s3Store = new S3Store(configObj.network, bucketName)
+      const s3Store = new S3Store(configObj.network, bucketName, process.env.S3_ENDPOINT_URL)
       await ceramic.repository.injectKeyValueStore(s3Store)
     }
-
 
     await ceramic._init(true)
     await ceramic.index.indexModels(modelsToIndex)
