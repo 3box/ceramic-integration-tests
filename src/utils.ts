@@ -202,8 +202,8 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
     const did = await createDid(seed)
     ceramic.did = did
     if (configObj.s3StateStoreBucketName) {
-      // if we are using localstack to test this we need to use path style as localstack does no support this
-      // will not affect tests not using localstack as they do not use a custom e3 endpoint
+      // When using localstack we need to allow path-style requests as it does not support virtual-hosted–style requests
+      // This will not affect tests not using localstack as they are using a custom s3 endpoint
       AWS.config.update({
         s3ForcePathStyle: true
       })
