@@ -9,7 +9,7 @@
         "indexingEnabled": false,
         "anchorServiceAPI": "@@ANCHOR_API_URL",
         "ethereumRpc": "@@ETH_RPC_URL",
-        "s3StateStoreBucketName": "",
+        "s3StateStoreBucketName": "ceramic-local-tests/node",
         "network": "local",
         "pubsubTopic": "@@PUBSUB_TOPIC"
       },
