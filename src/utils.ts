@@ -193,7 +193,8 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
       indexing: {
         db: `sqlite://${indexingDirectory.path}/ceramic.sqlite`,
         allowQueriesBeforeHistoricalSync: true,
-        disableComposedb: false
+        disableComposedb: false,
+        enableHistoricalSync: false
       },
       pubsubTopic: configObj.pubsubTopic || undefined
     }
@@ -213,7 +214,11 @@ export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicAp
     }
 
     await ceramic._init(true)
-    await ceramic.index.indexModels(modelsToIndex)
+    await ceramic.index.indexModels(
+      modelsToIndex.map(modelID => {
+        return { streamID: modelID }
+      })
+    )
 
     console.log(`Ceramic local node started successfully`)
     return ceramic
