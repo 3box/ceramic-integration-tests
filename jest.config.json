@@ -1,7 +1,6 @@
 {
   "testEnvironment": "node",
   "transformIgnorePatterns": ["/node_modules(?!/did-jwt)/"],
-  "resolver": "jest-resolver-enhanced",
   "extensionsToTreatAsEsm": [".ts"],
   "globals": {
     "ts-jest": {
