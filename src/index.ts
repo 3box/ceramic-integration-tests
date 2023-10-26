@@ -27,7 +27,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
 
   async teardown() {
     console.log('Tearing down integration test')
-    
+
     await delay(5000) // Give some time for tests to fully finish
 
     // @ts-ignore

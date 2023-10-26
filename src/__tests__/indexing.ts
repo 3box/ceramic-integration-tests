@@ -54,9 +54,13 @@ const waitForMidsToBeIndexed = async (
       ),
       // checks if the results contains all the docs we are interested in
       filter(results => {
-        return docs.every(doc => results.find(
-          resultDoc => resultDoc.id.toString() === doc.id.toString() && resultDoc.content.data === doc.content.data
-        ))
+        return docs.every(doc =>
+          results.find(
+            resultDoc =>
+              resultDoc.id.toString() === doc.id.toString() &&
+              resultDoc.content.data === doc.content.data
+          )
+        )
       }),
       // timeout after 30 second
       timeout({
@@ -65,8 +69,8 @@ const waitForMidsToBeIndexed = async (
           throwError(
             () =>
               new Error(
-                `Timeout waiting for ${docs.map(doc => doc.id.toString())} at tips ${docs.map(
-                  doc => doc.tip.toString()
+                `Timeout waiting for ${docs.map(doc => doc.id.toString())} at tips ${docs.map(doc =>
+                  doc.tip.toString()
                 )} to be indexed`
               )
           )
