@@ -9,7 +9,7 @@ AWS.config.update({
 })
 const s3 = new AWS.S3({ apiVersion: '2006-03-01' })
 
-const directoryPath = path.join(import.meta.url, '../root/.ceramic/logs')
+const directoryPath = '/root/.ceramic/logs'
 
 function main() {
   fs.readdir(directoryPath, (err, files) => {

@@ -1,6 +1,5 @@
 import {
   AnchorStatus,
-  CeramicApi,
   StreamUtils,
   IpfsApi,
   LogLevel,
@@ -155,78 +154,77 @@ export async function buildIpfs(configObj): Promise<any> {
   }
 }
 
-export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicApi> {
+export async function buildCeramicClient(configObj): Promise<CeramicClient> {
   const modelsToIndex = [
     Model.MODEL,
     ...config.jest.models.map(modelId => StreamID.fromString(modelId))
   ]
 
-  if (configObj.mode == 'client') {
-    console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
+  console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
 
-    const ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
+  const ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
 
-    if (configObj.adminSeed) {
-      const adminDid = await createDid(configObj.adminSeed)
-      ceramic.did = adminDid
-      await ceramic.admin.startIndexingModels(modelsToIndex)
-    }
+  if (configObj.adminSeed) {
+    ceramic.did = await createDid(configObj.adminSeed)
+    await ceramic.admin.startIndexingModels(modelsToIndex)
+  }
 
-    const did = await createDid(seed)
-    ceramic.did = did
+  ceramic.did = await createDid(seed)
 
-    console.log(`Ceramic client connected successfully to ${configObj.apiURL}`)
-    return ceramic
-  } else if (configObj.mode == 'node') {
-    console.log('Creating ceramic local node')
+  console.log(`Ceramic client connected successfully to ${configObj.apiURL}`)
+  return ceramic
+}
 
-    process.env.CERAMIC_ENABLE_EXPERIMENTAL_COMPOSE_DB = 'true'
-    const loggerProvider = new LoggerProvider({ logLevel: LogLevel.debug })
-    const indexingDirectory = await tmp.dir({ unsafeCleanup: true })
+export async function buildCeramicNode(configObj, ipfs?: IpfsApi): Promise<Ceramic> {
+  const modelsToIndex = [
+    Model.MODEL,
+    ...config.jest.models.map(modelId => StreamID.fromString(modelId))
+  ]
 
-    const ceramicConfig: CeramicConfig = {
-      networkName: configObj.network,
-      ethereumRpcUrl: configObj.ethereumRpc,
-      anchorServiceUrl: configObj.anchorServiceAPI,
-      anchorServiceAuthMethod: 'did',
-      loggerProvider,
-      indexing: {
-        db: `sqlite://${indexingDirectory.path}/ceramic.sqlite`,
-        allowQueriesBeforeHistoricalSync: true,
-        disableComposedb: false,
-        enableHistoricalSync: false
-      },
-      pubsubTopic: configObj.pubsubTopic || undefined
-    }
-    const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
-    const ceramic = new Ceramic(modules, params)
-    const did = await createDid(seed)
-    ceramic.did = did
-    if (configObj.s3StateStoreBucketName) {
-      // When using localstack we need to allow path-style requests as it does not support virtual-hosted–style requests
-      // This will not affect tests not using localstack as they are using a custom s3 endpoint
-      AWS.config.update({
-        s3ForcePathStyle: true
-      })
-      const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
-      const s3Store = new S3Store(configObj.network, bucketName, process.env.S3_ENDPOINT_URL)
-      await ceramic.repository.injectKeyValueStore(s3Store)
-    }
+  console.log('Creating ceramic local node')
 
-    await ceramic._init(true)
-    await ceramic.index.indexModels(
+  process.env.CERAMIC_ENABLE_EXPERIMENTAL_COMPOSE_DB = 'true'
+  const loggerProvider = new LoggerProvider({ logLevel: LogLevel.debug })
+  const indexingDirectory = await tmp.dir({ unsafeCleanup: true })
+
+  const ceramicConfig: CeramicConfig = {
+    networkName: configObj.network,
+    ethereumRpcUrl: configObj.ethereumRpc,
+    anchorServiceUrl: configObj.anchorServiceAPI,
+    anchorServiceAuthMethod: 'did',
+    loggerProvider,
+    indexing: {
+      db: `sqlite://${indexingDirectory.path}/ceramic.sqlite`,
+      allowQueriesBeforeHistoricalSync: true,
+      disableComposedb: false,
+      enableHistoricalSync: false
+    },
+    pubsubTopic: configObj.pubsubTopic || undefined
+  }
+  const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
+  const ceramic = new Ceramic(modules, params)
+  ceramic.did = await createDid(seed)
+  if (configObj.s3StateStoreBucketName) {
+    // When using localstack we need to allow path-style requests as it does not support virtual-hosted–style requests
+    // This will not affect tests not using localstack as they are using a custom s3 endpoint
+    AWS.config.update({
+      s3ForcePathStyle: true
+    })
+    const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
+    const diagnosticsLogger = modules.loggerProvider.getDiagnosticsLogger()
+    const s3Store = new S3Store(configObj.network, diagnosticsLogger, bucketName, process.env.S3_ENDPOINT_URL)
+    await ceramic.repository.injectKeyValueStore(s3Store)
+  }
+
+  await ceramic._init(true)
+  await ceramic.index.indexModels(
       modelsToIndex.map(modelID => {
         return { streamID: modelID }
       })
-    )
+  )
 
-    console.log(`Ceramic local node started successfully`)
-    return ceramic
-  } else if (configObj.mode == 'none') {
-    return null
-  }
-
-  throw new Error(`Ceramic mode "${configObj.mode}" not supported`)
+  console.log(`Ceramic local node started successfully`)
+  return ceramic
 }
 
 /**
@@ -243,7 +241,7 @@ export async function restartCeramic(): Promise<void> {
   await delay(3000) // Give some time for things to fully shut down before restarting
 
   ceramic = null
-  ceramic = await buildCeramic(config.jest.services.ceramic, ipfs).catch(error => {
+  ceramic = await buildCeramicNode(config.jest.services.ceramic, ipfs).catch(error => {
     console.error(error)
     throw error
   })

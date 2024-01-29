@@ -2,13 +2,13 @@
  * @jest-environment ./build/index.js
  */
 
-import { AnchorStatus, CeramicApi } from '@ceramicnetwork/common'
+import { AnchorStatus, StreamReaderWriter } from '@ceramicnetwork/common'
 import { TileDocument } from '@ceramicnetwork/stream-tile'
 import { waitForAnchor } from '../utils.js'
 import { jest } from '@jest/globals'
 
 declare global {
-  const ceramic: CeramicApi
+  const ceramic: StreamReaderWriter
 }
 
 describe('Ceramic<->CAS basic integration', () => {

@@ -2,7 +2,7 @@
  * @jest-environment ./build/index.js
  */
 
-import { CeramicApi } from '@ceramicnetwork/common'
+import { Ceramic } from '@ceramicnetwork/core'
 import { StreamID } from '@ceramicnetwork/streamid'
 import { TileDocument } from '@ceramicnetwork/stream-tile'
 import { delay, restartCeramic } from '../utils.js'
@@ -10,10 +10,10 @@ import { config } from 'node-config-ts'
 import { jest } from '@jest/globals'
 
 declare global {
-  let ceramic: CeramicApi
+  let ceramic: Ceramic
 }
 
-const isPinned = async (ceramic: CeramicApi, streamId: StreamID): Promise<boolean> => {
+const isPinned = async (ceramic: Ceramic, streamId: StreamID): Promise<boolean> => {
   const pinnedStreamsIterator = await ceramic.admin.pin.ls(streamId)
   const pinnedStreamIds = []
   for await (const id of pinnedStreamsIterator) {

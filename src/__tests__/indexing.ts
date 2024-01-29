@@ -2,7 +2,9 @@
  * @jest-environment ./build/index.js
  */
 import { jest } from '@jest/globals'
-import { CeramicApi, Page, StreamState, StreamUtils, TestUtils } from '@ceramicnetwork/common'
+import { Page, StreamState, StreamUtils } from '@ceramicnetwork/common'
+import { Ceramic } from '@ceramicnetwork/core'
+import { CommonTestUtils as TestUtils } from '@ceramicnetwork/common-test-utils'
 import { ModelInstanceDocument } from '@ceramicnetwork/stream-model-instance'
 import { StreamID } from '@ceramicnetwork/streamid'
 import { config } from 'node-config-ts'
@@ -16,8 +18,8 @@ const DATA2 = { data: 444 }
 const DATA3 = { data: 555 }
 
 declare global {
-  const ceramic: CeramicApi
-  const ceramicClient: CeramicApi
+  const ceramic: Ceramic
+  const ceramicClient: Ceramic
 }
 
 const extractStreamStates = (page: Page<StreamState | null>): Array<StreamState> => {
@@ -31,7 +33,7 @@ const extractStreamStates = (page: Page<StreamState | null>): Array<StreamState>
 }
 
 const extractDocuments = (
-  ceramic: CeramicApi,
+  ceramic: Ceramic,
   page: Page<StreamState | null>
 ): Array<ModelInstanceDocument> => {
   return extractStreamStates(page).map(state =>
@@ -40,7 +42,7 @@ const extractDocuments = (
 }
 
 const waitForMidsToBeIndexed = async (
-  ceramic: CeramicApi,
+  ceramic: Ceramic,
   docs: ModelInstanceDocument[]
 ): Promise<void> => {
   await firstValueFrom(
@@ -107,7 +109,7 @@ describe('indexing', () => {
     if (singleNodeTestCases.length > 0) {
       test.each(singleNodeTestCases)(
         'Can create and query on same node -- %s',
-        async (_, ceramicInstance: CeramicApi) => {
+        async (_, ceramicInstance: Ceramic) => {
           console.info('running test: Can create and query on same node')
 
           const doc1 = await ModelInstanceDocument.create(
@@ -175,7 +177,7 @@ describe('indexing', () => {
 
       test.each(singleNodeTestCases)(
         'Can filter by DID -- %s',
-        async (_, ceramicInstance: CeramicApi) => {
+        async (_, ceramicInstance: Ceramic) => {
           console.info('running test: Can filter by DID')
 
           const did1 = originalDid
@@ -238,7 +240,7 @@ describe('indexing', () => {
     if (twoNodesTestCases.length > 0) {
       test.each(twoNodesTestCases)(
         'Can create and query across nodes -- %s',
-        async (_, ceramic1: CeramicApi, ceramic2: CeramicApi) => {
+        async (_, ceramic1: Ceramic, ceramic2: Ceramic) => {
           console.info('running test: Can create and query across nodes')
 
           const doc = await ModelInstanceDocument.create(
@@ -267,7 +269,7 @@ describe('indexing', () => {
           expect(loadedDoc.content).toEqual(doc.content)
 
           // Indexed streams should always get pinned, regardless of the 'pin' flag
-          await expect(TestUtils.isPinned(ceramic2, doc.id)).toBeTruthy()
+          await expect(TestUtils.isPinned(ceramic2.admin, doc.id)).toBeTruthy()
 
           await expect(
             ceramic2.index.count({ model: TEST_MODEL.toString() })

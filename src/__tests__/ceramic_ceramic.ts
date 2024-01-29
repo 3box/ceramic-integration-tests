@@ -2,14 +2,14 @@
  * @jest-environment ./build/index.js
  */
 
-import { CeramicApi, StreamUtils } from '@ceramicnetwork/common'
+import { StreamReaderWriter, StreamUtils } from '@ceramicnetwork/common'
 import { TileDocument } from '@ceramicnetwork/stream-tile'
 import { waitForAnchor, waitForCondition } from '../utils.js'
 import { jest } from '@jest/globals'
 
 declare global {
-  const ceramic: CeramicApi
-  const ceramicClient: CeramicApi
+  const ceramic: StreamReaderWriter
+  const ceramicClient: StreamReaderWriter
 }
 
 const UPDATE_TIMEOUT = 60 // 60 seconds for regular updates to propagate from one node to another
@@ -23,8 +23,8 @@ const createWithOneLoadWithTheOther = async (ceramic1, ceramic2): Promise<void> 
 }
 
 const updatesAreShared = async (
-  ceramic1: CeramicApi,
-  ceramic2: CeramicApi,
+  ceramic1: StreamReaderWriter,
+  ceramic2: StreamReaderWriter,
   anchor: boolean
 ): Promise<void> => {
   const content0 = { foo: 0 }

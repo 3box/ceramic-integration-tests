@@ -1,14 +1,12 @@
 import {
   generateDiscordCloudwatchLogUrl,
   listECSTasks,
-  sendDiscordNotification,
-  getCommitHashes
+  sendDiscordNotification
 } from './helpers.js'
 
 const main = async () => {
   try {
     const taskArns = await listECSTasks()
-    const commitHashes = await getCommitHashes() // e.g. "ceramic-anchor-service (333fc9afb59a) <==> go-ipfs-daemon (6871b7dcd27d)\n"
     console.log('INFO: listECSTasks taskArns:=', taskArns)
     let logUrls = generateDiscordCloudwatchLogUrl()
     if (logUrls.length < 1) {
@@ -24,10 +22,6 @@ const main = async () => {
           {
             name: 'Configuration',
             value: `${process.env.NODE_ENV}`
-          },
-          {
-            name: 'Commit hashes',
-            value: `${commitHashes}`
           },
           {
             name: 'Logs',
