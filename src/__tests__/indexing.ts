@@ -84,7 +84,7 @@ const waitForMidsToBeIndexed = async (
 describe('indexing', () => {
   describe('Using existing model', () => {
     jest.setTimeout(1000 * 90) // 1 and a half minutes per test
-    const originalDid = ceramic.did as DID
+    const originalDid = ceramicClient.did as DID
 
     const singleNodeTestCases: any[] = [['ceramic', ceramic]]
     const twoNodesTestCases: any[] = []
@@ -102,7 +102,6 @@ describe('indexing', () => {
     }
 
     afterEach(() => {
-      ceramic.did = originalDid
       ceramicClient.did = originalDid
     })
 
