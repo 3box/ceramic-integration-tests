@@ -48,10 +48,6 @@ else
 fi
 
 exit_code=$?;
-if [ "$EXPORT_LOGS" = true  ]; then
-  node export-logs.js
-fi
-
 if [ $exit_code != 0 ] && [ "$REPORT_STATUS" = true ]; then
   node report-exit.js;
 fi
