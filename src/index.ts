@@ -1,14 +1,15 @@
+import { CeramicClient } from '@ceramicnetwork/http-client'
 import { Ceramic } from '@ceramicnetwork/core'
 import { StreamReaderWriter, IpfsApi } from '@ceramicnetwork/common'
 import { config } from 'node-config-ts'
 
 import { default as jestEnvironmentNode } from 'jest-environment-node'
 const NodeEnvironment = (jestEnvironmentNode as any).default
-import { buildCeramicClient, buildCeramicNode, buildIpfs, delay } from './utils.js'
+import { buildCeramicClient, buildCeramic, buildIpfs, delay } from './utils.js'
 
 // Global services that are set up once and then available in all integration tests
 declare global {
-  let ceramic: Ceramic
+  let ceramic: CeramicClient | Ceramic
   const ceramicClient: StreamReaderWriter
   const ipfs: IpfsApi
 }
@@ -55,7 +56,7 @@ export default class IntegrationTestEnvironment extends NodeEnvironment {
     }
 
     const ipfs = await buildIpfs(config.jest.services.ipfs)
-    const ceramic = await buildCeramicNode(config.jest.services.ceramic, ipfs)
+    const ceramic = await buildCeramic(config.jest.services.ceramic, ipfs)
     const ceramicClient = await buildCeramicClient(config.jest.services.ceramicClient)
 
     await delay(5000) // Give some time for things to fully start up before continuing

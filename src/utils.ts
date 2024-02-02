@@ -21,7 +21,6 @@ import { filter, take } from 'rxjs/operators'
 import { StreamID } from '@ceramicnetwork/streamid'
 import { Model } from '@ceramicnetwork/stream-model'
 import tmp from 'tmp-promise'
-import * as sha256 from '@stablelib/sha256'
 import * as uint8arrays from 'uint8arrays'
 import AWS from 'aws-sdk'
 
@@ -43,7 +42,7 @@ export async function createDid(seed?: string): Promise<DID> {
   if (!seed) {
     seed = randomString(32)
   }
-  const digest = sha256.hash(uint8arrays.fromString(seed))
+  const digest = uint8arrays.fromString(seed, 'base16')
   const provider = new Ed25519Provider(digest)
   const resolver = KeyDidResolver.getResolver()
   const did = new DID({ provider, resolver })
@@ -183,7 +182,6 @@ export async function buildCeramicNode(configObj, ipfs?: IpfsApi): Promise<Ceram
 
   console.log('Creating ceramic local node')
 
-  process.env.CERAMIC_ENABLE_EXPERIMENTAL_COMPOSE_DB = 'true'
   const loggerProvider = new LoggerProvider({ logLevel: LogLevel.debug })
   const indexingDirectory = await tmp.dir({ unsafeCleanup: true })
 
@@ -218,13 +216,25 @@ export async function buildCeramicNode(configObj, ipfs?: IpfsApi): Promise<Ceram
 
   await ceramic._init(true)
   await ceramic.index.indexModels(
-      modelsToIndex.map(modelID => {
-        return { streamID: modelID }
-      })
+    modelsToIndex.map(modelID => {
+      return { streamID: modelID }
+    })
   )
 
   console.log(`Ceramic local node started successfully`)
   return ceramic
+}
+
+export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicClient | Ceramic> {
+  if (configObj.mode == 'client') {
+    return buildCeramicClient(configObj)
+  } else if (configObj.mode == 'node') {
+    return buildCeramicNode(configObj, ipfs)
+  } else if (configObj.mode == 'none') {
+    return null
+  }
+
+  throw new Error(`Ceramic mode "${configObj.mode}" not supported`)
 }
 
 /**
@@ -241,7 +251,7 @@ export async function restartCeramic(): Promise<void> {
   await delay(3000) // Give some time for things to fully shut down before restarting
 
   ceramic = null
-  ceramic = await buildCeramicNode(config.jest.services.ceramic, ipfs).catch(error => {
+  ceramic = await buildCeramic(config.jest.services.ceramic, ipfs).catch(error => {
     console.error(error)
     throw error
   })

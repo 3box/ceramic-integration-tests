@@ -2,7 +2,7 @@
  * @jest-environment ./build/index.js
  */
 import { jest } from '@jest/globals'
-import { Page, StreamState, StreamUtils } from '@ceramicnetwork/common'
+import { Page, StreamReaderWriter, StreamState, StreamUtils } from '@ceramicnetwork/common'
 import { Ceramic } from '@ceramicnetwork/core'
 import { CommonTestUtils as TestUtils } from '@ceramicnetwork/common-test-utils'
 import { ModelInstanceDocument } from '@ceramicnetwork/stream-model-instance'
@@ -18,7 +18,7 @@ const DATA2 = { data: 444 }
 const DATA3 = { data: 555 }
 
 declare global {
-  const ceramic: Ceramic
+  const ceramic: StreamReaderWriter
   const ceramicClient: Ceramic
 }
 
