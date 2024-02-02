@@ -11,7 +11,7 @@ import { S3Store } from '@ceramicnetwork/cli'
 import { Ceramic, CeramicConfig } from '@ceramicnetwork/core'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 
-import { randomString } from '@stablelib/random'
+import { randomBytes, randomString } from '@stablelib/random'
 import { Ed25519Provider } from 'key-did-provider-ed25519'
 import KeyDidResolver from 'key-did-resolver'
 import { DID } from 'dids'
@@ -39,10 +39,7 @@ function parseSeedUrl(seedUrl: string): string {
 }
 
 export async function createDid(seed?: string): Promise<DID> {
-  if (!seed) {
-    seed = randomString(32)
-  }
-  const digest = uint8arrays.fromString(seed, 'base16')
+  const digest = seed ? uint8arrays.fromString(seed, 'base16') : randomBytes(32)
   const provider = new Ed25519Provider(digest)
   const resolver = KeyDidResolver.getResolver()
   const did = new DID({ provider, resolver })
