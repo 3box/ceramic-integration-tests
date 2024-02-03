@@ -40,4 +40,6 @@ fi
 
 echo "INFO: Sleeping for ${SLEEP}s"
 sleep ${SLEEP} # Give time for services to finish starting up before starting tests
-npm run test
+npm run test:ci
+
+exec "$@"

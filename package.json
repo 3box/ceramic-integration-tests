@@ -24,7 +24,8 @@
     "format": "./node_modules/.bin/prettier --write 'src/**/*{.ts,.tsx,.js}' && ./node_modules/.bin/prettier --write 'ci/*{.ts,.tsx,.js}'",
     "lint": "./node_modules/.bin/eslint --fix ./src --ext .js,.jsx,.ts,.tsx",
     "prebuild": "npm run clean",
-    "test": "node --experimental-vm-modules ./node_modules/.bin/jest --config jest.config.json --runInBand --verbose --forceExit",
+    "test": "node --experimental-vm-modules ./node_modules/.bin/jest --config jest.config.json --runInBand --verbose",
+    "test:ci": "node --experimental-vm-modules ./node_modules/.bin/jest --config jest.config.ci.json --runInBand --verbose --forceExit",
     "clean": "rm -rf ./build"
   },
   "dependencies": {
