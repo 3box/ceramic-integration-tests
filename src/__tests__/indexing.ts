@@ -2,7 +2,7 @@
  * @jest-environment ./build/index.js
  */
 import { jest } from '@jest/globals'
-import { Page, StreamReaderWriter, StreamState, StreamUtils } from '@ceramicnetwork/common'
+import { Page, StreamState, StreamUtils } from '@ceramicnetwork/common'
 import { Ceramic } from '@ceramicnetwork/core'
 import { CommonTestUtils as TestUtils } from '@ceramicnetwork/common-test-utils'
 import { ModelInstanceDocument } from '@ceramicnetwork/stream-model-instance'
@@ -18,7 +18,7 @@ const DATA2 = { data: 444 }
 const DATA3 = { data: 555 }
 
 declare global {
-  const ceramic: StreamReaderWriter
+  const ceramic: Ceramic
   const ceramicClient: Ceramic
 }
 
@@ -84,7 +84,7 @@ const waitForMidsToBeIndexed = async (
 describe('indexing', () => {
   describe('Using existing model', () => {
     jest.setTimeout(1000 * 90) // 1 and a half minutes per test
-    const originalDid = ceramicClient.did as DID
+    const originalDid = ceramic.did as DID
 
     const singleNodeTestCases: any[] = [['ceramic', ceramic]]
     const twoNodesTestCases: any[] = []
@@ -102,6 +102,7 @@ describe('indexing', () => {
     }
 
     afterEach(() => {
+      ceramic.did = originalDid
       ceramicClient.did = originalDid
     })
 
