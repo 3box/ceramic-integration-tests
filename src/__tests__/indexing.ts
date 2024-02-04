@@ -18,6 +18,8 @@ const DATA2 = { data: 444 }
 const DATA3 = { data: 555 }
 
 declare global {
+  // TODO: This should be StreamReaderWriter but the "Can filter by DID across nodes -- creating: ceramic, loading: ceramicClient" test fails.
+  // https://linear.app/3boxlabs/issue/CORE-142/use-ceramic-streamreaderwriter-instead-of-ceramic-ceramic-for-indexing
   const ceramic: Ceramic
   const ceramicClient: Ceramic
 }
