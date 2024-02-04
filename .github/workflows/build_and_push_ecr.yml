@@ -46,3 +46,18 @@ jobs:
     -
       name: Push private Docker image
       run: dagger do push -w "actions:push:\"${{ env.AWS_REGION }}\":\"${{ env.SHA }}\":\"${{ env.SHA_TAG }}\":_" -p ${{ env.DAGGER_PLAN }}
+    -
+      name: Login to public ECR
+      uses: docker/login-action@v2
+      with:
+        registry: public.ecr.aws
+        username: ${{ env.AWS_ACCESS_KEY_ID }}
+        password: ${{ env.AWS_SECRET_ACCESS_KEY }}
+      env:
+        AWS_REGION: us-east-1
+    -
+      name: Push public Docker image
+      run: |
+        docker buildx build --load -t 3box/ceramic-e2e-tests .
+        docker tag 3box/ceramic-e2e-tests:latest public.ecr.aws/r5b3e0r5/3box/ceramic-e2e-tests:latest
+        docker push public.ecr.aws/r5b3e0r5/3box/ceramic-e2e-tests:latest
