@@ -25,7 +25,7 @@ const createWithOneLoadWithTheOther = async (ceramic1, ceramic2): Promise<void> 
 const updatesAreShared = async (
   ceramic1: StreamReaderWriter,
   ceramic2: StreamReaderWriter,
-  anchor: boolean
+  anchor: boolean,
 ): Promise<void> => {
   const content0 = { foo: 0 }
   const content1 = { foo: 1 }
@@ -35,7 +35,7 @@ const updatesAreShared = async (
   console.log('Creating document on node 1')
   const doc1 = await TileDocument.create(ceramic1, content0, null, { anchor })
   if (anchor) {
-    await waitForAnchor(doc1).catch(errStr => {
+    await waitForAnchor(doc1).catch((errStr) => {
       throw new Error(errStr)
     })
   }
@@ -44,7 +44,7 @@ const updatesAreShared = async (
   console.log('Updating document on node 1')
   await doc1.update(content1, null, { anchor })
   if (anchor) {
-    await waitForAnchor(doc1).catch(errStr => {
+    await waitForAnchor(doc1).catch((errStr) => {
       throw new Error(errStr)
     })
   }
@@ -55,15 +55,15 @@ const updatesAreShared = async (
   const doc2 = await ceramic2.loadStream<TileDocument>(doc1.id)
   await waitForCondition(
     doc2,
-    function(state) {
+    function (state) {
       return state.next?.content.foo == content1.foo || state.content.foo == content1.foo
     },
-    UPDATE_TIMEOUT
-  ).catch(errStr => {
+    UPDATE_TIMEOUT,
+  ).catch((errStr) => {
     throw new Error(errStr)
   })
   if (anchor) {
-    await waitForAnchor(doc2).catch(errStr => {
+    await waitForAnchor(doc2).catch((errStr) => {
       throw new Error(errStr)
     })
   }
@@ -76,20 +76,20 @@ const updatesAreShared = async (
   console.log('Waiting for node 1 to learn of update from node 2')
   await waitForCondition(
     doc1,
-    function(state) {
+    function (state) {
       return state.next?.content.foo == content2.foo || state.content.foo == content2.foo
     },
-    UPDATE_TIMEOUT
+    UPDATE_TIMEOUT,
   )
 
   expect(doc2.content).toEqual(content2)
   expect(doc1.content).toEqual(content2)
 
   if (anchor) {
-    await waitForAnchor(doc1).catch(errStr => {
+    await waitForAnchor(doc1).catch((errStr) => {
       throw new Error(errStr)
     })
-    await waitForAnchor(doc2).catch(errStr => {
+    await waitForAnchor(doc2).catch((errStr) => {
       throw new Error(errStr)
     })
   }

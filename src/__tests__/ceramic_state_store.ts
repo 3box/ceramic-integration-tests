@@ -42,7 +42,7 @@ describe('Ceramic state store tests', () => {
     const doc = await TileDocument.create<any>(ceramic, initialContent, null, {
       pin: false,
       anchor: false,
-      publish: false
+      publish: false,
     })
     expect(doc.content).toEqual(initialContent)
     const newContent = { bar: 'baz' }
@@ -70,7 +70,7 @@ describe('Ceramic state store tests', () => {
     const initialContent = { foo: 'bar' }
     const doc = await TileDocument.create<any>(ceramic, initialContent, null, {
       anchor: false,
-      publish: false
+      publish: false,
     })
     expect(doc.content).toEqual(initialContent)
     const newContent = { bar: 'baz' }

@@ -29,7 +29,7 @@ function toGeneralJWS(jws: string): GeneralJWS {
   const [protectedHeader, payload, signature] = jws.split('.')
   return {
     payload,
-    signatures: [{ protected: protectedHeader, signature }]
+    signatures: [{ protected: protectedHeader, signature }],
   }
 }
 
@@ -57,17 +57,17 @@ test.skip(
     const threeIdResolver = ThreeIdResolver.getResolver(ceramic)
     const resolver = new Resolver({
       ...threeIdResolver,
-      ...keyDidResolver
+      ...keyDidResolver,
     })
     const threeIdProvider = await ThreeIdProvider.create({
       getPermission: async () => [],
       authSecret: seed,
       authId: 'first',
-      ceramic: ceramic
+      ceramic: ceramic,
     })
     const did = new DID({
       provider: threeIdProvider.getDidProvider(),
-      resolver: resolver
+      resolver: resolver,
     })
     await did.authenticate()
     ceramic.did = did
@@ -76,11 +76,11 @@ test.skip(
 
     console.log('2. Create tile')
     const tile = await TileDocument.create(ceramic, {
-      stage: 'Signed by vanilla'
+      stage: 'Signed by vanilla',
     })
     console.log('2a. Update tile')
     await tile.update({ stage: 'Signed second time' }, undefined, {
-      anchor: true
+      anchor: true,
     })
     console.log('2b. Wait for anchor')
     await waitForAnchor(tile)
@@ -89,7 +89,7 @@ test.skip(
     console.log('3a. Add new key')
     await threeIdProvider.keychain.add(
       'second',
-      sha256.hash(uint8arrays.fromString(`second-seed-${Math.random()}`))
+      sha256.hash(uint8arrays.fromString(`second-seed-${Math.random()}`)),
     )
     console.log('3b. Remove old key')
     await threeIdProvider.keychain.remove('first')
@@ -102,9 +102,9 @@ test.skip(
 
     console.log('4. Prepare signing with the old key')
     const vanillaCreateJWS = ceramic.did.createJWS.bind(ceramic.did)
-    ceramic.did.createJWS = async payload => {
+    ceramic.did.createJWS = async (payload) => {
       const compactJWS = await didJWT.createJWS(payload, firstSigner, {
-        kid: firstKid
+        kid: firstKid,
       })
       return toGeneralJWS(compactJWS)
     }
@@ -112,8 +112,8 @@ test.skip(
     console.log('5. Try to perform update with revoked key')
     await expect(
       tile.update({ stage: 'Should blow' }, undefined, {
-        anchor: true
-      })
+        anchor: true,
+      }),
     ).rejects.toThrow(/signature authored with a revoked DID version/)
 
     console.log('6. Perform successful update with current key')
@@ -124,5 +124,5 @@ test.skip(
 
     console.log('key revocation test complete!')
   },
-  1000 * 60 * 60
+  1000 * 60 * 60,
 )

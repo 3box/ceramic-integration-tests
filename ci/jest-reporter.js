@@ -2,7 +2,7 @@ import {
   getThisTaskArn,
   generateDiscordCloudwatchLogUrl,
   listECSTasks,
-  sendDiscordNotification
+  sendDiscordNotification,
 } from './helpers.js'
 import { BaseReporter } from '@jest/reporters'
 import * as childProcess from 'child_process'
@@ -31,28 +31,20 @@ export default class MyCustomReporter extends BaseReporter {
         this.testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
         this.testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
 
-        const message = buildDiscordStartMessage(
-          results,
-          this.taskArn,
-          this.logUrl
-        )
+        const message = buildDiscordStartMessage(results, this.taskArn, this.logUrl)
         const data = { embeds: message, username: userName }
 
         const retryDelayMs = 300000 // 300k ms = 5 mins
         sendDiscordNotification(this.testResultsUrl, data, retryDelayMs)
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error)
         process.exit(1)
       })
   }
 
   onRunComplete(contexts, results) {
-    const message = buildDiscordSummaryMessage(
-      results,
-      this.taskArn,
-      this.logUrl
-    )
+    const message = buildDiscordSummaryMessage(results, this.taskArn, this.logUrl)
     const data = { embeds: message, username: userName }
 
     if (results.numFailedTestSuites > 0) {
@@ -62,7 +54,7 @@ export default class MyCustomReporter extends BaseReporter {
           -H "Content-Type: application/json" \
           -d '${JSON.stringify(data)}' \
           ${this.testFailuresUrl}
-        `
+        `,
       )
       console.log(outToFailuresChannel.toString())
     }
@@ -73,7 +65,7 @@ export default class MyCustomReporter extends BaseReporter {
         -H "Content-Type: application/json" \
         -d '${JSON.stringify(data)}' \
         ${this.testResultsUrl}
-      `
+      `,
     )
     console.log(outToResultsChannel.toString())
   }
@@ -101,18 +93,18 @@ function buildDiscordStartMessage(results, taskArn, logUrl) {
       fields: [
         {
           name: 'Configuration',
-          value: process.env.NODE_ENV
+          value: process.env.NODE_ENV,
         },
         {
           name: 'Started at',
-          value: startedAt
+          value: startedAt,
         },
         {
           name: 'Logs',
-          value: `${logUrl}`
-        }
-      ]
-    }
+          value: `${logUrl}`,
+        },
+      ],
+    },
   ]
   return discordEmbeds
 }
@@ -149,30 +141,30 @@ function buildDiscordSummaryMessage(results, taskArn, logUrl) {
       fields: [
         {
           name: 'Configuration',
-          value: process.env.NODE_ENV
+          value: process.env.NODE_ENV,
         },
         {
           name: 'Started at',
-          value: startedAt
+          value: startedAt,
         },
         {
           name: 'Duration',
-          value: `~ ${duration} minutes`
+          value: `~ ${duration} minutes`,
         },
         {
           name: 'Suites',
-          value: `Passed: ${results.numPassedTestSuites}, Failed: ${results.numFailedTestSuites}, Total: ${results.numTotalTestSuites}`
+          value: `Passed: ${results.numPassedTestSuites}, Failed: ${results.numFailedTestSuites}, Total: ${results.numTotalTestSuites}`,
         },
         {
           name: 'Tests',
-          value: `Passed: ${results.numPassedTests}, Failed: ${results.numFailedTests}, Total: ${results.numTotalTests}`
+          value: `Passed: ${results.numPassedTests}, Failed: ${results.numFailedTests}, Total: ${results.numTotalTests}`,
         },
         {
           name: 'Logs',
-          value: `${logUrl}`
-        }
-      ]
-    }
+          value: `${logUrl}`,
+        },
+      ],
+    },
   ]
   return discordEmbeds
 }

@@ -5,7 +5,7 @@ import {
   LogLevel,
   LoggerProvider,
   StreamState,
-  Stream
+  Stream,
 } from '@ceramicnetwork/common'
 import { S3Store } from '@ceramicnetwork/cli'
 import { Ceramic, CeramicConfig } from '@ceramicnetwork/core'
@@ -53,7 +53,7 @@ export async function createDid(seed?: string): Promise<DID> {
 export const ANCHOR_TIMEOUT = 60 * 30
 
 export async function delay(millseconds: number): Promise<void> {
-  await new Promise<void>(resolve => setTimeout(() => resolve(), millseconds))
+  await new Promise<void>((resolve) => setTimeout(() => resolve(), millseconds))
 }
 
 async function withTimeout(prom: Promise<any>, timeoutSecs) {
@@ -62,17 +62,17 @@ async function withTimeout(prom: Promise<any>, timeoutSecs) {
     setTimeout(() => {
       const curTime = new Date().toISOString()
       reject(
-        `Timed out after ${timeoutSecs} seconds. Current time: ${curTime}, start time: ${startTime}`
+        `Timed out after ${timeoutSecs} seconds. Current time: ${curTime}, start time: ${startTime}`,
       )
     }, timeoutSecs * 1000)
     prom.then(resolve)
   })
 }
 
-const defaultMsgGenerator = function(stream) {
+const defaultMsgGenerator = function (stream) {
   const curTime = new Date().toISOString()
   return `Waiting for stream ${stream.id.toString()} to hit a specific stream state. Current time: ${curTime}. Current stream state: ${JSON.stringify(
-    StreamUtils.serializeState(stream.state)
+    StreamUtils.serializeState(stream.state),
   )}`
 }
 
@@ -89,7 +89,7 @@ export async function waitForCondition(
   stream: Stream,
   condition: (stream: StreamState) => boolean,
   timeoutSecs: number,
-  msgGenerator?: (stream: Stream) => string
+  msgGenerator?: (stream: Stream) => string,
 ): Promise<void> {
   const waiter = stream
     .pipe(
@@ -101,7 +101,7 @@ export async function waitForCondition(
         console.debug(msg)
         return false
       }),
-      take(1)
+      take(1),
     )
     .toPromise()
 
@@ -112,28 +112,28 @@ export async function waitForCondition(
 
   console.debug(
     `Stream ${stream.id.toString()} successfully reached desired state. Current stream state: ${JSON.stringify(
-      StreamUtils.serializeState(stream.state)
-    )}`
+      StreamUtils.serializeState(stream.state),
+    )}`,
   )
 }
 
 export async function waitForAnchor(
   stream: any,
-  timeoutSecs: number = ANCHOR_TIMEOUT
+  timeoutSecs: number = ANCHOR_TIMEOUT,
 ): Promise<void> {
-  const msgGenerator = function(stream) {
+  const msgGenerator = function (stream) {
     const curTime = new Date().toISOString()
     return `Waiting for stream ${stream.id.toString()} to be anchored. Current time: ${curTime}. Current stream state: ${JSON.stringify(
-      StreamUtils.serializeState(stream.state)
+      StreamUtils.serializeState(stream.state),
     )}`
   }
   await waitForCondition(
     stream,
-    function(state) {
+    function (state) {
       return state.anchorStatus == AnchorStatus.ANCHORED
     },
     timeoutSecs,
-    msgGenerator
+    msgGenerator,
   )
 }
 
@@ -153,7 +153,7 @@ export async function buildIpfs(configObj): Promise<any> {
 export async function buildCeramicClient(configObj): Promise<CeramicClient> {
   const modelsToIndex = [
     Model.MODEL,
-    ...config.jest.models.map(modelId => StreamID.fromString(modelId))
+    ...config.jest.models.map((modelId) => StreamID.fromString(modelId)),
   ]
 
   console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
@@ -174,7 +174,7 @@ export async function buildCeramicClient(configObj): Promise<CeramicClient> {
 export async function buildCeramicNode(configObj, ipfs?: IpfsApi): Promise<Ceramic> {
   const modelsToIndex = [
     Model.MODEL,
-    ...config.jest.models.map(modelId => StreamID.fromString(modelId))
+    ...config.jest.models.map((modelId) => StreamID.fromString(modelId)),
   ]
 
   console.log('Creating ceramic local node')
@@ -192,9 +192,9 @@ export async function buildCeramicNode(configObj, ipfs?: IpfsApi): Promise<Ceram
       db: `sqlite://${indexingDirectory.path}/ceramic.sqlite`,
       allowQueriesBeforeHistoricalSync: true,
       disableComposedb: false,
-      enableHistoricalSync: false
+      enableHistoricalSync: false,
     },
-    pubsubTopic: configObj.pubsubTopic || undefined
+    pubsubTopic: configObj.pubsubTopic || undefined,
   }
   const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
   const ceramic = new Ceramic(modules, params)
@@ -203,19 +203,24 @@ export async function buildCeramicNode(configObj, ipfs?: IpfsApi): Promise<Ceram
     // When using localstack we need to allow path-style requests as it does not support virtual-hosted–style requests
     // This will not affect tests not using localstack as they are using a custom s3 endpoint
     AWS.config.update({
-      s3ForcePathStyle: true
+      s3ForcePathStyle: true,
     })
     const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
     const diagnosticsLogger = modules.loggerProvider.getDiagnosticsLogger()
-    const s3Store = new S3Store(configObj.network, diagnosticsLogger, bucketName, process.env.S3_ENDPOINT_URL)
+    const s3Store = new S3Store(
+      configObj.network,
+      diagnosticsLogger,
+      bucketName,
+      process.env.S3_ENDPOINT_URL,
+    )
     await ceramic.repository.injectKeyValueStore(s3Store)
   }
 
   await ceramic._init(true)
   await ceramic.index.indexModels(
-    modelsToIndex.map(modelID => {
+    modelsToIndex.map((modelID) => {
       return { streamID: modelID }
-    })
+    }),
   )
 
   console.log(`Ceramic local node started successfully`)
@@ -248,7 +253,7 @@ export async function restartCeramic(): Promise<void> {
   await delay(3000) // Give some time for things to fully shut down before restarting
 
   ceramic = null
-  ceramic = await buildCeramic(config.jest.services.ceramic, ipfs).catch(error => {
+  ceramic = await buildCeramic(config.jest.services.ceramic, ipfs).catch((error) => {
     console.error(error)
     throw error
   })

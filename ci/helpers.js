@@ -1,6 +1,6 @@
 import * as https from 'https'
 import * as childProcess from 'child_process'
-import {ECSClient, ListTasksCommand} from '@aws-sdk/client-ecs'
+import { ECSClient, ListTasksCommand } from '@aws-sdk/client-ecs'
 
 // API gateway to Lambda to load the required clients and packages.
 
@@ -11,7 +11,7 @@ import {ECSClient, ListTasksCommand} from '@aws-sdk/client-ecs'
 function getThisTaskArn() {
   return childProcess
     .execSync(
-      'curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\''
+      'curl -s "$ECS_CONTAINER_METADATA_URI_V4/task" | /app/node_modules/node-jq/bin/jq -r ".TaskARN" | awk -F/ \'{print $NF}\'',
     )
     .toString()
 }
@@ -36,13 +36,13 @@ async function listECSTasks() {
     region: process.env.AWS_REGION,
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    }
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    },
   })
 
   const params = {
     cluster: process.env.AWS_ECS_CLUSTER,
-    family: process.env.AWS_ECS_FAMILY
+    family: process.env.AWS_ECS_FAMILY,
   }
 
   const command = new ListTasksCommand(params)
@@ -67,10 +67,10 @@ const sendDiscordNotification = async (webhookUrl, data, retryDelayMs = -1) => {
     const options = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     }
-    const req = await https.request(webhookUrl, options, res => {
+    const req = await https.request(webhookUrl, options, (res) => {
       console.log(`Notification request status code: ${res.statusCode}`)
       if (res.statusCode >= 500 && retryDelayMs > -1) {
         console.log(`Retrying after ${retryDelayMs} milliseconds...`)
@@ -87,9 +87,4 @@ const sendDiscordNotification = async (webhookUrl, data, retryDelayMs = -1) => {
   }
 }
 
-export {
-  getThisTaskArn,
-  generateDiscordCloudwatchLogUrl,
-  listECSTasks,
-  sendDiscordNotification
-}
+export { getThisTaskArn, generateDiscordCloudwatchLogUrl, listECSTasks, sendDiscordNotification }
