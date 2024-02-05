@@ -2,7 +2,7 @@
  * @jest-environment ./build/index.js
  */
 import { jest } from '@jest/globals'
-import {Page, StreamReaderWriter, StreamState, StreamUtils} from '@ceramicnetwork/common'
+import { Page, StreamReaderWriter, StreamState, StreamUtils } from '@ceramicnetwork/common'
 import { CommonTestUtils as TestUtils } from '@ceramicnetwork/common-test-utils'
 import { ModelInstanceDocument } from '@ceramicnetwork/stream-model-instance'
 import { StreamID } from '@ceramicnetwork/streamid'
@@ -10,8 +10,8 @@ import { config } from 'node-config-ts'
 import { createDid } from '../utils.js'
 import { DID } from 'dids'
 import { firstValueFrom, timeout, throwError, filter, interval, concatMap } from 'rxjs'
-import {CeramicClient} from "@ceramicnetwork/http-client";
-import {Ceramic} from "@ceramicnetwork/core";
+import { CeramicClient } from '@ceramicnetwork/http-client'
+import { Ceramic } from '@ceramicnetwork/core'
 
 const TEST_MODEL = StreamID.fromString(config.jest.models[0])
 const DATA1 = { data: 333 }
@@ -37,7 +37,7 @@ const extractStreamStates = (page: Page<StreamState | null>): Array<StreamState>
 
 const extractDocuments = (
   ceramic: Ceramic | CeramicClient,
-  page: Page<StreamState | null>
+  page: Page<StreamState | null>,
 ): Array<ModelInstanceDocument> => {
   return extractStreamStates(page).map((state) =>
     ceramic.buildStreamFromState<ModelInstanceDocument>(state),
@@ -46,7 +46,7 @@ const extractDocuments = (
 
 const waitForMidsToBeIndexed = async (
   ceramic: Ceramic | CeramicClient,
-  docs: ModelInstanceDocument[]
+  docs: ModelInstanceDocument[],
 ): Promise<void> => {
   await firstValueFrom(
     // polls the index checking if the MIDs we are interested in are included and up to date

@@ -12,8 +12,8 @@ import { ThreeIdProvider } from '@3id/did-provider'
 import { TileDocument } from '@ceramicnetwork/stream-tile'
 import { waitForAnchor } from '../utils.js'
 import * as didJWT from 'did-jwt'
-import {Ceramic} from "@ceramicnetwork/core";
-import {CeramicClient} from "@ceramicnetwork/http-client";
+import { Ceramic } from '@ceramicnetwork/core'
+import { CeramicClient } from '@ceramicnetwork/http-client'
 
 declare global {
   const ceramic: Ceramic | CeramicClient
