@@ -2,7 +2,6 @@
  * @jest-environment ./build/index.js
  */
 
-import { StreamReaderWriter } from '@ceramicnetwork/common'
 import * as sha256 from '@stablelib/sha256'
 import * as uint8arrays from 'uint8arrays'
 import KeyDidResolver from 'key-did-resolver'
@@ -13,9 +12,11 @@ import { ThreeIdProvider } from '@3id/did-provider'
 import { TileDocument } from '@ceramicnetwork/stream-tile'
 import { waitForAnchor } from '../utils.js'
 import * as didJWT from 'did-jwt'
+import {Ceramic} from "@ceramicnetwork/core";
+import {CeramicClient} from "@ceramicnetwork/http-client";
 
 declare global {
-  const ceramic: StreamReaderWriter
+  const ceramic: Ceramic | CeramicClient
 }
 
 async function extractKid(did: DID): Promise<string> {

@@ -9,8 +9,8 @@ import { buildCeramicClient, buildCeramic, buildIpfs, delay } from './utils.js'
 
 // Global services that are set up once and then available in all integration tests
 declare global {
-  let ceramic: CeramicClient | Ceramic
-  const ceramicClient: StreamReaderWriter
+  let ceramic: Ceramic | CeramicClient
+  const ceramicClient: CeramicClient
   const ipfs: IpfsApi
 }
 

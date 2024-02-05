@@ -6,10 +6,11 @@ import { StreamReaderWriter, StreamUtils } from '@ceramicnetwork/common'
 import { TileDocument } from '@ceramicnetwork/stream-tile'
 import { waitForAnchor, waitForCondition } from '../utils.js'
 import { jest } from '@jest/globals'
+import {CeramicClient} from "@ceramicnetwork/http-client";
 
 declare global {
   const ceramic: StreamReaderWriter
-  const ceramicClient: StreamReaderWriter
+  const ceramicClient: CeramicClient
 }
 
 const UPDATE_TIMEOUT = 60 // 60 seconds for regular updates to propagate from one node to another

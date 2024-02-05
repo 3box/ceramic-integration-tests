@@ -2,8 +2,7 @@
  * @jest-environment ./build/index.js
  */
 import { jest } from '@jest/globals'
-import { Page, StreamState, StreamUtils } from '@ceramicnetwork/common'
-import { Ceramic } from '@ceramicnetwork/core'
+import {Page, StreamReaderWriter, StreamState, StreamUtils} from '@ceramicnetwork/common'
 import { CommonTestUtils as TestUtils } from '@ceramicnetwork/common-test-utils'
 import { ModelInstanceDocument } from '@ceramicnetwork/stream-model-instance'
 import { StreamID } from '@ceramicnetwork/streamid'
@@ -11,6 +10,8 @@ import { config } from 'node-config-ts'
 import { createDid } from '../utils.js'
 import { DID } from 'dids'
 import { firstValueFrom, timeout, throwError, filter, interval, concatMap } from 'rxjs'
+import {CeramicClient} from "@ceramicnetwork/http-client";
+import {Ceramic} from "@ceramicnetwork/core";
 
 const TEST_MODEL = StreamID.fromString(config.jest.models[0])
 const DATA1 = { data: 333 }
@@ -18,10 +19,8 @@ const DATA2 = { data: 444 }
 const DATA3 = { data: 555 }
 
 declare global {
-  // TODO: This should be StreamReaderWriter but the "Can filter by DID across nodes -- creating: ceramic, loading: ceramicClient" test fails.
-  // https://linear.app/3boxlabs/issue/CORE-142/use-ceramic-streamreaderwriter-instead-of-ceramic-ceramic-for-indexing
-  const ceramic: Ceramic
-  const ceramicClient: Ceramic
+  const ceramic: Ceramic | CeramicClient
+  const ceramicClient: CeramicClient
 }
 
 const extractStreamStates = (page: Page<StreamState | null>): Array<StreamState> => {
@@ -37,8 +36,8 @@ const extractStreamStates = (page: Page<StreamState | null>): Array<StreamState>
 }
 
 const extractDocuments = (
-  ceramic: Ceramic,
-  page: Page<StreamState | null>,
+  ceramic: Ceramic | CeramicClient,
+  page: Page<StreamState | null>
 ): Array<ModelInstanceDocument> => {
   return extractStreamStates(page).map((state) =>
     ceramic.buildStreamFromState<ModelInstanceDocument>(state),
@@ -46,8 +45,8 @@ const extractDocuments = (
 }
 
 const waitForMidsToBeIndexed = async (
-  ceramic: Ceramic,
-  docs: ModelInstanceDocument[],
+  ceramic: Ceramic | CeramicClient,
+  docs: ModelInstanceDocument[]
 ): Promise<void> => {
   await firstValueFrom(
     // polls the index checking if the MIDs we are interested in are included and up to date
