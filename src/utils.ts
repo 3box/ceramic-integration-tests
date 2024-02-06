@@ -1,18 +1,17 @@
 import {
   AnchorStatus,
-  CeramicApi,
   StreamUtils,
   IpfsApi,
   LogLevel,
   LoggerProvider,
   StreamState,
-  Stream
+  Stream,
 } from '@ceramicnetwork/common'
 import { S3Store } from '@ceramicnetwork/cli'
 import { Ceramic, CeramicConfig } from '@ceramicnetwork/core'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 
-import { randomString } from '@stablelib/random'
+import { randomBytes, randomString } from '@stablelib/random'
 import { Ed25519Provider } from 'key-did-provider-ed25519'
 import KeyDidResolver from 'key-did-resolver'
 import { DID } from 'dids'
@@ -22,7 +21,6 @@ import { filter, take } from 'rxjs/operators'
 import { StreamID } from '@ceramicnetwork/streamid'
 import { Model } from '@ceramicnetwork/stream-model'
 import tmp from 'tmp-promise'
-import * as sha256 from '@stablelib/sha256'
 import * as uint8arrays from 'uint8arrays'
 import AWS from 'aws-sdk'
 
@@ -41,10 +39,7 @@ function parseSeedUrl(seedUrl: string): string {
 }
 
 export async function createDid(seed?: string): Promise<DID> {
-  if (!seed) {
-    seed = randomString(32)
-  }
-  const digest = sha256.hash(uint8arrays.fromString(seed))
+  const digest = seed ? uint8arrays.fromString(seed, 'base16') : randomBytes(32)
   const provider = new Ed25519Provider(digest)
   const resolver = KeyDidResolver.getResolver()
   const did = new DID({ provider, resolver })
@@ -58,7 +53,7 @@ export async function createDid(seed?: string): Promise<DID> {
 export const ANCHOR_TIMEOUT = 60 * 30
 
 export async function delay(millseconds: number): Promise<void> {
-  await new Promise<void>(resolve => setTimeout(() => resolve(), millseconds))
+  await new Promise<void>((resolve) => setTimeout(() => resolve(), millseconds))
 }
 
 async function withTimeout(prom: Promise<any>, timeoutSecs) {
@@ -67,17 +62,17 @@ async function withTimeout(prom: Promise<any>, timeoutSecs) {
     setTimeout(() => {
       const curTime = new Date().toISOString()
       reject(
-        `Timed out after ${timeoutSecs} seconds. Current time: ${curTime}, start time: ${startTime}`
+        `Timed out after ${timeoutSecs} seconds. Current time: ${curTime}, start time: ${startTime}`,
       )
     }, timeoutSecs * 1000)
     prom.then(resolve)
   })
 }
 
-const defaultMsgGenerator = function(stream) {
+const defaultMsgGenerator = function (stream) {
   const curTime = new Date().toISOString()
   return `Waiting for stream ${stream.id.toString()} to hit a specific stream state. Current time: ${curTime}. Current stream state: ${JSON.stringify(
-    StreamUtils.serializeState(stream.state)
+    StreamUtils.serializeState(stream.state),
   )}`
 }
 
@@ -94,7 +89,7 @@ export async function waitForCondition(
   stream: Stream,
   condition: (stream: StreamState) => boolean,
   timeoutSecs: number,
-  msgGenerator?: (stream: Stream) => string
+  msgGenerator?: (stream: Stream) => string,
 ): Promise<void> {
   const waiter = stream
     .pipe(
@@ -106,7 +101,7 @@ export async function waitForCondition(
         console.debug(msg)
         return false
       }),
-      take(1)
+      take(1),
     )
     .toPromise()
 
@@ -117,28 +112,28 @@ export async function waitForCondition(
 
   console.debug(
     `Stream ${stream.id.toString()} successfully reached desired state. Current stream state: ${JSON.stringify(
-      StreamUtils.serializeState(stream.state)
-    )}`
+      StreamUtils.serializeState(stream.state),
+    )}`,
   )
 }
 
 export async function waitForAnchor(
   stream: any,
-  timeoutSecs: number = ANCHOR_TIMEOUT
+  timeoutSecs: number = ANCHOR_TIMEOUT,
 ): Promise<void> {
-  const msgGenerator = function(stream) {
+  const msgGenerator = function (stream) {
     const curTime = new Date().toISOString()
     return `Waiting for stream ${stream.id.toString()} to be anchored. Current time: ${curTime}. Current stream state: ${JSON.stringify(
-      StreamUtils.serializeState(stream.state)
+      StreamUtils.serializeState(stream.state),
     )}`
   }
   await waitForCondition(
     stream,
-    function(state) {
+    function (state) {
       return state.anchorStatus == AnchorStatus.ANCHORED
     },
     timeoutSecs,
-    msgGenerator
+    msgGenerator,
   )
 }
 
@@ -155,73 +150,88 @@ export async function buildIpfs(configObj): Promise<any> {
   }
 }
 
-export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicApi> {
+export async function buildCeramicClient(configObj): Promise<CeramicClient> {
   const modelsToIndex = [
     Model.MODEL,
-    ...config.jest.models.map(modelId => StreamID.fromString(modelId))
+    ...config.jest.models.map((modelId) => StreamID.fromString(modelId)),
   ]
 
-  if (configObj.mode == 'client') {
-    console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
+  console.log(`Creating ceramic via http client, connected to ${configObj.apiURL}`)
 
-    const ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
+  const ceramic = new CeramicClient(configObj.apiURL, { syncInterval: 500 })
 
-    if (configObj.adminSeed) {
-      const adminDid = await createDid(configObj.adminSeed)
-      ceramic.did = adminDid
-      await ceramic.admin.startIndexingModels(modelsToIndex)
-    }
+  if (configObj.adminSeed) {
+    ceramic.did = await createDid(configObj.adminSeed)
+    await ceramic.admin.startIndexingModels(modelsToIndex)
+  }
 
-    const did = await createDid(seed)
-    ceramic.did = did
+  ceramic.did = await createDid(seed)
 
-    console.log(`Ceramic client connected successfully to ${configObj.apiURL}`)
-    return ceramic
-  } else if (configObj.mode == 'node') {
-    console.log('Creating ceramic local node')
+  console.log(`Ceramic client connected successfully to ${configObj.apiURL}`)
+  return ceramic
+}
 
-    process.env.CERAMIC_ENABLE_EXPERIMENTAL_COMPOSE_DB = 'true'
-    const loggerProvider = new LoggerProvider({ logLevel: LogLevel.debug })
-    const indexingDirectory = await tmp.dir({ unsafeCleanup: true })
+export async function buildCeramicNode(configObj, ipfs?: IpfsApi): Promise<Ceramic> {
+  const modelsToIndex = [
+    Model.MODEL,
+    ...config.jest.models.map((modelId) => StreamID.fromString(modelId)),
+  ]
 
-    const ceramicConfig: CeramicConfig = {
-      networkName: configObj.network,
-      ethereumRpcUrl: configObj.ethereumRpc,
-      anchorServiceUrl: configObj.anchorServiceAPI,
-      anchorServiceAuthMethod: 'did',
-      loggerProvider,
-      indexing: {
-        db: `sqlite://${indexingDirectory.path}/ceramic.sqlite`,
-        allowQueriesBeforeHistoricalSync: true,
-        disableComposedb: false,
-        enableHistoricalSync: false
-      },
-      pubsubTopic: configObj.pubsubTopic || undefined
-    }
-    const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
-    const ceramic = new Ceramic(modules, params)
-    const did = await createDid(seed)
-    ceramic.did = did
-    if (configObj.s3StateStoreBucketName) {
-      // When using localstack we need to allow path-style requests as it does not support virtual-hosted–style requests
-      // This will not affect tests not using localstack as they are using a custom s3 endpoint
-      AWS.config.update({
-        s3ForcePathStyle: true
-      })
-      const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
-      const s3Store = new S3Store(configObj.network, bucketName, process.env.S3_ENDPOINT_URL)
-      await ceramic.repository.injectKeyValueStore(s3Store)
-    }
+  console.log('Creating ceramic local node')
 
-    await ceramic._init(true)
-    await ceramic.index.indexModels(
-      modelsToIndex.map(modelID => {
-        return { streamID: modelID }
-      })
+  const loggerProvider = new LoggerProvider({ logLevel: LogLevel.debug })
+  const indexingDirectory = await tmp.dir({ unsafeCleanup: true })
+
+  const ceramicConfig: CeramicConfig = {
+    networkName: configObj.network,
+    ethereumRpcUrl: configObj.ethereumRpc,
+    anchorServiceUrl: configObj.anchorServiceAPI,
+    anchorServiceAuthMethod: 'did',
+    loggerProvider,
+    indexing: {
+      db: `sqlite://${indexingDirectory.path}/ceramic.sqlite`,
+      allowQueriesBeforeHistoricalSync: true,
+      disableComposedb: false,
+      enableHistoricalSync: false,
+    },
+    pubsubTopic: configObj.pubsubTopic || undefined,
+  }
+  const [modules, params] = await Ceramic._processConfig(ipfs, ceramicConfig)
+  const ceramic = new Ceramic(modules, params)
+  ceramic.did = await createDid(seed)
+  if (configObj.s3StateStoreBucketName) {
+    // When using localstack we need to allow path-style requests as it does not support virtual-hosted–style requests
+    // This will not affect tests not using localstack as they are using a custom s3 endpoint
+    AWS.config.update({
+      s3ForcePathStyle: true,
+    })
+    const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
+    const diagnosticsLogger = modules.loggerProvider.getDiagnosticsLogger()
+    const s3Store = new S3Store(
+      configObj.network,
+      diagnosticsLogger,
+      bucketName,
+      process.env.S3_ENDPOINT_URL,
     )
+    await ceramic.repository.injectKeyValueStore(s3Store)
+  }
 
-    console.log(`Ceramic local node started successfully`)
-    return ceramic
+  await ceramic._init(true)
+  await ceramic.index.indexModels(
+    modelsToIndex.map((modelID) => {
+      return { streamID: modelID }
+    }),
+  )
+
+  console.log(`Ceramic local node started successfully`)
+  return ceramic
+}
+
+export async function buildCeramic(configObj, ipfs?: IpfsApi): Promise<CeramicClient | Ceramic> {
+  if (configObj.mode == 'client') {
+    return buildCeramicClient(configObj)
+  } else if (configObj.mode == 'node') {
+    return buildCeramicNode(configObj, ipfs)
   } else if (configObj.mode == 'none') {
     return null
   }
@@ -243,7 +253,7 @@ export async function restartCeramic(): Promise<void> {
   await delay(3000) // Give some time for things to fully shut down before restarting
 
   ceramic = null
-  ceramic = await buildCeramic(config.jest.services.ceramic, ipfs).catch(error => {
+  ceramic = await buildCeramic(config.jest.services.ceramic, ipfs).catch((error) => {
     console.error(error)
     throw error
   })

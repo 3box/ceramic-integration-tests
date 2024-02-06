@@ -7,7 +7,7 @@
   "http-api": {
     "cors-allowed-origins": [".*"],
     "admin-dids": [
-      "did:key:z6MktFJhcCcqN477CeXGknSPK4RXirT9gd85vA7RFumFKdit#z6MktFJhcCcqN477CeXGknSPK4RXirT9gd85vA7RFumFKdit"
+      "did:key:z6MksWv1PBRXFap3vqQ1jrkZHSwZ4SC95KZEGCrzq4SELm2D#z6MksWv1PBRXFap3vqQ1jrkZHSwZ4SC95KZEGCrzq4SELm2D"
     ]
   },
   "ipfs": {

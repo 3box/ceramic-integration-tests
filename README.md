@@ -50,9 +50,6 @@ CLOUDWATCH_LOG_BASE_URL=
 DISCORD_WEBHOOK_URL_TEST_FAILURES=
 DISCORD_WEBHOOK_URL_TEST_RESULTS=
 
-# `ceramic-utils-lambda` API Gateway IDs to fetch deployed commit hashes 
-APIGATEWAY_RESOURCE_ID=
-APIGATEWAY_RESTAPI_ID=
 ```
 Run the tests using the following commands:
 ```

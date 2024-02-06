@@ -1,4 +1,8 @@
-#!/bin/sh
+#!/bin/bash
+
+# Run update script
+./update.sh
+
 export RUN_ID=$(node generate-id.js)
 echo "INFO: Run id: $RUN_ID"
 echo "INFO: Sleep seconds set for services to start: ${SLEEP:=60}"  # defaults to 60 seconds
@@ -17,7 +21,7 @@ if [[ $NODE_ENV == "local_client-public" ]]; then
 fi
 
 if [[ $NODE_ENV == "local_node-private" ]]; then
-  # init config and generate peer id 
+  # init config and generate peer id
   node_modules/go-ipfs/go-ipfs/ipfs init
 
   # config changes to match js-ceramic/ipfs-daemon: TODO remove these and ensure still passes
@@ -36,18 +40,6 @@ fi
 
 echo "INFO: Sleeping for ${SLEEP}s"
 sleep ${SLEEP} # Give time for services to finish starting up before starting tests
+npm run test:ci
 
-if [ "$REPORT_STATUS" = true ]; then
-  npm run test:ci
-else
-  npm run test
-fi
-
-exit_code=$?;
-if [ "$EXPORT_LOGS" = true  ]; then
-  node export-logs.js
-fi
-
-if [ $exit_code != 0 ] && [ "$REPORT_STATUS" = true]; then
-  node report-exit.js; 
-fi
+exec "$@"

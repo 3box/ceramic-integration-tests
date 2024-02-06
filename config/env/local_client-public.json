@@ -5,7 +5,7 @@
         "mode": "client",
         "indexingEnabled": true,
         "apiURL": "http://localhost:7007",
-        "adminSeed": "adminSeed"
+        "adminSeed": "0bb124f28f801ff447883eada0867f4e2a8618e3b179982bae02b41f5348c43d"
       },
       "ipfs": {
         "mode": "none"

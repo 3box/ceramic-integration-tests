@@ -3,17 +3,15 @@ import {
   generateDiscordCloudwatchLogUrl,
   listECSTasks,
   sendDiscordNotification,
-  getCommitHashes
 } from './helpers.js'
 import { BaseReporter } from '@jest/reporters'
 import * as childProcess from 'child_process'
 
 const userName = 'jest-reporter'
-let g_taskArns, g_commitHashes // g_ are global variables
+let g_taskArns // g_ are global variables
 
-async function listArntasksAndCommitHashes() {
+async function listArnTasks() {
   g_taskArns = await listECSTasks()
-  g_commitHashes = await getCommitHashes() // e.g. "ceramic-anchor-service (333fc9afb59a) <==> go-ipfs-daemon (6871b7dcd27d)\n"
 }
 
 export default class MyCustomReporter extends BaseReporter {
@@ -26,39 +24,27 @@ export default class MyCustomReporter extends BaseReporter {
   }
 
   onRunStart(results, options) {
-    listArntasksAndCommitHashes()
+    listArnTasks()
       .then(() => {
         console.log('INFO: onRunStart g_taskArns:=', g_taskArns)
-        console.log('INFO: onRunStart g_commitHashes:=', g_commitHashes)
-        this.commitHashes = g_commitHashes
         this.logUrl = generateDiscordCloudwatchLogUrl(this.taskArn)
         this.testFailuresUrl = process.env.DISCORD_WEBHOOK_URL_TEST_FAILURES
         this.testResultsUrl = process.env.DISCORD_WEBHOOK_URL_TEST_RESULTS
 
-        const message = buildDiscordStartMessage(
-          results,
-          this.taskArn,
-          this.logUrl,
-          this.commitHashes
-        )
+        const message = buildDiscordStartMessage(results, this.taskArn, this.logUrl)
         const data = { embeds: message, username: userName }
 
         const retryDelayMs = 300000 // 300k ms = 5 mins
         sendDiscordNotification(this.testResultsUrl, data, retryDelayMs)
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error)
         process.exit(1)
       })
   }
 
   onRunComplete(contexts, results) {
-    const message = buildDiscordSummaryMessage(
-      results,
-      this.taskArn,
-      this.logUrl,
-      this.commitHashes
-    )
+    const message = buildDiscordSummaryMessage(results, this.taskArn, this.logUrl)
     const data = { embeds: message, username: userName }
 
     if (results.numFailedTestSuites > 0) {
@@ -68,7 +54,7 @@ export default class MyCustomReporter extends BaseReporter {
           -H "Content-Type: application/json" \
           -d '${JSON.stringify(data)}' \
           ${this.testFailuresUrl}
-        `
+        `,
       )
       console.log(outToFailuresChannel.toString())
     }
@@ -79,13 +65,13 @@ export default class MyCustomReporter extends BaseReporter {
         -H "Content-Type: application/json" \
         -d '${JSON.stringify(data)}' \
         ${this.testResultsUrl}
-      `
+      `,
     )
     console.log(outToResultsChannel.toString())
   }
 }
 
-function buildDiscordStartMessage(results, taskArn, logUrl, commitHashes) {
+function buildDiscordStartMessage(results, taskArn, logUrl) {
   let startedAt = results.startTime
   try {
     startedAt = new Date(results.startTime).toGMTString()
@@ -107,27 +93,23 @@ function buildDiscordStartMessage(results, taskArn, logUrl, commitHashes) {
       fields: [
         {
           name: 'Configuration',
-          value: process.env.NODE_ENV
+          value: process.env.NODE_ENV,
         },
         {
           name: 'Started at',
-          value: startedAt
-        },
-        {
-          name: 'Commit hashes',
-          value: `${commitHashes}`
+          value: startedAt,
         },
         {
           name: 'Logs',
-          value: `${logUrl}`
-        }
-      ]
-    }
+          value: `${logUrl}`,
+        },
+      ],
+    },
   ]
   return discordEmbeds
 }
 
-function buildDiscordSummaryMessage(results, taskArn, logUrl, commitHashes) {
+function buildDiscordSummaryMessage(results, taskArn, logUrl) {
   let startedAt = results.startTime
   try {
     startedAt = new Date(results.startTime).toGMTString()
@@ -159,34 +141,30 @@ function buildDiscordSummaryMessage(results, taskArn, logUrl, commitHashes) {
       fields: [
         {
           name: 'Configuration',
-          value: process.env.NODE_ENV
+          value: process.env.NODE_ENV,
         },
         {
           name: 'Started at',
-          value: startedAt
+          value: startedAt,
         },
         {
           name: 'Duration',
-          value: `~ ${duration} minutes`
+          value: `~ ${duration} minutes`,
         },
         {
           name: 'Suites',
-          value: `Passed: ${results.numPassedTestSuites}, Failed: ${results.numFailedTestSuites}, Total: ${results.numTotalTestSuites}`
+          value: `Passed: ${results.numPassedTestSuites}, Failed: ${results.numFailedTestSuites}, Total: ${results.numTotalTestSuites}`,
         },
         {
           name: 'Tests',
-          value: `Passed: ${results.numPassedTests}, Failed: ${results.numFailedTests}, Total: ${results.numTotalTests}`
-        },
-        {
-          name: 'Commit hashes',
-          value: `${commitHashes}`
+          value: `Passed: ${results.numPassedTests}, Failed: ${results.numFailedTests}, Total: ${results.numTotalTests}`,
         },
         {
           name: 'Logs',
-          value: `${logUrl}`
-        }
-      ]
-    }
+          value: `${logUrl}`,
+        },
+      ],
+    },
   ]
   return discordEmbeds
 }

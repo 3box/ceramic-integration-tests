@@ -2,13 +2,13 @@
  * @jest-environment ./build/index.js
  */
 
-import { AnchorStatus, CeramicApi } from '@ceramicnetwork/common'
+import { AnchorStatus, StreamReaderWriter } from '@ceramicnetwork/common'
 import { TileDocument } from '@ceramicnetwork/stream-tile'
 import { waitForAnchor } from '../utils.js'
 import { jest } from '@jest/globals'
 
 declare global {
-  const ceramic: CeramicApi
+  const ceramic: StreamReaderWriter
 }
 
 describe('Ceramic<->CAS basic integration', () => {
@@ -23,7 +23,7 @@ describe('Ceramic<->CAS basic integration', () => {
 
     // Test document creation is anchored correctly
     console.log('Waiting for anchor of genesis record')
-    await waitForAnchor(doc).catch(errStr => {
+    await waitForAnchor(doc).catch((errStr) => {
       throw new Error(errStr)
     })
     expect(doc.state.log.length).toEqual(2)
@@ -36,7 +36,7 @@ describe('Ceramic<->CAS basic integration', () => {
 
     // Test document update is anchored correctly
     console.log('Waiting for anchor of update')
-    await waitForAnchor(doc).catch(errStr => {
+    await waitForAnchor(doc).catch((errStr) => {
       throw new Error(errStr)
     })
     expect(doc.content).toEqual(newContent)
@@ -63,16 +63,16 @@ describe('Ceramic<->CAS basic integration', () => {
 
     // Test document creation is anchored correctly
     console.log('Waiting for anchor of genesis records')
-    await waitForAnchor(doc1).catch(errStr => {
+    await waitForAnchor(doc1).catch((errStr) => {
       throw new Error(errStr)
     })
-    await waitForAnchor(doc2).catch(errStr => {
+    await waitForAnchor(doc2).catch((errStr) => {
       throw new Error(errStr)
     })
-    await waitForAnchor(doc3).catch(errStr => {
+    await waitForAnchor(doc3).catch((errStr) => {
       throw new Error(errStr)
     })
-    await waitForAnchor(doc4).catch(errStr => {
+    await waitForAnchor(doc4).catch((errStr) => {
       throw new Error(errStr)
     })
 
@@ -108,16 +108,16 @@ describe('Ceramic<->CAS basic integration', () => {
 
     // Test document updates are anchored correctly
     console.log('Waiting for anchor of updates')
-    await waitForAnchor(doc1).catch(errStr => {
+    await waitForAnchor(doc1).catch((errStr) => {
       throw new Error(errStr)
     })
-    await waitForAnchor(doc2).catch(errStr => {
+    await waitForAnchor(doc2).catch((errStr) => {
       throw new Error(errStr)
     })
-    await waitForAnchor(doc3).catch(errStr => {
+    await waitForAnchor(doc3).catch((errStr) => {
       throw new Error(errStr)
     })
-    await waitForAnchor(doc4).catch(errStr => {
+    await waitForAnchor(doc4).catch((errStr) => {
       throw new Error(errStr)
     })
 

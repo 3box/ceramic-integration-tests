@@ -1,8 +1,6 @@
-FROM node:16-alpine as builder
+FROM node:20 as builder
 
 COPY package*.json ./
-
-RUN apk add --no-cache python3 make g++
 
 RUN npm ci --ignore-scripts
 
@@ -16,11 +14,11 @@ RUN npm rebuild loady
 RUN npm rebuild node-jq
 RUN npm rebuild sqlite3
 
-FROM node:16-alpine as app
+FROM node:20 as app
 
 WORKDIR /app
 
-RUN apk add --no-cache curl
+RUN apt update && apt install -y jq
 
 COPY --from=builder node_modules ./node_modules
 
@@ -38,15 +36,13 @@ ENV AWS_REGION=${AWS_REGION}
 ENV AWS_ECS_CLUSTER=${AWS_ECS_CLUSTER}
 ENV AWS_ECS_FAMILY=${AWS_ECS_FAMILY}
 ENV CERAMIC_ECS_CLUSTERS="ceramic-qa ceramic-qa-ex"
-ENV CERAMIC_URLS="https://ceramic-qa.3boxlabs.com https://gateway-qa.ceramic.network https://ceramic-private-qa.3boxlabs.com"
+ENV CERAMIC_URLS="https://ceramic-qa.3boxlabs.com https://ceramic-private-qa.3boxlabs.com"
 ENV CERAMIC_ENABLE_EXPERIMENTAL_COMPOSE_DB="true"
 
 # Discord notifications about running ECS tasks
 ENV REPORT_STATUS=true
-ENV APIGATEWAY_RESOURCE_ID=${APIGATEWAY_RESOURCE_ID}
-ENV APIGATEWAY_RESTAPI_ID=${APIGATEWAY_RESTAPI_ID}
 ENV CLOUDWATCH_LOG_BASE_URL=${CLOUDWATCH_LOG_BASE_URL}
 ENV DISCORD_WEBHOOK_URL_TEST_FAILURES=${DISCORD_WEBHOOK_URL_TEST_FAILURES}
 ENV DISCORD_WEBHOOK_URL_TEST_RESULTS=${DISCORD_WEBHOOK_URL_TEST_RESULTS}
 
-CMD [ "./ci.sh" ]
+ENTRYPOINT [ "./ci.sh" ]
