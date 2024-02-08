@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 deps=$(jq -r '.dependencies | keys | .[]' package.json)
 filtered_deps=''
@@ -27,14 +27,15 @@ do
     esac
 done
 
-cmd="npm install --ignore-scripts $filtered_deps"
-echo "$cmd"
-$cmd
+npm install --ignore-scripts $filtered_deps
 
-# We have to repeat this step after updating dependencies
-cmd="npm run postinstall -prefix ./node_modules/go-ipfs"
-echo "$cmd"
-$cmd
+npm run postinstall -prefix ./node_modules/go-ipfs
+npm rebuild bcrypto
+npm rebuild loady
+npm rebuild node-jq
+npm rebuild sqlite3
+
+npm run build
 
 echo "Updated versions of dependencies:"
 jq -r '.dependencies' package.json
