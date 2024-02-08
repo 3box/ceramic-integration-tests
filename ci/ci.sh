@@ -42,4 +42,9 @@ echo "INFO: Sleeping for ${SLEEP}s"
 sleep ${SLEEP} # Give time for services to finish starting up before starting tests
 npm run test:ci
 
+exit_code=$?;
+if [ $exit_code != 0 ]; then
+  node report-exit.js;
+fi
+
 exec "$@"
