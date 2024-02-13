@@ -2,7 +2,7 @@
  * @jest-environment ./build/index.js
  */
 import { jest } from '@jest/globals'
-import { Page, StreamReaderWriter, StreamState, StreamUtils } from '@ceramicnetwork/common'
+import { Page, StreamState, StreamUtils } from '@ceramicnetwork/common'
 import { CommonTestUtils as TestUtils } from '@ceramicnetwork/common-test-utils'
 import { ModelInstanceDocument } from '@ceramicnetwork/stream-model-instance'
 import { StreamID } from '@ceramicnetwork/streamid'
@@ -112,7 +112,7 @@ describe('indexing', () => {
     if (singleNodeTestCases.length > 0) {
       test.each(singleNodeTestCases)(
         'Can create and query on same node -- %s',
-        async (_, ceramicInstance: Ceramic) => {
+        async (_, ceramicInstance: Ceramic | CeramicClient) => {
           console.info('running test: Can create and query on same node')
 
           const doc1 = await ModelInstanceDocument.create(
@@ -141,7 +141,7 @@ describe('indexing', () => {
             StreamUtils.serializeState(doc1.state),
           )
 
-          await doc1.replace(DATA2, { anchor: false })
+          await doc1.replace(DATA2, null, { anchor: false })
           const doc2 = await ModelInstanceDocument.create(
             ceramicInstance,
             DATA3,
@@ -180,7 +180,7 @@ describe('indexing', () => {
 
       test.each(singleNodeTestCases)(
         'Can filter by DID -- %s',
-        async (_, ceramicInstance: Ceramic) => {
+        async (_, ceramicInstance: Ceramic | CeramicClient) => {
           console.info('running test: Can filter by DID')
 
           const did1 = originalDid
@@ -243,7 +243,7 @@ describe('indexing', () => {
     if (twoNodesTestCases.length > 0) {
       test.each(twoNodesTestCases)(
         'Can create and query across nodes -- %s',
-        async (_, ceramic1: Ceramic, ceramic2: Ceramic) => {
+        async (_, ceramic1: Ceramic | CeramicClient, ceramic2: Ceramic | CeramicClient) => {
           console.info('running test: Can create and query across nodes')
 
           const doc = await ModelInstanceDocument.create(
@@ -291,7 +291,7 @@ describe('indexing', () => {
             StreamUtils.serializeState(doc.state),
           )
 
-          await doc.replace(DATA2, { anchor: false })
+          await doc.replace(DATA2, null, { anchor: false })
 
           await waitForMidsToBeIndexed(ceramic2, [doc])
 
