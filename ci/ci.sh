@@ -16,7 +16,7 @@ if [[ $NODE_ENV == "local_client-public" ]]; then
       --log-to-files \
       --network dev-unstable \
       --anchor-service-api https://cas-qa.3boxlabs.com \
-      --ethereum-rpc https://goerli.infura.io/v3/b6685df41e1647c4be0046dfa62a020b \
+      --ethereum-rpc https://sepolia.infura.io/v3/b6685df41e1647c4be0046dfa62a020b \
       --config ./ceramic-config.json &
 fi
 
