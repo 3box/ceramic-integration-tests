@@ -23,6 +23,7 @@ const isPinned = async (ceramic: Ceramic, streamId: StreamID): Promise<boolean> 
 }
 
 describe('Ceramic state store tests', () => {
+  // TODO: Revert to 5 minutes if this doesn't fix the flakiness
   jest.setTimeout(1000 * 60 * 60) // 1 hour
 
   beforeAll(async () => {
