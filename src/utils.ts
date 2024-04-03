@@ -7,7 +7,7 @@ import {
   StreamState,
   Stream,
 } from '@ceramicnetwork/common'
-import { S3Store } from '@ceramicnetwork/cli'
+import { S3KVFactory } from '@ceramicnetwork/cli'
 import { Ceramic, CeramicConfig } from '@ceramicnetwork/core'
 import { CeramicClient } from '@ceramicnetwork/http-client'
 
@@ -207,13 +207,13 @@ export async function buildCeramicNode(configObj, ipfs?: IpfsApi): Promise<Ceram
     })
     const bucketName = `${configObj.s3StateStoreBucketName}${S3_DIRECTORY_NAME}`
     const diagnosticsLogger = modules.loggerProvider.getDiagnosticsLogger()
-    const s3Store = new S3Store(
+    const s3KVFactory = new S3KVFactory(
+      bucketName,
       configObj.network,
       diagnosticsLogger,
-      bucketName,
       process.env.S3_ENDPOINT_URL,
     )
-    await ceramic.repository.injectKeyValueStore(s3Store)
+    ceramic.repository.injectKVFactory(s3KVFactory)
   }
 
   await ceramic._init(true)
