@@ -37,6 +37,7 @@ const main = async () => {
     const retryDelayMs = 300000 // 300k ms = 5 mins
     sendDiscordNotification(testFailuresUrl, data, retryDelayMs)
     sendDiscordNotification(testResultsUrl, data, retryDelayMs)
+    process.exit(0)
   } catch (err) {
     console.error(err)
     process.exit(1)

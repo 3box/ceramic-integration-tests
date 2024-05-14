@@ -68,6 +68,7 @@ export default class MyCustomReporter extends BaseReporter {
       `,
     )
     console.log(outToResultsChannel.toString())
+    process.exit(0)
   }
 }
 
